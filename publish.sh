@@ -1,7 +1,10 @@
 #!/bin/bash
-# publish-design: publish an HTML design to GitHub Pages under a ticket ID
-# Usage: ./publish.sh <TICKET-ID> <path-to-html-file>
-# Example: ./publish.sh ENN-42 ~/Downloads/step3.html
+# publish-design: publish a design to GitHub Pages under a ticket ID
+# Accepts: a .html file, a .zip file, or a pre-extracted directory
+# Usage:
+#   ./publish.sh DSGN-1126 ~/Downloads/design.html
+#   ./publish.sh DSGN-1126 ~/Downloads/DSGN-1126.zip
+#   ./publish.sh DSGN-1126              (if designs/DSGN-1126/ already exists)
 
 set -e
 
@@ -20,27 +23,54 @@ fi
 source "$CONFIG_FILE"
 
 # ── Args ─────────────────────────────────────────────────────────────────────
-TICKET_ID="$1"
-HTML_SRC="$2"
+INPUT="$1"
+SRC="$2"
 
-if [ -z "$TICKET_ID" ] || [ -z "$HTML_SRC" ]; then
-  echo "Usage: ./publish.sh <TICKET-ID> <path-to-html-file>"
-  echo "  e.g. ./publish.sh ENN-42 ~/Downloads/step3.html"
-  exit 1
-fi
+# Accept bare number or full ID
+[[ "$INPUT" =~ ^[0-9]+$ ]] && TICKET_ID="DSGN-$INPUT" || TICKET_ID="$INPUT"
 
-if [ ! -f "$HTML_SRC" ]; then
-  echo "Error: file not found: $HTML_SRC"
+if [ -z "$TICKET_ID" ]; then
+  echo "Usage: ./publish.sh <TICKET-ID> [file.html | file.zip | directory]"
   exit 1
 fi
 
 REPO_ROOT="$(dirname "$0")"
 DEST_DIR="$REPO_ROOT/designs/$TICKET_ID"
 
-# ── Copy design ───────────────────────────────────────────────────────────────
-mkdir -p "$DEST_DIR"
-cp "$HTML_SRC" "$DEST_DIR/index.html"
-echo "Copied design to designs/$TICKET_ID/index.html"
+# ── Ingest source ─────────────────────────────────────────────────────────────
+if [ -z "$SRC" ]; then
+  # No source given — assume folder already exists (extracted manually)
+  if [ ! -d "$DEST_DIR" ]; then
+    echo "Error: no source provided and designs/$TICKET_ID/ does not exist."
+    exit 1
+  fi
+  echo "Using existing designs/$TICKET_ID/"
+
+elif [[ "$SRC" == *.zip ]]; then
+  # Zip file — extract into dest, rename entry HTML to index.html
+  mkdir -p "$DEST_DIR"
+  unzip -o "$SRC" -d "$DEST_DIR"
+  # Rename any .html file that isn't index.html to index.html
+  HTML=$(find "$DEST_DIR" -maxdepth 1 -name "*.html" ! -name "index.html" | head -1)
+  [ -n "$HTML" ] && mv "$HTML" "$DEST_DIR/index.html" && echo "Renamed $(basename "$HTML") → index.html"
+  echo "Extracted zip to designs/$TICKET_ID/"
+
+elif [ -d "$SRC" ]; then
+  # Directory — copy whole folder
+  mkdir -p "$DEST_DIR"
+  cp -r "$SRC/." "$DEST_DIR/"
+  echo "Copied directory to designs/$TICKET_ID/"
+
+elif [ -f "$SRC" ]; then
+  # Single HTML file
+  mkdir -p "$DEST_DIR"
+  cp "$SRC" "$DEST_DIR/index.html"
+  echo "Copied design to designs/$TICKET_ID/index.html"
+
+else
+  echo "Error: source not found: $SRC"
+  exit 1
+fi
 
 # ── Rebuild index ─────────────────────────────────────────────────────────────
 node "$REPO_ROOT/build-index.js"
