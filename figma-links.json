@@ -1,6 +1,11 @@
 {
   "_comment": "Maps ticket IDs to their Figma file keys. Auto-updated by the design-ticket skill.",
   "tickets": {
+    "DSGN-1096": {
+      "figmaFileKey": null,
+      "figmaUrl": null,
+      "title": "Ennabl AI · Assistant Suggestions"
+    },
     "DSGN-1137": {
       "figmaFileKey": "1hAvpjAGjFySdZeA8ttoA2",
       "figmaUrl": "https://www.figma.com/design/1hAvpjAGjFySdZeA8ttoA2",
