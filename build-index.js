@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Rebuilds index.html from whatever folders exist in designs/
+// Rebuilds index.html from whatever folders exist in youtrack/
 const fs = require("fs");
 const path = require("path");
 
@@ -15,7 +15,7 @@ if (fs.existsSync(configPath)) {
   if (repoMatch) ghRepo = repoMatch[1].trim();
 }
 
-const designsDir = path.join(__dirname, "designs");
+const designsDir = path.join(__dirname, "youtrack");
 const tickets = fs.existsSync(designsDir)
   ? fs.readdirSync(designsDir).filter((d) =>
       fs.statSync(path.join(designsDir, d)).isDirectory() &&
@@ -26,9 +26,9 @@ const tickets = fs.existsSync(designsDir)
 const rows = tickets
   .sort()
   .map((id) => {
-    const url = `https://${ghUser}.github.io/${ghRepo}/designs/${id}/`;
+    const url = `https://${ghUser}.github.io/${ghRepo}/youtrack/${id}/`;
     return `      <tr>
-        <td><a href="designs/${id}/">${id}</a></td>
+        <td><a href="youtrack/${id}/">${id}</a></td>
         <td><a href="${url}" target="_blank">${url}</a></td>
       </tr>`;
   })

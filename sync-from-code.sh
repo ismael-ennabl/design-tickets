@@ -9,7 +9,7 @@ INPUT="$1"
 [[ "$INPUT" =~ ^[0-9]+$ ]] && TICKET_ID="DSGN-$INPUT" || TICKET_ID="$INPUT"
 
 REPO_ROOT="$(dirname "$0")"
-DESIGN_FILE="$REPO_ROOT/designs/$TICKET_ID/index.html"
+DESIGN_FILE="$REPO_ROOT/youtrack/$TICKET_ID/index.html"
 
 if [ -z "$TICKET_ID" ]; then
   echo "Usage: ./sync-from-code.sh <number-or-ticket-id>"
@@ -17,7 +17,7 @@ if [ -z "$TICKET_ID" ]; then
 fi
 
 if [ ! -f "$DESIGN_FILE" ]; then
-  echo "No local design found at designs/$TICKET_ID/index.html"
+  echo "No local design found at youtrack/$TICKET_ID/index.html"
   echo "Run publish.sh first to create an initial design for this ticket."
   exit 1
 fi
@@ -26,7 +26,7 @@ fi
 node "$REPO_ROOT/build-index.js"
 
 cd "$REPO_ROOT"
-git add designs/ index.html
+git add youtrack/ index.html
 git diff --cached --quiet && echo "No changes to publish." && exit 0
 
 git commit -m "sync: update $TICKET_ID from local code"
@@ -37,5 +37,5 @@ GH_USER="${GH_USER:-ismael-ennabl}"
 GH_REPO="${GH_REPO:-design-tickets}"
 
 echo ""
-echo "GitHub Pages updated: https://$GH_USER.github.io/$GH_REPO/designs/$TICKET_ID/"
+echo "GitHub Pages updated: https://$GH_USER.github.io/$GH_REPO/youtrack/$TICKET_ID/"
 echo "Next: Claude will push the Figma update via MCP."

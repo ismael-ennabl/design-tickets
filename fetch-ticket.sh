@@ -18,11 +18,14 @@ fi
 
 if [ -z "$YOUTRACK_TOKEN" ]; then
   echo "Error: YOUTRACK_TOKEN is not set." >&2
-  echo "Add this to ~/.zshrc:  export YOUTRACK_TOKEN=\"perm:...\""  >&2
+  echo "Add this to ~/.zshrc:  export YOUTRACK_TOKEN=\"perm-...\""  >&2
   exit 1
 fi
 
+# Strip accidental perm: prefix — the token itself starts with perm-
+TOKEN="${YOUTRACK_TOKEN#perm:}"
+
 curl -s \
-  -H "Authorization: Bearer $YOUTRACK_TOKEN" \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Accept: application/json" \
   "$BASE_URL/api/issues/$TICKET_ID?fields=$FIELDS"

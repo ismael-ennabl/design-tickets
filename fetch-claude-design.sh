@@ -51,13 +51,13 @@ if [ -z "$HTML_FILE" ]; then
 fi
 echo "Found: $(basename "$HTML_FILE")"
 
-# Shared files that live in designs/_shared/ — never duplicated per ticket
+# Shared files that live in youtrack/_shared/ — never duplicated per ticket
 SHARED_FILES=("colors_and_type.css" "styles.css" "icons.jsx" "dialogs.jsx" "picker.jsx" "step3.jsx")
-SHARED_DIR="$REPO_ROOT/designs/_shared"
+SHARED_DIR="$REPO_ROOT/youtrack/_shared"
 mkdir -p "$SHARED_DIR/fonts"
 
 # Route shared files to _shared/, ticket-specific files to the ticket folder
-DEST="$REPO_ROOT/designs/$TICKET_ID"
+DEST="$REPO_ROOT/youtrack/$TICKET_ID"
 mkdir -p "$DEST"
 
 for f in "$PROJECT_DIR"/*; do
@@ -92,7 +92,7 @@ echo "  updated index.html paths → ../_shared/"
 # Rebuild index and push
 node "$REPO_ROOT/build-index.js"
 cd "$REPO_ROOT"
-git add designs/ index.html
+git add youtrack/ index.html
 git commit -m "sync: $TICKET_ID from claude.ai/design"
 git push
 
@@ -101,5 +101,5 @@ GH_USER="${GH_USER:-ismael-ennabl}"
 GH_REPO="${GH_REPO:-design-tickets}"
 
 echo ""
-echo "Published: https://$GH_USER.github.io/$GH_REPO/designs/$TICKET_ID/"
-echo "$TICKET_ID  https://$GH_USER.github.io/$GH_REPO/designs/$TICKET_ID/" >> "$REPO_ROOT/published.log"
+echo "Published: https://$GH_USER.github.io/$GH_REPO/youtrack/$TICKET_ID/"
+echo "$TICKET_ID  https://$GH_USER.github.io/$GH_REPO/youtrack/$TICKET_ID/" >> "$REPO_ROOT/published.log"
