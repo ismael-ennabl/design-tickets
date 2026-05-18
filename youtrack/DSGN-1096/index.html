@@ -316,12 +316,9 @@
   .doc-chip .doc-close:hover { background: #1E1E1E; }
   .doc-chip .doc-close svg { width: 8px; height: 8px; }
 
-  /* tooltip for truncated titles */
-  .doc-chip[data-tip]:hover::after {
-    content: attr(data-tip);
-    position: absolute;
-    left: 50%; top: 100%;
-    transform: translate(-50%, 8px);
+  /* tooltip rendered via JS fixed div to escape overflow:hidden on .chips */
+  .chip-tip {
+    position: fixed;
     background: #1E1E1E;
     color: white;
     font: 400 12px/16px var(--en-font-sans);
@@ -332,20 +329,13 @@
     max-width: 320px;
     overflow: hidden;
     text-overflow: ellipsis;
-    z-index: 30;
+    z-index: 9999;
     pointer-events: none;
     box-shadow: var(--en-shadow-tooltip);
+    opacity: 0;
+    transition: opacity 80ms;
   }
-  .doc-chip[data-tip]:hover::before {
-    content: "";
-    position: absolute;
-    left: 50%; top: 100%;
-    transform: translate(-50%, 3px) rotate(45deg);
-    width: 8px; height: 8px;
-    background: #1E1E1E;
-    z-index: 30;
-    pointer-events: none;
-  }
+  .chip-tip.visible { opacity: 1; }
 
   /* full-page suggestions list: 2-col rows */
   .full-suggestions {
@@ -1130,6 +1120,28 @@
     clearTimeout(toastT);
     toastT = setTimeout(() => t.classList.remove('show'), 1600);
   }
+
+  /* ---------- Doc-chip tooltip (fixed-position to escape overflow:hidden) ---------- */
+  const chipTip = document.createElement('div');
+  chipTip.className = 'chip-tip';
+  document.body.appendChild(chipTip);
+
+  document.body.addEventListener('mouseover', (e) => {
+    const chip = e.target.closest('.doc-chip[data-tip]');
+    if (!chip) return;
+    chipTip.textContent = chip.dataset.tip;
+    chipTip.classList.add('visible');
+  });
+  document.body.addEventListener('mousemove', (e) => {
+    const chip = e.target.closest('.doc-chip[data-tip]');
+    if (!chip) { chipTip.classList.remove('visible'); return; }
+    chipTip.style.left = e.clientX - chipTip.offsetWidth / 2 + 'px';
+    chipTip.style.top  = e.clientY + 16 + 'px';
+  });
+  document.body.addEventListener('mouseout', (e) => {
+    const chip = e.target.closest('.doc-chip[data-tip]');
+    if (chip) chipTip.classList.remove('visible');
+  });
 
   document.body.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-prompt]');
