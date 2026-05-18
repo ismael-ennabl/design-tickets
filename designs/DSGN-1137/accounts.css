@@ -1,0 +1,38 @@
+/* Accounts step — table-specific overrides. */
+
+.accounts-table {
+  table-layout: fixed;
+}
+.accounts-table th,
+.accounts-table td {
+  font-variant-numeric: tabular-nums;
+}
+.accounts-table .num {
+  text-align: right;
+  white-space: nowrap;
+}
+.accounts-table .th-inner { gap: 8px; }
+.accounts-table .col-acc-name     { width: auto; }
+.accounts-table .col-acc-products { width: 140px; }
+.accounts-table .col-acc-premium  { width: 180px; }
+.accounts-table .col-acc-revenue  { width: 180px; }
+
+.accounts-table thead th.num .th-inner {
+  display: inline-flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.accounts-table tbody td {
+  font: 400 14px/20px var(--en-font-sans);
+}
+
+.accounts-table tfoot td {
+  padding: 14px 16px;
+  border-top: 1px solid var(--en-divider);
+  background: var(--en-bg-grey);
+  font: 600 14px/20px var(--en-font-sans);
+  color: var(--en-fg);
+  white-space: nowrap;
+}
+.accounts-table tfoot td.totals-label { text-align: left; }
