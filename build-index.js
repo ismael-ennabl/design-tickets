@@ -18,7 +18,8 @@ if (fs.existsSync(configPath)) {
 const designsDir = path.join(__dirname, "designs");
 const tickets = fs.existsSync(designsDir)
   ? fs.readdirSync(designsDir).filter((d) =>
-      fs.statSync(path.join(designsDir, d)).isDirectory()
+      fs.statSync(path.join(designsDir, d)).isDirectory() &&
+      !d.startsWith("_")
     )
   : [];
 
