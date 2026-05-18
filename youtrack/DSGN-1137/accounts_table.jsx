@@ -18,10 +18,11 @@ function seededRandom(seed) {
 function genRows() {
   return ACCOUNT_NAMES.map((name, i) => {
     const products = Math.floor(seededRandom(i * 1.3 + 1) * 14) + 2;            // 2..15
+    const policies = Math.floor(seededRandom(i * 4.1 + 9) * 30) + products;     // products..products+30
     const premium = Math.floor(seededRandom(i * 2.7 + 3) * 4_800_000) + 120_000; // $120k..$5M
     const commissionRate = 0.08 + seededRandom(i * 3.1 + 7) * 0.07;             // 8%..15%
     const revenue = Math.round(premium * commissionRate);
-    return { id: 'acc' + (i + 1), name, products, premium, revenue };
+    return { id: 'acc' + (i + 1), name, products, policies, premium, revenue, commissionRate };
   });
 }
 
@@ -70,11 +71,14 @@ function AccountsTable() {
   const onCellMove = (e) => setTip(t => t ? { ...t, x: e.clientX, y: e.clientY } : t);
   const onCellLeave = () => setTip(null);
 
-  const totals = useMemo(() => ({
-    products: ACCOUNT_ROWS.reduce((s, r) => s + r.products, 0),
-    premium: ACCOUNT_ROWS.reduce((s, r) => s + r.premium, 0),
-    revenue: ACCOUNT_ROWS.reduce((s, r) => s + r.revenue, 0),
-  }), []);
+  const totals = useMemo(() => {
+    const products = ACCOUNT_ROWS.reduce((s, r) => s + r.products, 0);
+    const policies = ACCOUNT_ROWS.reduce((s, r) => s + r.policies, 0);
+    const premium  = ACCOUNT_ROWS.reduce((s, r) => s + r.premium, 0);
+    const revenue  = ACCOUNT_ROWS.reduce((s, r) => s + r.revenue, 0);
+    const avgCommission = premium > 0 ? revenue / premium : 0;
+    return { products, policies, premium, revenue, avgCommission };
+  }, []);
 
   return (
     <>
@@ -87,11 +91,17 @@ function AccountsTable() {
           <th className="col-acc-products num" onClick={() => toggleSort('products')}>
             <span className="th-inner sortable">Products <span className="sort"><SortIcon dir={dirFor('products')} /></span></span>
           </th>
+          <th className="col-acc-policies num" onClick={() => toggleSort('policies')}>
+            <span className="th-inner sortable">Policies <span className="sort"><SortIcon dir={dirFor('policies')} /></span></span>
+          </th>
           <th className="col-acc-premium num" onClick={() => toggleSort('premium')}>
             <span className="th-inner sortable">Premium <span className="sort"><SortIcon dir={dirFor('premium')} /></span></span>
           </th>
           <th className="col-acc-revenue num" onClick={() => toggleSort('revenue')}>
             <span className="th-inner sortable">Revenue <span className="sort"><SortIcon dir={dirFor('revenue')} /></span></span>
+          </th>
+          <th className="col-acc-commission num" onClick={() => toggleSort('commissionRate')}>
+            <span className="th-inner sortable">Avg Commission <span className="sort"><SortIcon dir={dirFor('commissionRate')} /></span></span>
           </th>
         </tr>
       </thead>
@@ -100,8 +110,10 @@ function AccountsTable() {
           <tr key={r.id}>
             <td onMouseEnter={(e) => onCellEnter(e, r.name)} onMouseMove={onCellMove} onMouseLeave={onCellLeave}>{r.name}</td>
             <td className="num">{r.products}</td>
+            <td className="num">{r.policies}</td>
             <td className="num">{fmtMoney(r.premium)}</td>
             <td className="num">{fmtMoney(r.revenue)}</td>
+            <td className="num">{(r.commissionRate * 100).toFixed(1)}%</td>
           </tr>
         ))}
       </tbody>
@@ -109,8 +121,10 @@ function AccountsTable() {
         <tr>
           <td className="totals-label">Totals · {ACCOUNT_ROWS.length} accounts</td>
           <td className="num">{totals.products.toLocaleString()}</td>
+          <td className="num">{totals.policies.toLocaleString()}</td>
           <td className="num">{fmtMoney(totals.premium)}</td>
           <td className="num">{fmtMoney(totals.revenue)}</td>
+          <td className="num">{(totals.avgCommission * 100).toFixed(1)}%</td>
         </tr>
       </tfoot>
     </table>

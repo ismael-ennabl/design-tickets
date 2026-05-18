@@ -12,10 +12,12 @@
   white-space: nowrap;
 }
 .accounts-table .th-inner { gap: 8px; }
-.accounts-table .col-acc-name     { width: auto; }
-.accounts-table .col-acc-products { width: 140px; }
-.accounts-table .col-acc-premium  { width: 180px; }
-.accounts-table .col-acc-revenue  { width: 180px; }
+.accounts-table .col-acc-name       { width: auto; }
+.accounts-table .col-acc-products   { width: 120px; }
+.accounts-table .col-acc-policies   { width: 120px; }
+.accounts-table .col-acc-premium    { width: 160px; }
+.accounts-table .col-acc-revenue    { width: 160px; }
+.accounts-table .col-acc-commission { width: 160px; }
 
 .accounts-table thead th.num .th-inner {
   display: inline-flex;
