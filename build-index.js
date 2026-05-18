@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 
 const configPath = path.join(__dirname, ".design-config");
-let ghUser = "YOUR_USERNAME";
+let ghUser = "ismael-ennabl";
 let ghRepo = "design-pages";
 
 if (fs.existsSync(configPath)) {
