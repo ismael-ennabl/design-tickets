@@ -165,7 +165,7 @@
     color: var(--en-fg);
     display: inline-flex; align-items: center; gap: 12px;
   }
-  .hello-sparkle { width: 28px; height: 28px; color: var(--en-fg); flex-shrink: 0; }
+  .hello-sparkle { width: 32px; height: 32px; flex-shrink: 0; display: block; }
 
   /* full-page composer block */
   .composer.full-block {
@@ -264,24 +264,54 @@
 
   .doc-chip {
     position: relative;
-    width: 132px;
-    height: 60px;
+    width: 168px;
+    height: 56px;
     flex-shrink: 0;
     border-radius: 8px;
-    padding: 10px 12px;
+    padding: 8px;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
     background: var(--en-bg);
     border: 1px solid #E5EDFA;
     box-sizing: border-box;
   }
   .doc-chip.workflow {
-    background: hsla(228, 67%, 96%, 1);
-    border-color: transparent;
+    background: var(--en-bg);
+    border-color: #E5EDFA;
+  }
+  .doc-chip .doc-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+  }
+  .doc-chip .doc-icon.pdf {
+    background: #FF5C4D;
+    color: white;
+  }
+  .doc-chip .doc-icon.xls {
+    background: #21A66B;
+    color: white;
+  }
+  .doc-chip .doc-icon.workflow {
+    background: rgba(113, 254, 214, 0.10);
+    color: #0FAE8A;
+  }
+  .doc-chip .doc-icon svg { width: 20px; height: 20px; display: block; }
+  .doc-chip .doc-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
   }
   .doc-chip .doc-title {
-    font: 400 12px/16px var(--en-font-sans);
+    font: 500 12px/16px var(--en-font-sans);
     letter-spacing: 0.17px;
     color: var(--en-fg);
     /* single-line truncation */
@@ -291,13 +321,10 @@
     max-width: 100%;
   }
   .doc-chip .doc-tag {
-    align-self: flex-start;
-    font: 500 11px/14px var(--en-font-sans);
+    font: 400 11px/14px var(--en-font-sans);
     letter-spacing: 0.17px;
     color: var(--en-fg-secondary);
-    background: rgba(0, 0, 197, 0.04);
-    border-radius: 2px;
-    padding: 2px 6px;
+    text-transform: uppercase;
   }
   .doc-chip .doc-close {
     position: absolute;
@@ -453,7 +480,7 @@
     font: 700 16px/20px var(--en-font-sans); letter-spacing: 0.15px; color: var(--en-fg);
   }
   .sp-head .sparkle {
-    width: 18px; height: 18px; color: var(--en-primary);
+    width: 20px; height: 20px; display: block;
   }
 
   .sp-body { overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
@@ -697,10 +724,7 @@
           <div class="full-canvas">
             <div class="hero">
               <h1>
-                <svg class="hello-sparkle" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                  <path d="M8 1.5l1.4 3.6L13 6.5l-3.6 1.4L8 11.5 6.6 7.9 3 6.5l3.6-1.4L8 1.5z" fill="currentColor"/>
-                  <path d="M12.5 11l.6 1.4L14.5 13l-1.4.6L12.5 15l-.6-1.4L10.5 13l1.4-.6L12.5 11z" fill="currentColor"/>
-                </svg>
+                <img class="hello-sparkle" src="design-system/icons/ennablAI.svg" alt="" />
                 Hello, Patrick
               </h1>
             </div>
@@ -782,17 +806,14 @@
         </div>
 
         <!-- the actual side panel -->
-        <aside class="side-panel" aria-label="Assistant">
+        <aside class="side-panel" aria-label="EnnablAI">
           <header class="sp-head">
             <button class="close" aria-label="Close panel">
               <img src="design-system/icons/cross.svg" alt="" />
             </button>
             <div class="title">
-              <svg class="sparkle" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M8 1.5l1.4 3.6L13 6.5l-3.6 1.4L8 11.5 6.6 7.9 3 6.5l3.6-1.4L8 1.5z" fill="currentColor"/>
-                <path d="M12.5 11l.6 1.4L14.5 13l-1.4.6L12.5 15l-.6-1.4L10.5 13l1.4-.6L12.5 11z" fill="currentColor"/>
-              </svg>
-              Assistant
+              <img class="sparkle" src="design-system/icons/ennablAI.svg" alt="" />
+              EnnablAI
             </div>
             <span></span>
           </header>
@@ -800,6 +821,9 @@
           <div class="sp-body">
             <div class="sp-suggestions-label">Suggestions</div>
             <div class="sp-grid" id="sp-grid"></div>
+            <div class="home-showall" style="padding-top: 4px;">
+              <button class="sg-link" id="sp-showall">Show all suggestions</button>
+            </div>
           </div>
 
           <footer class="sp-foot">
@@ -911,12 +935,12 @@
   const chipsEl = document.getElementById('composer-chips');
 
   const FAKE_DOCS = [
-    '25-26 Acme Commercial Renewal Policy',
-    '2026 Acme Commercial Audit Statement',
-    '25-26 Acme Commercial Application',
-    'Acme Manufacturing Loss Run Report 2024',
-    'Acme Holdings Certificate of Insurance',
-    'Acme Mfg Workers Comp Dec Page 2025',
+    { title: '25-26 Acme Commercial Renewal Policy', type: 'pdf' },
+    { title: '2026 Acme Commercial Audit Statement', type: 'xls' },
+    { title: '25-26 Acme Commercial Application', type: 'pdf' },
+    { title: 'Acme Manufacturing Loss Run Report 2024', type: 'xls' },
+    { title: 'Acme Holdings Certificate of Insurance', type: 'pdf' },
+    { title: 'Acme Mfg Workers Comp Dec Page 2025', type: 'pdf' },
   ];
   let docIdx = 0;
 
@@ -942,18 +966,37 @@
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAllMenus(); });
 
-  function addChip(title, kind) {
+  const FILE_ICONS = {
+    pdf: `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M14 3v5h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="12" y="17.2" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none">PDF</text>
+    </svg>`,
+    xls: `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M14 3v5h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="12" y="17.2" font-family="Inter, sans-serif" font-size="5.2" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none">XLS</text>
+    </svg>`,
+    workflow: `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M19.1923 5.80816L16.6923 3.30816C16.575 3.19088 16.4159 3.125 16.2501 3.125C16.0842 3.125 15.9252 3.19088 15.8079 3.30816C15.6906 3.42544 15.6247 3.5845 15.6247 3.75035C15.6247 3.9162 15.6906 4.07526 15.8079 4.19253L17.2415 5.62535H16.2501C12.3962 5.62535 11.4805 7.82222 10.6735 9.75972C9.94071 11.5183 9.35164 12.9308 6.80789 13.1066C6.64827 12.3488 6.21295 11.6773 5.58634 11.2222C4.95974 10.7671 4.18648 10.5609 3.41648 10.6436C2.64648 10.7262 1.9346 11.0918 1.41885 11.6695C0.903097 12.2472 0.620221 12.9959 0.625061 13.7703C0.629901 14.5447 0.922112 15.2897 1.44504 15.8609C1.96797 16.4321 2.68437 16.7888 3.45534 16.8618C4.22631 16.9348 4.99694 16.719 5.61781 16.2561C6.23868 15.7932 6.66556 15.1163 6.81571 14.3566C10.1954 14.1496 11.061 12.0793 11.8266 10.2402C12.6102 8.35972 13.229 6.87535 16.2501 6.87535H17.2415L15.8079 8.30816C15.6906 8.42544 15.6247 8.5845 15.6247 8.75035C15.6247 8.9162 15.6906 9.07526 15.8079 9.19254C15.9252 9.30981 16.0842 9.37569 16.2501 9.3757C16.4159 9.3757 16.575 9.30981 16.6923 9.19254L19.1923 6.69254C19.2504 6.63449 19.2965 6.56556 19.3279 6.48969C19.3594 6.41381 19.3756 6.33248 19.3756 6.25035C19.3756 6.16821 19.3594 6.08688 19.3279 6.01101C19.2965 5.93514 19.2504 5.86621 19.1923 5.80816ZM3.75008 15.6253C3.37924 15.6253 3.01673 15.5154 2.70839 15.3094C2.40004 15.1033 2.15972 14.8105 2.01781 14.4679C1.87589 14.1253 1.83876 13.7483 1.91111 13.3846C1.98346 13.0208 2.16203 12.6867 2.42426 12.4245C2.68648 12.1623 3.02057 11.9837 3.38429 11.9114C3.748 11.839 4.125 11.8762 4.46761 12.0181C4.81022 12.16 5.10306 12.4003 5.30909 12.7087C5.51511 13.017 5.62508 13.3795 5.62508 13.7503C5.62508 14.2476 5.42754 14.7245 5.07591 15.0762C4.72428 15.4278 4.24736 15.6253 3.75008 15.6253Z" fill="currentColor"></path></svg>`
+  };
+
+  function addChip(title, kind, fileType) {
     const chip = document.createElement('div');
     chip.className = 'doc-chip' + (kind === 'workflow' ? ' workflow' : '');
     chip.setAttribute('data-tip', title);
+    const iconType = kind === 'workflow' ? 'workflow' : fileType;
+    const tagLabel = kind === 'workflow' ? 'Workflow' : fileType.toUpperCase();
     chip.innerHTML = `
+      <span class="doc-icon ${iconType}">${FILE_ICONS[iconType]}</span>
+      <div class="doc-body">
+        <div class="doc-title">${title}</div>
+        <div class="doc-tag">${tagLabel}</div>
+      </div>
       <button class="doc-close" aria-label="Remove">
         <svg viewBox="0 0 8 8" fill="none" aria-hidden="true">
           <path d="M1 1l6 6M7 1l-6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
         </svg>
       </button>
-      <div class="doc-title">${title}</div>
-      <div class="doc-tag">${kind === 'workflow' ? 'Workflow' : 'Document'}</div>
     `;
     chip.querySelector('.doc-close').addEventListener('click', (e) => {
       e.stopPropagation();
@@ -966,9 +1009,9 @@
   addMenu.addEventListener('click', (e) => {
     const item = e.target.closest('.chip-menu-item');
     if (!item) return;
-    const name = FAKE_DOCS[docIdx % FAKE_DOCS.length];
+    const doc = FAKE_DOCS[docIdx % FAKE_DOCS.length];
     docIdx++;
-    addChip(name, 'document');
+    addChip(doc.title, 'document', doc.type);
     closeAllMenus();
   });
   wfMenu.addEventListener('click', (e) => {
@@ -1028,6 +1071,7 @@
   document.getElementById('sg-close').addEventListener('click', closeDialog);
   document.getElementById('sg-showall').addEventListener('click', openShowAll);
   document.getElementById('home-showall').addEventListener('click', openShowAll);
+  document.getElementById('sp-showall').addEventListener('click', openShowAll);
   dialog.addEventListener('click', (e) => { if (e.target === dialog) closeDialog(); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDialog(); });
 
