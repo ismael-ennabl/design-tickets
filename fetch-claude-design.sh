@@ -4,7 +4,7 @@
 #   ./fetch-claude-design.sh 1127 https://api.anthropic.com/v1/design/h/HASH
 #   ./fetch-claude-design.sh 1127 https://api.anthropic.com/v1/design/h/HASH?open_file=Step+3+Templates.html
 #
-# The API URL is available in claude.ai/design — look for "Copy API link" or similar export option.
+# Get the API URL from claude.ai/design: Share → "Handoff to Claude Code..." (last menu item).
 
 set -e
 
