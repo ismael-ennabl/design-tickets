@@ -39,7 +39,7 @@ const html = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Design Pages</title>
+  <title>Design Tickets</title>
   <style>
     body { font-family: system-ui, sans-serif; max-width: 860px; margin: 48px auto; padding: 0 24px; color: #111; }
     h1 { font-size: 1.4rem; margin-bottom: 24px; }
@@ -53,7 +53,7 @@ const html = `<!DOCTYPE html>
   </style>
 </head>
 <body>
-  <h1>Design Pages</h1>
+  <h1>Design Tickets</h1>
   ${
     tickets.length === 0
       ? '<p class="empty">No designs published yet. Run <code>./publish.sh TICKET-ID file.html</code> to add one.</p>'
