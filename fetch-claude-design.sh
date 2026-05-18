@@ -51,17 +51,43 @@ if [ -z "$HTML_FILE" ]; then
 fi
 echo "Found: $(basename "$HTML_FILE")"
 
-# Copy entire project into designs/TICKET_ID/
+# Shared files that live in designs/_shared/ — never duplicated per ticket
+SHARED_FILES=("colors_and_type.css" "styles.css" "icons.jsx" "dialogs.jsx" "picker.jsx" "step3.jsx")
+SHARED_DIR="$REPO_ROOT/designs/_shared"
+mkdir -p "$SHARED_DIR/fonts"
+
+# Route shared files to _shared/, ticket-specific files to the ticket folder
 DEST="$REPO_ROOT/designs/$TICKET_ID"
 mkdir -p "$DEST"
-cp -r "$PROJECT_DIR/." "$DEST/"
+
+for f in "$PROJECT_DIR"/*; do
+  name=$(basename "$f")
+  if [[ " ${SHARED_FILES[*]} " == *" $name "* ]]; then
+    cp "$f" "$SHARED_DIR/$name"
+    echo "  shared: $name → _shared/"
+  elif [ "$name" = "fonts" ] && [ -d "$f" ]; then
+    cp -r "$f/." "$SHARED_DIR/fonts/"
+    echo "  shared: fonts/ → _shared/fonts/"
+  else
+    cp -r "$f" "$DEST/"
+  fi
+done
 
 # Rename the main HTML to index.html
 BASENAME=$(basename "$HTML_FILE")
-if [ "$BASENAME" != "index.html" ]; then
-  mv "$DEST/$BASENAME" "$DEST/index.html"
-  echo "Renamed $BASENAME → index.html"
-fi
+DEST_HTML="$DEST/$BASENAME"
+[ "$BASENAME" != "index.html" ] && mv "$DEST_HTML" "$DEST/index.html" && echo "Renamed $BASENAME → index.html"
+
+# Rewrite index.html so shared files reference ../_shared/
+IHTML="$DEST/index.html"
+for f in "${SHARED_FILES[@]}"; do
+  # CSS links
+  sed -i '' "s|href=\"$f\"|href=\"../_shared/$f\"|g" "$IHTML"
+  # JS script tags
+  sed -i '' "s|src=\"$f\"|src=\"../_shared/$f\"|g" "$IHTML"
+done
+# fonts path is handled by the CSS file itself (relative to _shared/)
+echo "  updated index.html paths → ../_shared/"
 
 # Rebuild index and push
 node "$REPO_ROOT/build-index.js"
