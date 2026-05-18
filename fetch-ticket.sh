@@ -1,11 +1,13 @@
 #!/bin/bash
 # Fetches a YouTrack ticket and prints JSON with id, title, description
-# Usage: ./fetch-ticket.sh ENN-42
+# Usage: ./fetch-ticket.sh 1127   (or DSGN-1127)
 # Requires: YOUTRACK_TOKEN env variable
 
 set -e
 
-TICKET_ID="$1"
+INPUT="$1"
+# Accept bare number or full ID
+[[ "$INPUT" =~ ^[0-9]+$ ]] && TICKET_ID="DSGN-$INPUT" || TICKET_ID="$INPUT"
 BASE_URL="https://ennabl.youtrack.cloud"
 FIELDS="id,summary,description,customFields(name,value(name,text,id))"
 
