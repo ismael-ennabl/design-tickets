@@ -75,7 +75,7 @@ function SaveTemplateDialog({
           <div className="toggle-row">
             <div className="meta">
               Share with everyone in your organization
-              <span className="help">Everyone in Clearpath can apply this template. Only owners and admins can edit.</span>
+              <span className="help">Everyone can apply this template. Only owners and admins can edit.</span>
             </div>
             <div
               className={`toggle ${shared ? 'on' : ''}`}
@@ -215,7 +215,7 @@ function ManageModal({
           <div>
             <div className="dialog-title">Step 3 templates</div>
             <div className="dialog-sub">
-              Manage saved Producer Team + Additional Information sets shared across Clearpath.
+              Manage saved Producer Team + Additional Information sets shared across your organization.
             </div>
           </div>
           <button className="btn-icon" onClick={onClose}><IconClose size={16} /></button>
@@ -255,7 +255,7 @@ function ManageModal({
                     <div className="manage-name">
                       {t.isDefault && <span className="star"><IconStar filled size={16} /></span>}
                       <span>{t.name}</span>
-                      {t.id === activeId && <span className="tag-default" style={{ background: 'var(--en-bg-active)', color: 'var(--en-text-tertiary)' }}>Applied</span>}
+                      {t.id === activeId && <IconCheck size={16} style={{ color: 'var(--en-primary)' }} />}
                       {!t.shared && <span className="tag-shared">Private</span>}
                     </div>
                     {t.description && <div className="manage-desc">{t.description}</div>}
