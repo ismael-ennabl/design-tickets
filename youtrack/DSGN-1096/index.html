@@ -1,0 +1,1147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Ennabl AI · Assistant suggestions — design comparison</title>
+<link rel="stylesheet" href="design-system/colors_and_type.css" />
+<link rel="icon" href="design-system/logos/ennabl-favicon.svg" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--en-bg-grey);
+    color: var(--en-fg);
+    font-family: var(--en-font-sans);
+    overflow: hidden;
+  }
+
+  /* ---------- Page chrome: tabs + design stage ---------- */
+  .app {
+    height: 100vh;
+    display: grid;
+    grid-template-rows: 56px 1fr;
+  }
+
+  /* Tabs replace the former modal header */
+  .tabs {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    background: var(--en-bg);
+    border-bottom: 1px solid var(--en-divider);
+    padding: 0 16px;
+  }
+  .tab {
+    position: relative;
+    height: 56px;
+    padding: 0 16px;
+    background: transparent;
+    border: 0;
+    color: var(--en-fg-secondary);
+    font: 600 14px/16px var(--en-font-sans);
+    letter-spacing: 0.15px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: color var(--en-duration-shortest) var(--en-easing);
+  }
+  .tab:hover { color: var(--en-fg); }
+  .tab[aria-selected="true"] { color: var(--en-primary); }
+  .tab[aria-selected="true"]::after {
+    content: "";
+    position: absolute;
+    left: 12px; right: 12px; bottom: -1px;
+    height: 2px;
+    background: var(--en-primary);
+    border-radius: 2px 2px 0 0;
+  }
+  .tab .ico { width: 16px; height: 16px; display: grid; place-items: center; }
+
+  .tabs .spacer { flex: 1; }
+  .tabs .meta {
+    align-self: center;
+    font: 400 12px/16px var(--en-font-sans);
+    letter-spacing: 0.17px;
+    color: var(--en-fg-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding-right: 8px;
+  }
+  .tabs .meta .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--en-success); }
+
+  /* Design stage: each tab is one layout preview */
+  .stage { position: relative; overflow: hidden; }
+  .panel { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity var(--en-duration-short) var(--en-easing); }
+  .panel.active { opacity: 1; pointer-events: auto; }
+
+  /* ============================================================
+     Shared composer + suggestion building blocks
+     ============================================================ */
+  .composer {
+    background: var(--en-bg);
+    border: 1px solid var(--en-divider);
+    border-radius: 999px;
+    padding: 6px 6px 6px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: border-color var(--en-duration-short) var(--en-easing);
+  }
+  .composer:focus-within { border-color: var(--en-primary); }
+  .composer .input {
+    flex: 1;
+    height: 28px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: 400 14px/22px var(--en-font-sans);
+    letter-spacing: 0.15px;
+    color: var(--en-fg);
+  }
+  .composer .input::placeholder { color: var(--en-fg-secondary); }
+  .composer .send { background: none; border: 0; padding: 0; cursor: pointer; display: grid; place-items: center; }
+  .composer .send img { width: 28px; height: 28px; display: block; }
+  .composer .send img[hidden] { display: none; }
+  .composer .send.enabled[data-state="off"] { opacity: 1; }
+  .composer .send[data-state="off"] { cursor: default; }
+
+  /* Composer multi-line (full-page variant) */
+  .composer.multiline { border-radius: 16px; padding: 12px 12px 8px 16px; flex-direction: column; align-items: stretch; gap: 4px; }
+  .composer.multiline .input { height: auto; min-height: 28px; max-height: 160px; resize: none; padding: 6px 0 2px; font-size: 15px; }
+  .composer.multiline .toolbar { display: flex; align-items: center; gap: 8px; }
+  .composer.multiline .toolbar .send { margin-left: auto; }
+  .icon-btn {
+    height: 32px; min-width: 32px; padding: 0 8px;
+    border-radius: 8px; background: transparent; border: 0;
+    color: var(--en-icon);
+    display: inline-flex; align-items: center; gap: 6px;
+    cursor: pointer;
+    font: 400 13px/16px var(--en-font-sans);
+    letter-spacing: 0.15px;
+    transition: background-color var(--en-duration-shortest) var(--en-easing);
+  }
+  .icon-btn:hover { background: var(--en-action-hover); }
+  .icon-btn img { width: 16px; height: 16px; display: block; }
+
+  /* Section label */
+  .section-label {
+    font: 400 13px/16px var(--en-font-sans);
+    letter-spacing: 0.17px;
+    color: var(--en-fg-secondary);
+  }
+
+  /* ============================================================
+     LAYOUT A — Full page assistant
+     ============================================================ */
+  #panel-full {
+    display: flex; flex-direction: column;
+    background: var(--en-bg-grey);
+  }
+  #panel-full .scroll { flex: 1; overflow: auto; padding: 48px 24px 16px; }
+  .full-canvas {
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    text-align: center;
+    padding-top: 32px;
+    padding-bottom: 8px;
+  }
+  .hero h1 {
+    font: 700 32px/40px var(--en-font-sans);
+    letter-spacing: 0.25px;
+    color: var(--en-fg);
+    display: inline-flex; align-items: center; gap: 12px;
+  }
+  .hello-sparkle { width: 28px; height: 28px; color: var(--en-fg); flex-shrink: 0; }
+
+  /* full-page composer block */
+  .composer.full-block {
+    border-radius: 16px;
+    padding: 16px 16px 12px 20px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .composer.full-block .input {
+    height: auto; min-height: 44px; max-height: 200px;
+    resize: none;
+    padding: 6px 0 2px;
+    font-size: 15px;
+    line-height: 22px;
+  }
+  .composer.full-block .toolbar {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .composer.full-block .toolbar .send { margin-left: auto; }
+
+  .chip-btn {
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 8px;
+    background: var(--en-bg);
+    border: 1px solid #8287B0;
+    color: var(--en-fg);
+    font: 500 13px/16px var(--en-font-sans);
+    letter-spacing: 0.15px;
+    display: inline-flex; align-items: center; gap: 8px;
+    cursor: pointer;
+    transition:
+      background-color var(--en-duration-shortest) var(--en-easing),
+      border-color var(--en-duration-shortest) var(--en-easing);
+  }
+  .chip-btn:hover { background: var(--en-action-hover); border-color: var(--en-primary); }
+  .chip-btn svg { color: #8287B0; }
+  .chip-btn[aria-expanded="true"] { border-color: var(--en-primary); background: var(--en-action-hover); }
+
+  .chip-wrap { position: relative; }
+  .chip-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 240px;
+    background: var(--en-bg);
+    border-radius: 12px;
+    border: 1px solid var(--en-divider);
+    box-shadow: var(--en-shadow-menu);
+    padding: 8px;
+    display: flex; flex-direction: column; gap: 4px;
+    z-index: 20;
+  }
+  .chip-menu[hidden] { display: none; }
+  .chip-menu-item {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%;
+    height: 32px;
+    padding: 0 12px;
+    border: 0;
+    background: transparent;
+    border-radius: 8px;
+    color: var(--en-fg);
+    font: 400 14px/20px var(--en-font-sans);
+    letter-spacing: 0.15px;
+    cursor: pointer;
+    text-align: left;
+    transition: background-color var(--en-duration-shortest) var(--en-easing);
+  }
+  .chip-menu-item:hover { background: var(--en-action-hover); }
+  .chip-menu-item svg, .chip-menu-item img { color: var(--en-icon); flex-shrink: 0; width: 20px; height: 20px; display: block; }
+
+  /* ---------- Attached doc / workflow chips ---------- */
+  .chips {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 12px;
+    padding: 14px 0 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    /* hide scrollbar by default — reveal on hover */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .chips::-webkit-scrollbar { height: 0; background: transparent; }
+  .chips:hover { scrollbar-width: thin; }
+  .chips:hover::-webkit-scrollbar { height: 6px; }
+  .chips:hover::-webkit-scrollbar-thumb {
+    background: var(--en-border);
+    border-radius: 3px;
+  }
+  .chips:hover::-webkit-scrollbar-thumb:hover { background: var(--en-icon-secondary); }
+  .chips:hover::-webkit-scrollbar-track { background: transparent; }
+  .chips:empty { display: none; }
+
+  .doc-chip {
+    position: relative;
+    width: 132px;
+    height: 60px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: var(--en-bg);
+    border: 1px solid #E5EDFA;
+    box-sizing: border-box;
+  }
+  .doc-chip.workflow {
+    background: hsla(228, 67%, 96%, 1);
+    border-color: transparent;
+  }
+  .doc-chip .doc-title {
+    font: 400 12px/16px var(--en-font-sans);
+    letter-spacing: 0.17px;
+    color: var(--en-fg);
+    /* single-line truncation */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+  .doc-chip .doc-tag {
+    align-self: flex-start;
+    font: 500 11px/14px var(--en-font-sans);
+    letter-spacing: 0.17px;
+    color: var(--en-fg-secondary);
+    background: rgba(0, 0, 197, 0.04);
+    border-radius: 2px;
+    padding: 2px 6px;
+  }
+  .doc-chip .doc-close {
+    position: absolute;
+    top: -8px; right: -8px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: #3B3B3B;
+    color: white;
+    border: 0;
+    cursor: pointer;
+    display: grid; place-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+    transition: background-color var(--en-duration-shortest) var(--en-easing);
+    z-index: 2;
+  }
+  .doc-chip .doc-close:hover { background: #1E1E1E; }
+  .doc-chip .doc-close svg { width: 8px; height: 8px; }
+
+  /* tooltip for truncated titles */
+  .doc-chip[data-tip]:hover::after {
+    content: attr(data-tip);
+    position: absolute;
+    left: 50%; top: 100%;
+    transform: translate(-50%, 8px);
+    background: #1E1E1E;
+    color: white;
+    font: 400 12px/16px var(--en-font-sans);
+    letter-spacing: 0.17px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    white-space: nowrap;
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 30;
+    pointer-events: none;
+    box-shadow: var(--en-shadow-tooltip);
+  }
+  .doc-chip[data-tip]:hover::before {
+    content: "";
+    position: absolute;
+    left: 50%; top: 100%;
+    transform: translate(-50%, 3px) rotate(45deg);
+    width: 8px; height: 8px;
+    background: #1E1E1E;
+    z-index: 30;
+    pointer-events: none;
+  }
+
+  /* full-page suggestions list: 2-col rows */
+  .full-suggestions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  @media (max-width: 720px) { .full-suggestions { grid-template-columns: 1fr; } }
+  .fs-row {
+    background: var(--en-bg);
+    border: 1px solid var(--en-divider);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition:
+      background-color var(--en-duration-shortest) var(--en-easing),
+      border-color var(--en-duration-shortest) var(--en-easing);
+  }
+  .fs-row:hover { background: var(--en-action-hover); border-color: var(--en-border); }
+  .fs-row .fs-name {
+    flex: 1;
+    font: 500 14px/20px var(--en-font-sans); letter-spacing: 0.15px; color: var(--en-fg);
+  }
+  .fs-row .fs-chev { color: var(--en-icon-secondary); flex-shrink: 0; }
+  .fs-row:hover .fs-chev { color: var(--en-primary); }
+
+  /* ============================================================
+     LAYOUT B — Side panel (right-docked)
+     ============================================================ */
+  #panel-side { display: flex; }
+  /* simulated app behind so the side panel feels docked */
+  .behind {
+    flex: 1;
+    background:
+      radial-gradient(1200px 600px at 20% -10%, hsla(218, 67%, 96%, 0.8), transparent 60%),
+      var(--en-bg-grey);
+    overflow: hidden;
+    border-right: 1px solid var(--en-divider);
+  }
+  .behind-top {
+    height: 56px;
+    display: flex; align-items: center; gap: 12px;
+    padding: 0 24px;
+    background: var(--en-bg);
+    border-bottom: 1px solid var(--en-divider);
+  }
+  .behind-top img.logo { height: 20px; display: block; }
+  .behind-top .crumb {
+    font: 500 14px/16px var(--en-font-sans); letter-spacing: 0.1px; color: var(--en-fg);
+  }
+  .behind-top .crumb .muted { color: var(--en-fg-secondary); font-weight: 400; }
+  .behind-body {
+    padding: 24px;
+    overflow: auto;
+  }
+  /* Placeholder content blocks behind */
+  .ph-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+  .ph-card { background: var(--en-bg); border: 1px solid var(--en-divider); border-radius: 16px; padding: 16px; min-height: 92px; display: flex; flex-direction: column; gap: 8px; }
+  .ph-card .ph-label { height: 8px; width: 60%; border-radius: 4px; background: var(--en-bg-dark-grey); }
+  .ph-card .ph-num   { height: 22px; width: 50%; border-radius: 4px; background: var(--en-divider); }
+  .ph-card .ph-trend { height: 6px; width: 70%; border-radius: 4px; background: var(--en-bg-dark-grey); opacity: 0.7; }
+  .ph-chart { background: var(--en-bg); border: 1px solid var(--en-divider); border-radius: 16px; padding: 16px; height: 320px; display: flex; flex-direction: column; gap: 12px; }
+  .ph-chart-title { height: 10px; width: 200px; border-radius: 4px; background: var(--en-bg-dark-grey); }
+  .ph-chart-bars {
+    flex: 1;
+    display: grid;
+    grid-template-rows: repeat(8, 1fr);
+    gap: 10px;
+    align-items: stretch;
+  }
+  .ph-bar {
+    background: hsla(260, 73%, 54%, 0.18);
+    border-radius: 0 4px 4px 0;
+    height: 100%;
+  }
+  .ph-bar.tall { background: var(--en-data-personal); opacity: 0.9; }
+
+  /* Side panel itself */
+  .side-panel {
+    width: 480px;
+    flex-shrink: 0;
+    background: var(--en-bg);
+    border-left: 1px solid var(--en-divider);
+    display: grid;
+    grid-template-rows: 64px 1fr auto;
+    box-shadow: -8px 0 24px rgba(27, 35, 55, 0.04);
+  }
+  @media (max-width: 1100px) { .side-panel { width: 440px; } }
+  @media (max-width: 900px)  { .side-panel { width: 380px; } }
+
+  .sp-head {
+    display: grid;
+    grid-template-columns: 40px 1fr 40px;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--en-divider);
+  }
+  .sp-head .close {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--en-divider);
+    background: var(--en-bg);
+    cursor: pointer;
+    display: grid; place-items: center;
+    color: var(--en-icon);
+    transition: background-color var(--en-duration-shortest) var(--en-easing);
+  }
+  .sp-head .close:hover { background: var(--en-action-hover); }
+  .sp-head .close img { width: 12px; height: 12px; }
+  .sp-head .title {
+    justify-self: center;
+    display: inline-flex; align-items: center; gap: 8px;
+    font: 700 16px/20px var(--en-font-sans); letter-spacing: 0.15px; color: var(--en-fg);
+  }
+  .sp-head .sparkle {
+    width: 18px; height: 18px; color: var(--en-primary);
+  }
+
+  .sp-body { overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+  .sp-suggestions-label {
+    font: 400 12px/16px var(--en-font-sans);
+    letter-spacing: 0.17px;
+    color: var(--en-fg-secondary);
+    padding: 0 4px;
+  }
+
+  .sp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .sp-row {
+    background: var(--en-bg);
+    border: 1px solid var(--en-divider);
+    border-radius: 12px;
+    padding: 12px 14px;
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer;
+    transition:
+      background-color var(--en-duration-shortest) var(--en-easing),
+      border-color var(--en-duration-shortest) var(--en-easing);
+    text-align: left;
+  }
+  .sp-row:hover { background: var(--en-action-hover); border-color: var(--en-border); }
+  .sp-row .sp-badge {
+    width: 24px; height: 24px; border-radius: 8px;
+    background: var(--en-action-hover); color: var(--en-primary);
+    display: grid; place-items: center; flex-shrink: 0;
+  }
+  .sp-row .sp-badge img { width: 14px; height: 14px; }
+  .sp-row .sp-name {
+    flex: 1;
+    font: 500 13px/16px var(--en-font-sans); letter-spacing: 0.15px; color: var(--en-fg);
+  }
+  .sp-row .sp-chev { color: var(--en-icon-secondary); flex-shrink: 0; }
+  .sp-row[aria-expanded="true"] .sp-chev { transform: rotate(90deg); color: var(--en-primary); }
+  .sp-row[aria-expanded="true"] { background: var(--en-action-hover); border-color: var(--en-primary); }
+
+  /* expanded prompt list */
+  .sp-expand {
+    grid-column: 1 / -1;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    padding: 4px 4px 8px;
+  }
+  .sp-expand.open { display: flex; }
+  .sp-prompt {
+    text-align: left;
+    background: var(--en-bg-grey);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    font: 400 13px/18px var(--en-font-sans);
+    letter-spacing: 0.15px;
+    color: var(--en-fg);
+    transition: background-color var(--en-duration-shortest) var(--en-easing);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sp-prompt:hover { background: var(--en-action-hover); }
+  .sp-prompt .chev { margin-left: auto; color: var(--en-primary); opacity: 0; transition: opacity var(--en-duration-shortest) var(--en-easing); flex-shrink: 0; }
+  .sp-prompt:hover .chev { opacity: 1; }
+
+  .sp-foot {
+    padding: 12px 16px 16px;
+    border-top: 1px solid var(--en-divider);
+    background: var(--en-bg);
+  }
+
+  /* toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+    background: var(--en-logo-primary);
+    color: white;
+    font: 500 13px/16px var(--en-font-sans);
+    letter-spacing: 0.15px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--en-duration-short) var(--en-easing), transform var(--en-duration-short) var(--en-easing);
+    z-index: 60;
+    box-shadow: var(--en-shadow-menu);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ---------- Suggestions dialog ---------- */
+  .sg-scrim {
+    position: fixed; inset: 0;
+    background: rgba(27, 35, 55, 0.32);
+    display: grid; place-items: center;
+    padding: 32px 16px;
+    opacity: 0; pointer-events: none;
+    transition: opacity var(--en-duration-short) var(--en-easing);
+    z-index: 70;
+  }
+  .sg-scrim.open { opacity: 1; pointer-events: auto; }
+  .sg-modal {
+    background: var(--en-bg);
+    border: 1px solid var(--en-divider);
+    border-radius: 16px;
+    width: min(560px, 100%);
+    max-height: calc(100vh - 64px);
+    display: flex; flex-direction: column;
+    box-shadow: 0 24px 56px rgba(27, 35, 55, 0.18);
+    transform: translateY(8px) scale(0.99);
+    transition: transform var(--en-duration-short) var(--en-easing);
+  }
+  .sg-modal.show-all { width: min(960px, 100%); }
+  .sg-scrim.open .sg-modal { transform: none; }
+  .sg-head {
+    display: flex; align-items: center; gap: 12px;
+    padding: 18px 18px 14px 20px;
+  }
+  .sg-head h2 {
+    flex: 1;
+    font: 700 18px/24px var(--en-font-sans);
+    letter-spacing: 0.15px;
+    color: var(--en-fg);
+  }
+  .sg-close {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: transparent; border: 0;
+    cursor: pointer;
+    display: grid; place-items: center;
+    color: var(--en-icon);
+    transition: background-color var(--en-duration-shortest) var(--en-easing);
+  }
+  .sg-close:hover { background: var(--en-action-hover); }
+  .sg-close img { width: 12px; height: 12px; }
+  .sg-body {
+    padding: 0 18px 18px;
+    display: flex; flex-direction: column; gap: 8px;
+    overflow: auto;
+  }
+  .sg-prompt {
+    text-align: left;
+    background: var(--en-bg-grey);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 12px 14px;
+    cursor: pointer;
+    font: 400 14px/20px var(--en-font-sans);
+    letter-spacing: 0.15px;
+    color: var(--en-fg);
+    transition: background-color var(--en-duration-shortest) var(--en-easing);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .sg-prompt:hover { background: var(--en-action-hover); }
+  .sg-prompt .chev {
+    margin-left: auto;
+    opacity: 0; color: var(--accent, var(--en-primary));
+    transition: opacity var(--en-duration-shortest) var(--en-easing);
+    flex-shrink: 0;
+  }
+  .sg-prompt:hover .chev { opacity: 1; }
+  .sg-foot {
+    padding: 4px 18px 18px;
+    display: flex;
+    justify-content: center;
+  }
+  .sg-link {
+    background: none;
+    border: 0;
+    padding: 6px 8px;
+    color: var(--en-primary);
+    font: 500 13px/16px var(--en-font-sans);
+    letter-spacing: 0.15px;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 4px;
+    border-radius: 6px;
+    transition: background-color var(--en-duration-shortest) var(--en-easing), color var(--en-duration-shortest) var(--en-easing);
+  }
+  .sg-link:hover { background: var(--en-action-hover); color: var(--en-primary-dark); }
+
+  /* Show-all grid (all categories at once) */
+  .sg-all-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 720px) { .sg-all-grid { grid-template-columns: 1fr; } }
+  .sg-all-card {
+    background: var(--en-bg);
+    border: 1px solid var(--en-divider);
+    border-radius: 14px;
+    padding: 14px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .sg-all-card .sg-all-title {
+    font: 600 14px/20px var(--en-font-sans); letter-spacing: 0.15px; color: var(--en-fg);
+  }
+  .sg-all-card .prompts { display: flex; flex-direction: column; gap: 6px; }
+
+  /* show-more link below home suggestion rows */
+  .home-showall {
+    display: flex; justify-content: center;
+    padding: 4px 0 8px;
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <!-- TABS -->
+    <nav class="tabs" role="tablist" aria-label="Layout">
+      <button class="tab" role="tab" aria-selected="true" aria-controls="panel-full" id="tab-full">
+        <span class="ico">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M2 6h12" stroke="currentColor" stroke-width="1.4"/>
+          </svg>
+        </span>
+        Full page
+      </button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="panel-side" id="tab-side">
+        <span class="ico">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M10 3v10" stroke="currentColor" stroke-width="1.4"/>
+          </svg>
+        </span>
+        Side panel
+      </button>
+    </nav>
+
+    <!-- STAGE -->
+    <main class="stage">
+      <!-- ============ FULL PAGE LAYOUT ============ -->
+      <section class="panel active" id="panel-full" role="tabpanel" aria-labelledby="tab-full">
+        <div class="scroll">
+          <div class="full-canvas">
+            <div class="hero">
+              <h1>
+                <svg class="hello-sparkle" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                  <path d="M8 1.5l1.4 3.6L13 6.5l-3.6 1.4L8 11.5 6.6 7.9 3 6.5l3.6-1.4L8 1.5z" fill="currentColor"/>
+                  <path d="M12.5 11l.6 1.4L14.5 13l-1.4.6L12.5 15l-.6-1.4L10.5 13l1.4-.6L12.5 11z" fill="currentColor"/>
+                </svg>
+                Hello, Patrick
+              </h1>
+            </div>
+
+            <div class="composer full-block">
+              <div class="chips" id="composer-chips"></div>
+              <textarea class="input" rows="2" placeholder="Ask a question about your data, your documents or any insurance topic." data-composer="full"></textarea>
+              <div class="toolbar">
+                <div class="chip-wrap">
+                  <button class="chip-btn" id="add-docs-btn" aria-haspopup="menu" aria-expanded="false">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                    Add Documents
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                  <div class="chip-menu" id="add-docs-menu" role="menu" hidden>
+                    <button class="chip-menu-item" role="menuitem" data-action="library">
+                      <img src="design-system/icons/documents-new.svg" alt="" />
+                      From Documents Library
+                    </button>
+                    <button class="chip-menu-item" role="menuitem" data-action="upload">
+                      <img src="design-system/icons/upload.svg" alt="" />
+                      Upload from Computer
+                    </button>
+                  </div>
+                </div>
+                <div class="chip-wrap">
+                  <button class="chip-btn" id="wf-btn" aria-haspopup="menu" aria-expanded="false">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                    Select Workflow
+                  </button>
+                  <div class="chip-menu" id="wf-menu" role="menu" hidden>
+                    <button class="chip-menu-item" role="menuitem" data-wf="Document Compare">Document Compare</button>
+                    <button class="chip-menu-item" role="menuitem" data-wf="Proposal Generation">Proposal Generation</button>
+                    <button class="chip-menu-item" role="menuitem" data-wf="Acord Builder">Acord Builder</button>
+                    <button class="chip-menu-item" role="menuitem" data-wf="Loss Runs">Loss Runs</button>
+                  </div>
+                </div>
+                <button class="send" data-state="off" aria-label="Send" data-target="full">
+                  <img src="design-system/icons/send-disabled.svg" alt="" data-off />
+                  <img src="design-system/icons/send-enabled.svg" alt="" data-on hidden />
+                </button>
+              </div>
+            </div>
+
+            <div class="section-label" style="padding: 0 4px;">Suggestions</div>
+            <div class="full-suggestions" id="full-grid"></div>
+            <div class="home-showall">
+              <button class="sg-link" id="home-showall">Show all suggestions</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SIDE PANEL LAYOUT ============ -->
+      <section class="panel" id="panel-side" role="tabpanel" aria-labelledby="tab-side">
+        <!-- placeholder app behind so the panel feels docked -->
+        <div class="behind">
+          <div class="behind-body">
+            <div class="ph-row">
+              <div class="ph-card"><span class="ph-label"></span><span class="ph-num"></span><span class="ph-trend"></span></div>
+              <div class="ph-card"><span class="ph-label"></span><span class="ph-num"></span><span class="ph-trend"></span></div>
+              <div class="ph-card"><span class="ph-label"></span><span class="ph-num"></span><span class="ph-trend"></span></div>
+              <div class="ph-card"><span class="ph-label"></span><span class="ph-num"></span><span class="ph-trend"></span></div>
+            </div>
+            <div class="ph-chart">
+              <div class="ph-chart-title"></div>
+              <div class="ph-chart-bars">
+                <div class="ph-bar tall" style="width: 92%"></div>
+                <div class="ph-bar" style="width: 78%"></div>
+                <div class="ph-bar tall" style="width: 70%"></div>
+                <div class="ph-bar" style="width: 60%"></div>
+                <div class="ph-bar tall" style="width: 54%"></div>
+                <div class="ph-bar" style="width: 46%"></div>
+                <div class="ph-bar" style="width: 38%"></div>
+                <div class="ph-bar" style="width: 28%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- the actual side panel -->
+        <aside class="side-panel" aria-label="Assistant">
+          <header class="sp-head">
+            <button class="close" aria-label="Close panel">
+              <img src="design-system/icons/cross.svg" alt="" />
+            </button>
+            <div class="title">
+              <svg class="sparkle" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M8 1.5l1.4 3.6L13 6.5l-3.6 1.4L8 11.5 6.6 7.9 3 6.5l3.6-1.4L8 1.5z" fill="currentColor"/>
+                <path d="M12.5 11l.6 1.4L14.5 13l-1.4.6L12.5 15l-.6-1.4L10.5 13l1.4-.6L12.5 11z" fill="currentColor"/>
+              </svg>
+              Assistant
+            </div>
+            <span></span>
+          </header>
+
+          <div class="sp-body">
+            <div class="sp-suggestions-label">Suggestions</div>
+            <div class="sp-grid" id="sp-grid"></div>
+          </div>
+
+          <footer class="sp-foot">
+            <div class="composer">
+              <input class="input" type="text" placeholder="Ask a question about any insurance topic." data-composer="side" />
+              <button class="send" data-state="off" aria-label="Send" data-target="side">
+                <img src="design-system/icons/send-disabled.svg" alt="" data-off />
+                <img src="design-system/icons/send-enabled.svg" alt="" data-on hidden />
+              </button>
+            </div>
+          </footer>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">Added to composer</div>
+
+  <!-- Suggestions dialog (opens from Full page rows) -->
+  <div class="sg-scrim" id="sg-dialog" role="dialog" aria-modal="true" aria-labelledby="sg-dialog-title" aria-hidden="true">
+    <div class="sg-modal" id="sg-modal">
+      <header class="sg-head">
+        <h2 id="sg-dialog-title">Category</h2>
+        <button class="sg-close" id="sg-close" aria-label="Close">
+          <img src="design-system/icons/cross.svg" alt="" />
+        </button>
+      </header>
+      <div class="sg-body" id="sg-dialog-body"></div>
+      <footer class="sg-foot" id="sg-foot">
+        <button class="sg-link" id="sg-showall">Show all suggestions</button>
+      </footer>
+    </div>
+  </div>
+
+<script>
+  const CATEGORIES = [
+    {
+      key: 'policy', title: 'Policy analysis', icon: 'design-system/icons/document.svg',
+      accent: 'hsla(260, 73%, 54%, 1)',
+      prompts: [
+        'Summarize the key coverages and limits in this policy',
+        'List all exclusions in this GL policy',
+        'What endorsements are attached to this BOP?',
+      ],
+    },
+    {
+      key: 'coverage', title: 'Coverage comparison', icon: 'design-system/icons/cards.svg',
+      accent: 'hsla(324, 100%, 54%, 1)',
+      prompts: [
+        'Compare these two commercial auto quotes',
+        'How does the renewal differ from last year\u2019s policy?',
+        'Which carrier offers broader product liability coverage?',
+      ],
+    },
+    {
+      key: 'gap', title: 'Gap & risk analysis', icon: 'design-system/icons/info.svg',
+      accent: 'hsla(25, 97%, 54%, 1)',
+      prompts: [
+        'What gaps exist between this policy and the client\u2019s operations?',
+        'Is this contractor adequately covered for completed operations?',
+        'Flag any coverage concerns in this dec page',
+      ],
+    },
+    {
+      key: 'proposal', title: 'Client proposals', icon: 'design-system/icons/reports.svg',
+      accent: 'hsla(156, 61%, 50%, 1)',
+      prompts: [
+        'Create a proposal for this BOP quote in plain language',
+        'Write an executive summary of this commercial package',
+        'Draft a proposal comparing our quote vs the incumbent',
+      ],
+    },
+    {
+      key: 'renewal', title: 'Renewal prep', icon: 'design-system/icons/renewals.svg',
+      accent: 'hsla(209, 100%, 50%, 1)',
+      prompts: [
+        'Summarize what\u2019s changing at renewal',
+        'Draft a renewal letter explaining the premium increase',
+        'Prepare a renewal submission summary for underwriting',
+      ],
+    },
+    {
+      key: 'compli', title: 'Compliance & requirements', icon: 'design-system/icons/lock.svg',
+      accent: 'hsla(255, 72%, 54%, 1)',
+      prompts: [
+        'Does this policy meet the contract\u2019s insurance requirements?',
+        'What\u2019s missing from this COI based on the lease agreement?',
+        'Does the additional insured endorsement match what\u2019s required?',
+      ],
+    },
+  ];
+
+  /* ---------- Full page suggestion rows ---------- */
+  const fullGrid = document.getElementById('full-grid');
+  fullGrid.innerHTML = CATEGORIES.map((c, i) => `
+    <button class="fs-row" type="button" data-cat="${i}">
+      <span class="fs-name">${c.title}</span>
+      <svg class="fs-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  `).join('');
+
+  /* ---------- Add Documents menu ---------- */
+  const addBtn = document.getElementById('add-docs-btn');
+  const addMenu = document.getElementById('add-docs-menu');
+  const wfBtn = document.getElementById('wf-btn');
+  const wfMenu = document.getElementById('wf-menu');
+  const chipsEl = document.getElementById('composer-chips');
+
+  const FAKE_DOCS = [
+    '25-26 Acme Commercial Renewal Policy',
+    '2026 Acme Commercial Audit Statement',
+    '25-26 Acme Commercial Application',
+    'Acme Manufacturing Loss Run Report 2024',
+    'Acme Holdings Certificate of Insurance',
+    'Acme Mfg Workers Comp Dec Page 2025',
+  ];
+  let docIdx = 0;
+
+  function toggleMenu(btn, menu) {
+    [addMenu, wfMenu].forEach(m => {
+      if (m !== menu) { m.hidden = true; m.previousElementSibling.setAttribute('aria-expanded', 'false'); }
+    });
+    const open = menu.hidden;
+    menu.hidden = !open;
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  function closeAllMenus() {
+    [addMenu, wfMenu].forEach(m => {
+      m.hidden = true;
+      m.previousElementSibling.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  addBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(addBtn, addMenu); });
+  wfBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleMenu(wfBtn, wfMenu); });
+  document.addEventListener('click', (e) => {
+    if (![addBtn, addMenu, wfBtn, wfMenu].some(el => el.contains(e.target))) closeAllMenus();
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAllMenus(); });
+
+  function addChip(title, kind) {
+    const chip = document.createElement('div');
+    chip.className = 'doc-chip' + (kind === 'workflow' ? ' workflow' : '');
+    chip.setAttribute('data-tip', title);
+    chip.innerHTML = `
+      <button class="doc-close" aria-label="Remove">
+        <svg viewBox="0 0 8 8" fill="none" aria-hidden="true">
+          <path d="M1 1l6 6M7 1l-6 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="doc-title">${title}</div>
+      <div class="doc-tag">${kind === 'workflow' ? 'Workflow' : 'Document'}</div>
+    `;
+    chip.querySelector('.doc-close').addEventListener('click', (e) => {
+      e.stopPropagation();
+      chip.remove();
+    });
+    chipsEl.appendChild(chip);
+  }
+
+  // menu actions
+  addMenu.addEventListener('click', (e) => {
+    const item = e.target.closest('.chip-menu-item');
+    if (!item) return;
+    const name = FAKE_DOCS[docIdx % FAKE_DOCS.length];
+    docIdx++;
+    addChip(name, 'document');
+    closeAllMenus();
+  });
+  wfMenu.addEventListener('click', (e) => {
+    const item = e.target.closest('.chip-menu-item');
+    if (!item) return;
+    addChip(item.dataset.wf, 'workflow');
+    closeAllMenus();
+  });
+  const dialog = document.getElementById('sg-dialog');
+  const dialogBody = document.getElementById('sg-dialog-body');
+  const dialogTitle = document.getElementById('sg-dialog-title');
+  const dialogModal = document.getElementById('sg-modal');
+  const dialogFoot = document.getElementById('sg-foot');
+
+  function openDialog(idx) {
+    const c = CATEGORIES[idx];
+    dialogModal.classList.remove('show-all');
+    dialogTitle.textContent = c.title;
+    dialogBody.innerHTML = c.prompts.map(p => `
+      <button class="sg-prompt" data-target="full" data-prompt="${p.replace(/"/g,'&quot;')}">
+        <span>“${p}”</span>
+        <svg class="chev" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    `).join('');
+    dialogFoot.style.display = '';
+    dialog.classList.add('open');
+    dialog.setAttribute('aria-hidden', 'false');
+  }
+  function openShowAll() {
+    dialogModal.classList.add('show-all');
+    dialogTitle.textContent = 'All suggestions';
+    dialogBody.innerHTML = `<div class="sg-all-grid">${CATEGORIES.map(c => `
+      <article class="sg-all-card">
+        <div class="sg-all-title">${c.title}</div>
+        <div class="prompts">
+          ${c.prompts.map(p => `
+            <button class="sg-prompt" data-target="full" data-prompt="${p.replace(/"/g,'&quot;')}">
+              <span>“${p}”</span>
+              <svg class="chev" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          `).join('')}
+        </div>
+      </article>
+    `).join('')}</div>`;
+    dialogFoot.style.display = 'none';
+    dialog.classList.add('open');
+    dialog.setAttribute('aria-hidden', 'false');
+  }
+  function closeDialog() {
+    dialog.classList.remove('open');
+    dialog.setAttribute('aria-hidden', 'true');
+  }
+  document.getElementById('sg-close').addEventListener('click', closeDialog);
+  document.getElementById('sg-showall').addEventListener('click', openShowAll);
+  document.getElementById('home-showall').addEventListener('click', openShowAll);
+  dialog.addEventListener('click', (e) => { if (e.target === dialog) closeDialog(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDialog(); });
+
+  fullGrid.addEventListener('click', (e) => {
+    const row = e.target.closest('.fs-row');
+    if (!row) return;
+    openDialog(+row.dataset.cat);
+  });
+  dialogBody.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-prompt]');
+    if (!btn) return;
+    setTimeout(closeDialog, 0);
+  });
+
+  /* ---------- Side panel grid (compact rows; tap to expand prompts) ---------- */
+  const spGrid = document.getElementById('sp-grid');
+  spGrid.innerHTML = CATEGORIES.map((c, i) => `
+    <button class="sp-row" type="button" aria-expanded="false" data-cat="${i}">
+      <span class="sp-name">${c.title}</span>
+      <svg class="sp-chev" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  `).join('') + `<div class="sp-expand" id="sp-expand"></div>`;
+
+  const spExpand = document.getElementById('sp-expand');
+
+  spGrid.addEventListener('click', (e) => {
+    const row = e.target.closest('.sp-row');
+    if (!row) return;
+    const idx = +row.dataset.cat;
+    const cat = CATEGORIES[idx];
+    const isOpenSame = row.getAttribute('aria-expanded') === 'true';
+    // close all
+    spGrid.querySelectorAll('.sp-row').forEach(r => r.setAttribute('aria-expanded', 'false'));
+    if (isOpenSame) {
+      spExpand.classList.remove('open');
+      spExpand.innerHTML = '';
+      return;
+    }
+    row.setAttribute('aria-expanded', 'true');
+    spExpand.classList.add('open');
+    spExpand.innerHTML = cat.prompts.map(p => `
+      <button class="sp-prompt" data-target="side" data-prompt="${p.replace(/"/g,'&quot;')}">
+        <span>“${p}”</span>
+        <svg class="chev" width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    `).join('');
+    // Move expand block right under the row's column
+    // (kept simple — full width below grid)
+  });
+
+  /* ---------- Tab switching ---------- */
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.panel');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.setAttribute('aria-selected', t === tab ? 'true' : 'false'));
+      panels.forEach(p => p.classList.toggle('active', p.id === tab.getAttribute('aria-controls')));
+    });
+  });
+
+  /* ---------- Composer state + send button toggle ---------- */
+  function setSend(target, on) {
+    document.querySelectorAll(`.send[data-target="${target}"]`).forEach(btn => {
+      btn.dataset.state = on ? 'on' : 'off';
+      btn.querySelector('[data-off]').hidden = on;
+      btn.querySelector('[data-on]').hidden = !on;
+    });
+  }
+
+  document.querySelectorAll('[data-composer]').forEach(el => {
+    el.addEventListener('input', () => {
+      if (el.tagName === 'TEXTAREA') {
+        el.style.height = 'auto';
+        el.style.height = Math.min(160, el.scrollHeight) + 'px';
+      }
+      setSend(el.dataset.composer, el.value.trim().length > 0);
+    });
+  });
+
+  /* ---------- Click prompt → drop into matching composer ---------- */
+  let toastT;
+  function showToast(text) {
+    const t = document.getElementById('toast');
+    t.textContent = text;
+    t.classList.add('show');
+    clearTimeout(toastT);
+    toastT = setTimeout(() => t.classList.remove('show'), 1600);
+  }
+
+  document.body.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-prompt]');
+    if (!btn) return;
+    const target = btn.dataset.target;
+    const composer = document.querySelector(`[data-composer="${target}"]`);
+    if (!composer) return;
+    composer.value = btn.dataset.prompt;
+    composer.dispatchEvent(new Event('input'));
+    composer.focus();
+    showToast('Added to composer');
+  });
+</script>
+</body>
+</html>
