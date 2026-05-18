@@ -260,6 +260,11 @@ function App() {
           onAgencyChange={setAgency}
           modified={modified}
         />
+        <div className="s3-body">
+          <CollapsibleSection title="Accounts in proposal" defaultOpen>
+            <AccountsTable />
+          </CollapsibleSection>
+        </div>
         </>
         )}
       </div>
