@@ -98,7 +98,7 @@ git push
 
 source "$REPO_ROOT/.design-config" 2>/dev/null || true
 GH_USER="${GH_USER:-ismael-ennabl}"
-GH_REPO="${GH_REPO:-design-pages}"
+GH_REPO="${GH_REPO:-design-tickets}"
 
 echo ""
 echo "Published: https://$GH_USER.github.io/$GH_REPO/designs/$TICKET_ID/"

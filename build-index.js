@@ -5,7 +5,7 @@ const path = require("path");
 
 const configPath = path.join(__dirname, ".design-config");
 let ghUser = "ismael-ennabl";
-let ghRepo = "design-pages";
+let ghRepo = "design-tickets";
 
 if (fs.existsSync(configPath)) {
   const cfg = fs.readFileSync(configPath, "utf8");

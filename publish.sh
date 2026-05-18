@@ -14,7 +14,7 @@ CONFIG_FILE="$(dirname "$0")/.design-config"
 if [ ! -f "$CONFIG_FILE" ]; then
   echo "First-time setup:"
   read -p "  GitHub username: " GH_USER
-  read -p "  Repo name (e.g. design-pages): " GH_REPO
+  read -p "  Repo name (e.g. design-tickets): " GH_REPO
   echo "GH_USER=$GH_USER" > "$CONFIG_FILE"
   echo "GH_REPO=$GH_REPO" >> "$CONFIG_FILE"
   echo ""
