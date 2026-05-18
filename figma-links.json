@@ -1,4 +1,10 @@
 {
   "_comment": "Maps ticket IDs to their Figma file keys. Auto-updated by the design-ticket skill.",
-  "tickets": {}
+  "tickets": {
+    "DSGN-1126": {
+      "figmaFileKey": "T2ZuPOa4ZvXQPxDJkfvilT",
+      "figmaUrl": "https://www.figma.com/design/T2ZuPOa4ZvXQPxDJkfvilT/DSGN-1126-Workflows--Proposal-Generation---Save-step-3-teams",
+      "title": "Workflows · Proposal Generation · Save Step 3 Templates"
+    }
+  }
 }
