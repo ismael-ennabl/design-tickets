@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Ennabl AI · Assistant suggestions — design comparison</title>
-<link rel="stylesheet" href="design-system/colors_and_type.css" />
-<link rel="icon" href="design-system/logos/ennabl-favicon.svg" />
+<link rel="stylesheet" href="../_design_system/colors_and_type.css" />
+<link rel="icon" href="../_design_system/logos/ennabl-favicon.svg" />
 <style>
   * { box-sizing: border-box; }
   html, body { height: 100%; }
@@ -724,7 +724,7 @@
           <div class="full-canvas">
             <div class="hero">
               <h1>
-                <img class="hello-sparkle" src="design-system/icons/ennablAI.svg" alt="" />
+                <img class="hello-sparkle" src="../_design_system/icons/ennablAI.svg" alt="" />
                 Hello, Patrick
               </h1>
             </div>
@@ -741,11 +741,11 @@
                   </button>
                   <div class="chip-menu" id="add-docs-menu" role="menu" hidden>
                     <button class="chip-menu-item" role="menuitem" data-action="library">
-                      <img src="design-system/icons/documents-new.svg" alt="" />
+                      <img src="../_design_system/icons/documents-new.svg" alt="" />
                       From Documents Library
                     </button>
                     <button class="chip-menu-item" role="menuitem" data-action="upload">
-                      <img src="design-system/icons/upload.svg" alt="" />
+                      <img src="../_design_system/icons/upload.svg" alt="" />
                       Upload from Computer
                     </button>
                   </div>
@@ -763,8 +763,8 @@
                   </div>
                 </div>
                 <button class="send" data-state="off" aria-label="Send" data-target="full">
-                  <img src="design-system/icons/send-disabled.svg" alt="" data-off />
-                  <img src="design-system/icons/send-enabled.svg" alt="" data-on hidden />
+                  <img src="../_design_system/icons/send-disabled.svg" alt="" data-off />
+                  <img src="../_design_system/icons/send-enabled.svg" alt="" data-on hidden />
                 </button>
               </div>
             </div>
@@ -809,10 +809,10 @@
         <aside class="side-panel" aria-label="EnnablAI">
           <header class="sp-head">
             <button class="close" aria-label="Close panel">
-              <img src="design-system/icons/cross.svg" alt="" />
+              <img src="../_design_system/icons/cross.svg" alt="" />
             </button>
             <div class="title">
-              <img class="sparkle" src="design-system/icons/ennablAI.svg" alt="" />
+              <img class="sparkle" src="../_design_system/icons/ennablAI.svg" alt="" />
               EnnablAI
             </div>
             <span></span>
@@ -830,8 +830,8 @@
             <div class="composer">
               <input class="input" type="text" placeholder="Ask a question about any insurance topic." data-composer="side" />
               <button class="send" data-state="off" aria-label="Send" data-target="side">
-                <img src="design-system/icons/send-disabled.svg" alt="" data-off />
-                <img src="design-system/icons/send-enabled.svg" alt="" data-on hidden />
+                <img src="../_design_system/icons/send-disabled.svg" alt="" data-off />
+                <img src="../_design_system/icons/send-enabled.svg" alt="" data-on hidden />
               </button>
             </div>
           </footer>
@@ -848,7 +848,7 @@
       <header class="sg-head">
         <h2 id="sg-dialog-title">Category</h2>
         <button class="sg-close" id="sg-close" aria-label="Close">
-          <img src="design-system/icons/cross.svg" alt="" />
+          <img src="../_design_system/icons/cross.svg" alt="" />
         </button>
       </header>
       <div class="sg-body" id="sg-dialog-body"></div>
@@ -861,7 +861,7 @@
 <script>
   const CATEGORIES = [
     {
-      key: 'policy', title: 'Policy analysis', icon: 'design-system/icons/document.svg',
+      key: 'policy', title: 'Policy analysis', icon: '../_design_system/icons/document.svg',
       accent: 'hsla(260, 73%, 54%, 1)',
       prompts: [
         'Summarize the key coverages and limits in this policy',
@@ -870,7 +870,7 @@
       ],
     },
     {
-      key: 'coverage', title: 'Coverage comparison', icon: 'design-system/icons/cards.svg',
+      key: 'coverage', title: 'Coverage comparison', icon: '../_design_system/icons/cards.svg',
       accent: 'hsla(324, 100%, 54%, 1)',
       prompts: [
         'Compare these two commercial auto quotes',
@@ -879,7 +879,7 @@
       ],
     },
     {
-      key: 'gap', title: 'Gap & risk analysis', icon: 'design-system/icons/info.svg',
+      key: 'gap', title: 'Gap & risk analysis', icon: '../_design_system/icons/info.svg',
       accent: 'hsla(25, 97%, 54%, 1)',
       prompts: [
         'What gaps exist between this policy and the client\u2019s operations?',
@@ -888,7 +888,7 @@
       ],
     },
     {
-      key: 'proposal', title: 'Client proposals', icon: 'design-system/icons/reports.svg',
+      key: 'proposal', title: 'Client proposals', icon: '../_design_system/icons/reports.svg',
       accent: 'hsla(156, 61%, 50%, 1)',
       prompts: [
         'Create a proposal for this BOP quote in plain language',
@@ -897,7 +897,7 @@
       ],
     },
     {
-      key: 'renewal', title: 'Renewal prep', icon: 'design-system/icons/renewals.svg',
+      key: 'renewal', title: 'Renewal prep', icon: '../_design_system/icons/renewals.svg',
       accent: 'hsla(209, 100%, 50%, 1)',
       prompts: [
         'Summarize what\u2019s changing at renewal',
@@ -906,7 +906,7 @@
       ],
     },
     {
-      key: 'compli', title: 'Compliance & requirements', icon: 'design-system/icons/lock.svg',
+      key: 'compli', title: 'Compliance & requirements', icon: '../_design_system/icons/lock.svg',
       accent: 'hsla(255, 72%, 54%, 1)',
       prompts: [
         'Does this policy meet the contract\u2019s insurance requirements?',

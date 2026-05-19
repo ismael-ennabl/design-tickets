@@ -51,45 +51,83 @@ if [ -z "$HTML_FILE" ]; then
 fi
 echo "Found: $(basename "$HTML_FILE")"
 
-# Shared files that live in youtrack/_shared/ — never duplicated per ticket
-SHARED_FILES=("colors_and_type.css" "styles.css" "icons.jsx" "dialogs.jsx" "picker.jsx" "step3.jsx")
-SHARED_DIR="$REPO_ROOT/youtrack/_shared"
-mkdir -p "$SHARED_DIR/fonts"
-
-# Route shared files to _shared/, ticket-specific files to the ticket folder
+# ── Destination directories ───────────────────────────────────────────────────
 DEST="$REPO_ROOT/youtrack/$TICKET_ID"
-mkdir -p "$DEST"
+SHARED_DIR="$REPO_ROOT/youtrack/_shared"
+DS_DIR="$REPO_ROOT/youtrack/_design_system"
+mkdir -p "$DEST" "$SHARED_DIR" "$DS_DIR/fonts" "$DS_DIR/icons" "$DS_DIR/logos"
+
+# ── Routing rules ─────────────────────────────────────────────────────────────
+# JSX components → _shared/ (React screen-level components)
+SHARED_JSX=("icons.jsx" "dialogs.jsx" "picker.jsx" "step3.jsx")
+# CSS tokens → _design_system/
+DS_CSS=("colors_and_type.css" "styles.css")
 
 for f in "$PROJECT_DIR"/*; do
   name=$(basename "$f")
-  if [[ " ${SHARED_FILES[*]} " == *" $name "* ]]; then
+
+  if [[ " ${SHARED_JSX[*]} " == *" $name "* ]]; then
     cp "$f" "$SHARED_DIR/$name"
-    echo "  shared: $name → _shared/"
+    echo "  component: $name → _shared/"
+
+  elif [[ " ${DS_CSS[*]} " == *" $name "* ]]; then
+    cp "$f" "$DS_DIR/$name"
+    echo "  token: $name → _design_system/"
+
   elif [ "$name" = "fonts" ] && [ -d "$f" ]; then
-    cp -r "$f/." "$SHARED_DIR/fonts/"
-    echo "  shared: fonts/ → _shared/fonts/"
+    cp -r "$f/." "$DS_DIR/fonts/"
+    echo "  asset: fonts/ → _design_system/fonts/"
+
+  elif [ "$name" = "design-system" ] && [ -d "$f" ]; then
+    # Merge design-system/ subfolders into _design_system/
+    for sub in "$f"/*; do
+      subname=$(basename "$sub")
+      if [ "$subname" = "colors_and_type.css" ] || [ "$subname" = "styles.css" ]; then
+        cp "$sub" "$DS_DIR/$subname"
+        echo "  token: design-system/$subname → _design_system/"
+      elif [ -d "$sub" ]; then
+        mkdir -p "$DS_DIR/$subname"
+        cp -r "$sub/." "$DS_DIR/$subname/"
+        echo "  asset: design-system/$subname/ → _design_system/$subname/"
+      else
+        cp "$sub" "$DS_DIR/$subname"
+        echo "  asset: design-system/$subname → _design_system/"
+      fi
+    done
+
   else
     cp -r "$f" "$DEST/"
   fi
 done
 
-# Rename the main HTML to index.html
+# ── Rename main HTML → index.html ─────────────────────────────────────────────
 BASENAME=$(basename "$HTML_FILE")
 DEST_HTML="$DEST/$BASENAME"
 [ "$BASENAME" != "index.html" ] && mv "$DEST_HTML" "$DEST/index.html" && echo "Renamed $BASENAME → index.html"
 
-# Rewrite index.html so shared files reference ../_shared/
+# ── Rewrite index.html paths ──────────────────────────────────────────────────
 IHTML="$DEST/index.html"
-for f in "${SHARED_FILES[@]}"; do
-  # CSS links
-  sed -i '' "s|href=\"$f\"|href=\"../_shared/$f\"|g" "$IHTML"
-  # JS script tags
-  sed -i '' "s|src=\"$f\"|src=\"../_shared/$f\"|g" "$IHTML"
-done
-# fonts path is handled by the CSS file itself (relative to _shared/)
-echo "  updated index.html paths → ../_shared/"
 
-# Rebuild index and push
+# JSX components → ../_shared/
+for f in "${SHARED_JSX[@]}"; do
+  sed -i '' "s|src=\"$f\"|src=\"../_shared/$f\"|g" "$IHTML"
+  sed -i '' "s|href=\"$f\"|href=\"../_shared/$f\"|g" "$IHTML"
+done
+
+# CSS tokens → ../_design_system/
+for f in "${DS_CSS[@]}"; do
+  sed -i '' "s|href=\"$f\"|href=\"../_design_system/$f\"|g" "$IHTML"
+  sed -i '' "s|src=\"$f\"|src=\"../_design_system/$f\"|g" "$IHTML"
+done
+
+# design-system/ folder references → ../_design_system/
+sed -i '' 's|href="design-system/|href="../_design_system/|g' "$IHTML"
+sed -i '' 's|src="design-system/|src="../_design_system/|g' "$IHTML"
+sed -i '' "s|icon: 'design-system/|icon: '../_design_system/|g" "$IHTML"
+
+echo "  updated index.html paths → ../_design_system/ + ../_shared/"
+
+# ── Rebuild index and push ─────────────────────────────────────────────────────
 node "$REPO_ROOT/build-index.js"
 cd "$REPO_ROOT"
 git add youtrack/ index.html
