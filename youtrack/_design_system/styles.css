@@ -421,6 +421,95 @@ input, textarea { font-family: inherit; }
   font: 600 15px/22px var(--en-font-sans);
 }
 .s3-section-head:hover { color: var(--en-primary); }
+.s3-section-head--row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0;
+  cursor: default;
+}
+.s3-section-head--row:hover { color: inherit; }
+.s3-section-toggle {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 0;
+  padding: 6px 0;
+  cursor: pointer;
+  color: var(--en-fg);
+  font: 600 15px/22px var(--en-font-sans);
+  text-align: left;
+}
+.s3-section-toggle:hover { color: var(--en-primary); }
+.s3-section-toggle:hover .s3-chevron { color: var(--en-primary); }
+.s3-section-title-input {
+  flex: 1;
+  min-width: 0;
+  font: 600 15px/22px var(--en-font-sans);
+  color: var(--en-fg);
+  background: var(--en-bg);
+  border: 1px solid var(--en-primary);
+  border-radius: 6px;
+  padding: 2px 8px;
+  outline: none;
+}
+.s3-section-menu {
+  position: relative;
+  display: inline-flex;
+}
+.s3-section-menu .row-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: var(--en-bg);
+  border: 1px solid var(--en-divider);
+  border-radius: 8px;
+  box-shadow: var(--en-shadow-popover, 0 8px 24px rgba(20, 25, 45, 0.12));
+  padding: 6px;
+  z-index: 30;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.s3-section-menu .row-menu button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  color: var(--en-fg);
+  font: 400 14px/20px var(--en-font-sans);
+  text-align: left;
+  cursor: pointer;
+}
+.s3-section-menu .row-menu button:hover { background: rgba(0, 0, 197, 0.04); }
+.s3-section-menu .row-menu button.danger { color: #d4344a; }
+.s3-section-menu .row-menu button.danger:hover { background: rgba(212, 52, 74, 0.06); }
+
+.s3-table-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.s3-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  border: 1px dashed var(--en-divider);
+  border-radius: 12px;
+  background: var(--en-bg-grey);
+}
+.s3-empty-state .add-producer { padding: 6px 12px; }
+.add-producer--alt { margin-left: 0; }
 .s3-chevron {
   display: inline-flex;
   align-items: center;

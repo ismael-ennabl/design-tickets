@@ -17,28 +17,175 @@ function CollapsibleSection({ title, modified, defaultOpen = true, children }) {
   );
 }
 
+function ProducerTableSection({ table, index, modified, canAddTable, onRename, onDelete, onProducersChange, onAddTable }) {
+  const [open, setOpen] = useState(true);
+  const [editingName, setEditingName] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [nameDraft, setNameDraft] = useState(table.name);
+  const menuRef = useRef(null);
+
+  useEffect(() => setNameDraft(table.name), [table.name]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onDoc = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [menuOpen]);
+
+  const commitName = () => {
+    const v = nameDraft.trim() || `Producer Team ${index + 1}`;
+    if (v !== table.name) onRename(v);
+    setEditingName(false);
+  };
+
+  return (
+    <div className={`s3-section ${open ? 'open' : 'closed'}`}>
+      <div className="s3-section-head s3-section-head--row">
+        <button
+          className="s3-section-toggle"
+          onClick={() => !editingName && setOpen(o => !o)}
+          type="button"
+        >
+          <span className={`s3-chevron ${open ? 'open' : ''}`}>
+            <IconChevronDown size={18} />
+          </span>
+          {editingName ? (
+            <input
+              autoFocus
+              className="s3-section-title-input"
+              value={nameDraft}
+              onChange={(e) => setNameDraft(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+              onBlur={commitName}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') commitName();
+                if (e.key === 'Escape') { setNameDraft(table.name); setEditingName(false); }
+              }}
+            />
+          ) : (
+            <span className="s3-section-title">{table.name}</span>
+          )}
+          {modified && !editingName && <span className="modified-mark" title="Modified" />}
+        </button>
+
+        <div className="s3-section-menu" ref={menuRef}>
+          <button
+            className="btn-icon"
+            title="Table actions"
+            onClick={(e) => { e.stopPropagation(); setMenuOpen(o => !o); }}
+          >
+            <IconMore size={16} />
+          </button>
+          {menuOpen && (
+            <div className="row-menu">
+              <button onClick={() => { setMenuOpen(false); setOpen(true); setEditingName(true); }}>
+                <IconEditFill size={16} /> Rename table
+              </button>
+              <button className="danger" onClick={() => { setMenuOpen(false); onDelete(); }}>
+                <IconTrashFill size={16} /> Delete table
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+      {open && (
+        <div className="s3-section-body">
+          {table.producers.length === 0 ? (
+            <div className="s3-empty-state">
+              <button
+                className="add-producer"
+                onClick={() => {
+                  const id = 'np' + Date.now();
+                  onProducersChange([{
+                    id, first: 'New', last: 'Member', email: '', bio: '', phone: '',
+                  }]);
+                }}
+              >
+                <IconPlus size={16} />
+                Add Member
+              </button>
+            </div>
+          ) : (
+            <>
+              <ProducerTable
+                producers={table.producers}
+                onChange={(next) => onProducersChange(next)}
+              />
+              <div className="s3-table-actions">
+                <button
+                  className="add-producer"
+                  onClick={() => {
+                    const id = 'np' + Date.now();
+                    onProducersChange([...table.producers, {
+                      id, first: 'New', last: 'Member', email: '', bio: '', phone: '',
+                    }]);
+                  }}
+                >
+                  <IconPlus size={16} />
+                  Add Member
+                </button>
+                {canAddTable && (
+                  <button className="add-producer add-producer--alt" onClick={onAddTable}>
+                    <IconPlus size={16} />
+                    Add Table
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Step3Body({
-  producers, agency,
-  onProducersChange, onAgencyChange,
+  producerTables, agency,
+  onProducerTablesChange, onAgencyChange,
   modified,
 }) {
+  const updateTable = (idx, patch) => {
+    onProducerTablesChange(producerTables.map((t, i) => i === idx ? { ...t, ...patch } : t));
+  };
+  const renameTable = (idx, name) => updateTable(idx, { name });
+  const setTableProducers = (idx, producers) => updateTable(idx, { producers });
+  const deleteTable = (idx) => {
+    if (producerTables.length === 1) {
+      // keep at least one table — clear its rows instead
+      onProducerTablesChange([{ ...producerTables[0], producers: [] }]);
+      return;
+    }
+    onProducerTablesChange(producerTables.filter((_, i) => i !== idx));
+  };
+  const addTable = () => {
+    const n = producerTables.length + 1;
+    onProducerTablesChange([...producerTables, {
+      id: 'tab-' + Date.now(),
+      name: `Producer Team ${n}`,
+      producers: [],
+    }]);
+  };
+
+  const totalMembers = producerTables.reduce((n, t) => n + t.producers.length, 0);
+
   return (
     <div className="s3-body">
-      <CollapsibleSection title="Producer Team" modified={modified.producers}>
-        <ProducerTable producers={producers} onChange={onProducersChange} />
-        <button
-          className="add-producer"
-          onClick={() => {
-            const id = 'np' + Date.now();
-            onProducersChange([...producers, {
-              id, first: 'New', last: 'Producer', email: '', bio: '', phone: '',
-            }]);
-          }}
-        >
-          <IconPlus size={16} />
-          Add Producer
-        </button>
-      </CollapsibleSection>
+      {producerTables.map((table, idx) => (
+        <ProducerTableSection
+          key={table.id}
+          table={table}
+          index={idx}
+          modified={modified.tables && modified.tables[table.id]}
+          canAddTable={totalMembers > 0}
+          onRename={(name) => renameTable(idx, name)}
+          onDelete={() => deleteTable(idx)}
+          onProducersChange={(producers) => setTableProducers(idx, producers)}
+          onAddTable={addTable}
+        />
+      ))}
 
       <CollapsibleSection title="Logo" modified={modified.logoFile}>
         {agency.logoFile ? (

@@ -43,7 +43,9 @@ const INITIAL_TEMPLATES = [
     isDefault: true,
     shared: true,
     usageCount: 142,
-    producers: SAMPLE_PRODUCERS.commercial,
+    producerTables: [
+      { id: 'tab-c1', name: 'Producer Team', producers: SAMPLE_PRODUCERS.commercial },
+    ],
     agency: AGENCY_DEFAULT,
   },
   {
@@ -55,7 +57,9 @@ const INITIAL_TEMPLATES = [
     isDefault: false,
     shared: true,
     usageCount: 38,
-    producers: SAMPLE_PRODUCERS.benefits,
+    producerTables: [
+      { id: 'tab-b1', name: 'Producer Team', producers: SAMPLE_PRODUCERS.benefits },
+    ],
     agency: AGENCY_BENEFITS,
   },
   {
@@ -67,7 +71,9 @@ const INITIAL_TEMPLATES = [
     isDefault: false,
     shared: true,
     usageCount: 21,
-    producers: SAMPLE_PRODUCERS.personal,
+    producerTables: [
+      { id: 'tab-p1', name: 'Producer Team', producers: SAMPLE_PRODUCERS.personal },
+    ],
     agency: AGENCY_DEFAULT,
   },
   {
@@ -79,7 +85,10 @@ const INITIAL_TEMPLATES = [
     isDefault: false,
     shared: false,
     usageCount: 4,
-    producers: [...SAMPLE_PRODUCERS.commercial.slice(0, 2), ...SAMPLE_PRODUCERS.benefits.slice(0, 2)],
+    producerTables: [
+      { id: 'tab-n1', name: 'Commercial Producers', producers: SAMPLE_PRODUCERS.commercial.slice(0, 2) },
+      { id: 'tab-n2', name: 'Benefits Producers', producers: SAMPLE_PRODUCERS.benefits.slice(0, 2) },
+    ],
     agency: AGENCY_DEFAULT,
   },
 ];
@@ -104,6 +113,17 @@ function deepEqualProducers(a, b) {
   }
   return true;
 }
+function deepEqualProducerTables(a, b) {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].name !== b[i].name) return false;
+    if (!deepEqualProducers(a[i].producers, b[i].producers)) return false;
+  }
+  return true;
+}
+function totalProducers(producerTables) {
+  return (producerTables || []).reduce((n, t) => n + t.producers.length, 0);
+}
 function deepEqualAgency(a, b) {
   return a.agencyName === b.agencyName && a.aboutUs === b.aboutUs &&
     a.disclosures === b.disclosures && a.serviceSummary === b.serviceSummary &&
@@ -111,11 +131,12 @@ function deepEqualAgency(a, b) {
 }
 function isStateEqualToTemplate(state, tpl) {
   if (!tpl) return true;
-  return deepEqualProducers(state.producers, tpl.producers) &&
+  return deepEqualProducerTables(state.producerTables, tpl.producerTables) &&
     deepEqualAgency(state.agency, tpl.agency);
 }
 
 Object.assign(window, {
   SAMPLE_PRODUCERS, AGENCY_DEFAULT, AGENCY_BENEFITS, INITIAL_TEMPLATES,
-  shortDate, isStateEqualToTemplate,
+  shortDate, isStateEqualToTemplate, totalProducers,
+  deepEqualProducers, deepEqualProducerTables,
 });

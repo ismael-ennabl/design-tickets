@@ -1,6 +1,6 @@
 // Root app — composes the Step 3 card, template bar, dialogs, and toasts.
 
-const { useState, useEffect, useMemo, useCallback } = React;
+const { useState, useEffect, useMemo, useCallback, useRef } = React;
 
 function App() {
   const [templates, setTemplates] = useState(INITIAL_TEMPLATES);
@@ -10,7 +10,7 @@ function App() {
   const [activeId, setActiveId] = useState(defaultTpl.id);
 
   // Working copy of step 3 fields — diverges from template when user edits.
-  const [producers, setProducers] = useState(defaultTpl.producers);
+  const [producerTables, setProducerTables] = useState(defaultTpl.producerTables);
   const [agency, setAgency] = useState(defaultTpl.agency);
 
   // Dialog state
@@ -33,28 +33,22 @@ function App() {
   }, [toast]);
 
   const activeTpl = templates.find(t => t.id === activeId);
-  const dirty = activeTpl && !isStateEqualToTemplate({ producers, agency }, activeTpl);
+  const dirty = activeTpl && !isStateEqualToTemplate({ producerTables, agency }, activeTpl);
 
   /* Build a human-readable diff summary for the "save changes" dialog */
   const dirtySummary = useMemo(() => {
     if (!activeTpl) return [];
     const out = [];
-    if (!deepEqualProducers(producers, activeTpl.producers)) {
-      const before = activeTpl.producers.length;
-      const after = producers.length;
+    if (!deepEqualProducerTables(producerTables, activeTpl.producerTables)) {
+      const before = totalProducers(activeTpl.producerTables);
+      const after = totalProducers(producerTables);
+      if (activeTpl.producerTables.length !== producerTables.length) {
+        out.push(`Tables: ${activeTpl.producerTables.length} → ${producerTables.length}`);
+      }
       if (before !== after) {
-        out.push(`Producer team: ${before} → ${after} member${after === 1 ? '' : 's'}`);
+        out.push(`Members: ${before} → ${after}`);
       } else {
-        // count rows that differ
-        let changed = 0;
-        for (let i = 0; i < producers.length; i++) {
-          const a = activeTpl.producers[i] || {};
-          const b = producers[i];
-          if (a.first !== b.first || a.last !== b.last || a.email !== b.email || a.bio !== b.bio || a.phone !== b.phone) {
-            changed++;
-          }
-        }
-        out.push(`Producer details: ${changed} row${changed === 1 ? '' : 's'} edited`);
+        out.push('Member details edited');
       }
     }
     if (activeTpl.agency.agencyName !== agency.agencyName) out.push('Agency name updated');
@@ -63,34 +57,41 @@ function App() {
     if ((activeTpl.agency.serviceSummary || '') !== (agency.serviceSummary || '')) out.push('Service Summary edited');
     if (activeTpl.agency.logoFile !== agency.logoFile) out.push('Agency logo changed');
     return out;
-  }, [activeTpl, producers, agency]);
+  }, [activeTpl, producerTables, agency]);
 
   // Per-field modified flags for the inline ● markers
   const modified = useMemo(() => {
     if (!activeTpl) return {};
+    // per-table modified map (by table id)
+    const tableMods = {};
+    producerTables.forEach((t) => {
+      const orig = activeTpl.producerTables.find(o => o.id === t.id);
+      tableMods[t.id] = !orig || orig.name !== t.name || !deepEqualProducers(orig.producers, t.producers);
+    });
     return {
-      producers: !deepEqualProducers(producers, activeTpl.producers),
+      producers: !deepEqualProducerTables(producerTables, activeTpl.producerTables),
+      tables: tableMods,
       agencyName: activeTpl.agency.agencyName !== agency.agencyName,
       aboutUs: activeTpl.agency.aboutUs !== agency.aboutUs,
       disclosures: activeTpl.agency.disclosures !== agency.disclosures,
       serviceSummary: (activeTpl.agency.serviceSummary || '') !== (agency.serviceSummary || ''),
       logoFile: activeTpl.agency.logoFile !== agency.logoFile,
     };
-  }, [activeTpl, producers, agency]);
+  }, [activeTpl, producerTables, agency]);
 
   /* ------------------ Template actions ------------------ */
   const applyTemplate = (id) => {
     const t = templates.find(x => x.id === id);
     if (!t) return;
     setActiveId(id);
-    setProducers(t.producers);
+    setProducerTables(t.producerTables);
     setAgency(t.agency);
     showToast(`Applied "${t.name}" to Step 3`);
   };
 
   const revertToTemplate = () => {
     if (!activeTpl) return;
-    setProducers(activeTpl.producers);
+    setProducerTables(activeTpl.producerTables);
     setAgency(activeTpl.agency);
     showToast('Reverted Step 3 to the saved template');
   };
@@ -116,7 +117,7 @@ function App() {
           isDefault: vals.isDefault,
           shared: vals.shared,
           usageCount: 1,
-          producers,
+          producerTables,
           agency,
         };
         setTemplates(ts => {
@@ -141,7 +142,7 @@ function App() {
   const confirmUpdate = () => {
     setTemplates(ts => ts.map(t => t.id === activeId ? {
       ...t,
-      producers,
+      producerTables,
       agency,
       updatedAt: new Date().toISOString(),
     } : t));
@@ -189,7 +190,7 @@ function App() {
       const next = templates.find(x => x.id !== t.id);
       if (next) {
         setActiveId(next.id);
-        setProducers(next.producers);
+        setProducerTables(next.producerTables);
         setAgency(next.agency);
       }
     }
@@ -254,9 +255,9 @@ function App() {
         </div>
 
         <Step3Body
-          producers={producers}
+          producerTables={producerTables}
           agency={agency}
-          onProducersChange={setProducers}
+          onProducerTablesChange={setProducerTables}
           onAgencyChange={setAgency}
           modified={modified}
         />
@@ -316,16 +317,7 @@ function App() {
   );
 }
 
-// helper from data.js — re-declared here so this file is self-contained for diff calc
-function deepEqualProducers(a, b) {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    const x = a[i], y = b[i];
-    if (x.first !== y.first || x.last !== y.last || x.email !== y.email ||
-        x.bio !== y.bio || x.phone !== y.phone) return false;
-  }
-  return true;
-}
+
 
 const { useState: _useState_app, useEffect: _useEffect_app, useMemo: _useMemo_app, useCallback: _useCallback_app } = React;
 // (already destructured at top of other files; not needed here)

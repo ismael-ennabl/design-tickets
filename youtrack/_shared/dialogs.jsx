@@ -263,7 +263,7 @@ function ManageModal({
                   <td>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
                       <IconUsers size={16} />
-                      {t.producers.length}
+                      {totalProducers(t.producerTables)}
                     </span>
                   </td>
                   <td>
