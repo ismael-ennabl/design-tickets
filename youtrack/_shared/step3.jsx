@@ -278,7 +278,14 @@ function SortIcon({ dir }) {
 function ProducerTable({ producers, onChange }) {
   const [tip, setTip] = useState(null); // { text, x, y }
   const [sort, setSort] = useState({ key: null, dir: 'none' });
-  const [editingId, setEditingId] = useState(null);
+  const [editingId, setEditingId] = useState(() => {
+    // If table mounts with a single blank row, drop straight into edit mode.
+    if (producers.length === 1) {
+      const p = producers[0];
+      if (!p.first && !p.last && !p.email && !p.bio && !p.phone) return p.id;
+    }
+    return null;
+  });
   const prevLenRef = useRef(producers.length);
 
   // Auto-edit a freshly added empty row
