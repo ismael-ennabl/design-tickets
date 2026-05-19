@@ -100,7 +100,7 @@ function ProducerTableSection({ table, index, modified, canAddTable, onRename, o
                 onClick={() => {
                   const id = 'np' + Date.now();
                   onProducersChange([{
-                    id, first: 'New', last: 'Member', email: '', bio: '', phone: '',
+                    id, first: '', last: '', email: '', bio: '', phone: '',
                   }]);
                 }}
               >
@@ -120,7 +120,7 @@ function ProducerTableSection({ table, index, modified, canAddTable, onRename, o
                   onClick={() => {
                     const id = 'np' + Date.now();
                     onProducersChange([...table.producers, {
-                      id, first: 'New', last: 'Member', email: '', bio: '', phone: '',
+                      id, first: '', last: '', email: '', bio: '', phone: '',
                     }]);
                   }}
                 >
@@ -278,6 +278,19 @@ function SortIcon({ dir }) {
 function ProducerTable({ producers, onChange }) {
   const [tip, setTip] = useState(null); // { text, x, y }
   const [sort, setSort] = useState({ key: null, dir: 'none' });
+  const [editingId, setEditingId] = useState(null);
+  const prevLenRef = useRef(producers.length);
+
+  // Auto-edit a freshly added empty row
+  useEffect(() => {
+    if (producers.length > prevLenRef.current) {
+      const last = producers[producers.length - 1];
+      if (last && !last.first && !last.last && !last.email && !last.bio && !last.phone) {
+        setEditingId(last.id);
+      }
+    }
+    prevLenRef.current = producers.length;
+  }, [producers]);
 
   const toggleSort = (key) => {
     setSort(s => {
@@ -335,28 +348,49 @@ function ProducerTable({ producers, onChange }) {
         </tr>
       </thead>
       <tbody>
-        {sortedProducers.map(p => (
-          <tr key={p.id}>
-            <td onMouseEnter={(e) => onCellEnter(e, p.first)} onMouseMove={onCellMove} onMouseLeave={onCellLeave}>{p.first}</td>
-            <td onMouseEnter={(e) => onCellEnter(e, p.last)} onMouseMove={onCellMove} onMouseLeave={onCellLeave}>{p.last}</td>
-            <td className="muted" onMouseEnter={(e) => onCellEnter(e, p.email)} onMouseMove={onCellMove} onMouseLeave={onCellLeave}>{p.email}</td>
-            <td onMouseEnter={(e) => onCellEnter(e, p.bio)} onMouseMove={onCellMove} onMouseLeave={onCellLeave}>{p.bio}</td>
-            <td className="muted" onMouseEnter={(e) => onCellEnter(e, p.phone)} onMouseMove={onCellMove} onMouseLeave={onCellLeave}>{p.phone}</td>
-            <td className="col-actions">
-              <div className="cell-actions">
-                <button className="btn-icon" title="Edit" onClick={() => {
-                  const next = prompt('Edit bio for ' + p.first + ' ' + p.last + ':', p.bio);
-                  if (next !== null) updateRow(p.id, { bio: next });
-                }}>
-                  <IconExternal size={16} />
-                </button>
-                <button className="btn-icon" title="Remove" onClick={() => removeRow(p.id)}>
-                  <IconTrash size={16} />
-                </button>
-              </div>
-            </td>
-          </tr>
-        ))}
+        {sortedProducers.map(p => {
+          const isEditing = editingId === p.id;
+          if (isEditing) {
+            return (
+              <tr key={p.id} className="row-editing">
+                <td><input className="cell-input" autoFocus placeholder="First Name" value={p.first} onChange={e => updateRow(p.id, { first: e.target.value })} /></td>
+                <td><input className="cell-input" placeholder="Last Name" value={p.last} onChange={e => updateRow(p.id, { last: e.target.value })} /></td>
+                <td><input className="cell-input" placeholder="Email" value={p.email} onChange={e => updateRow(p.id, { email: e.target.value })} /></td>
+                <td><input className="cell-input" placeholder="Bio" value={p.bio} onChange={e => updateRow(p.id, { bio: e.target.value })} /></td>
+                <td><input className="cell-input" placeholder="Phone Number" value={p.phone} onChange={e => updateRow(p.id, { phone: e.target.value })} /></td>
+                <td className="col-actions">
+                  <div className="cell-actions">
+                    <button className="btn-icon" title="Done editing" onClick={() => setEditingId(null)}>
+                      <IconCheck size={16} />
+                    </button>
+                    <button className="btn-icon" title="Remove" onClick={() => { setEditingId(null); removeRow(p.id); }}>
+                      <IconTrashFill size={16} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            );
+          }
+          return (
+            <tr key={p.id}>
+              <td onMouseEnter={(e) => onCellEnter(e, p.first)} onMouseMove={onCellMove} onMouseLeave={onCellLeave}>{p.first}</td>
+              <td onMouseEnter={(e) => onCellEnter(e, p.last)} onMouseMove={onCellMove} onMouseLeave={onCellLeave}>{p.last}</td>
+              <td className="muted" onMouseEnter={(e) => onCellEnter(e, p.email)} onMouseMove={onCellMove} onMouseLeave={onCellLeave}>{p.email}</td>
+              <td onMouseEnter={(e) => onCellEnter(e, p.bio)} onMouseMove={onCellMove} onMouseLeave={onCellLeave}>{p.bio}</td>
+              <td className="muted" onMouseEnter={(e) => onCellEnter(e, p.phone)} onMouseMove={onCellMove} onMouseLeave={onCellLeave}>{p.phone}</td>
+              <td className="col-actions">
+                <div className="cell-actions">
+                  <button className="btn-icon" title="Edit" onClick={() => setEditingId(p.id)}>
+                    <IconEditFill size={16} />
+                  </button>
+                  <button className="btn-icon" title="Remove" onClick={() => removeRow(p.id)}>
+                    <IconTrashFill size={16} />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
     {tip && (

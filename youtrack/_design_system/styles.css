@@ -508,7 +508,21 @@ input, textarea { font-family: inherit; }
   border-radius: 12px;
   background: var(--en-bg-grey);
 }
-.s3-empty-state .add-producer { padding: 6px 12px; }
+.cell-input {
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font: 400 14px/20px var(--en-font-sans);
+  color: var(--en-fg);
+  outline: none;
+  transition: border-color 120ms, background 120ms;
+}
+.cell-input::placeholder { color: var(--en-fg-secondary); }
+.cell-input:hover { border-color: var(--en-divider); }
+.cell-input:focus { border-color: var(--en-primary); background: var(--en-bg); }
+.row-editing td { padding: 8px 12px; }
 .add-producer--alt { margin-left: 0; }
 .s3-chevron {
   display: inline-flex;
