@@ -36,7 +36,7 @@ function ProducerTableSection({ table, index, modified, canAddTable, onRename, o
   }, [menuOpen]);
 
   const commitName = () => {
-    const v = nameDraft.trim() || `Producer Team ${index + 1}`;
+    const v = nameDraft.trim() || `Team ${index + 1}`;
     if (v !== table.name) onRename(v);
     setEditingName(false);
   };
@@ -164,7 +164,7 @@ function Step3Body({
     const n = producerTables.length + 1;
     onProducerTablesChange([...producerTables, {
       id: 'tab-' + Date.now(),
-      name: `Producer Team ${n}`,
+      name: `Team ${n}`,
       producers: [],
     }]);
   };
