@@ -136,15 +136,73 @@ Full-screen modal for browsing, applying, editing, duplicating, and deleting tem
 
 ## DeleteConfirm
 
-Small confirmation modal for template deletion.
+Destructive confirmation modal. CTA and copy are fully customisable.
 
 ```jsx
+// Default — "Delete template"
 <DeleteConfirm
   template={templateToDelete}
   onClose={() => setDeleteTarget(null)}
   onConfirm={() => confirmDelete()}
 />
+
+// Custom label + copy
+<DeleteConfirm
+  template={item}
+  confirmLabel="Delete Forever"
+  title={`Permanently delete "${item.name}"?`}
+  message="This cannot be undone."
+  onClose={handleClose}
+  onConfirm={handleConfirm}
+/>
 ```
+
+Props:
+- `template` `{ name, usageCount }` — used in default title/message
+- `confirmLabel` string (default: `'Delete template'`) — CTA text
+- `title` string — overrides the default title
+- `message` string | ReactNode — overrides the default body copy
+- `onClose` () => void
+- `onConfirm` () => void
+
+---
+
+## Custom dialogs (build your own)
+
+Use these CSS classes to build any dialog that matches the ennabl design:
+
+```jsx
+function MyDialog({ onClose, onConfirm }) {
+  return (
+    <Scrim onClose={onClose}>
+      <div className="dialog" onClick={e => e.stopPropagation()}>
+        <div className="dialog-head">
+          <div>
+            <div className="dialog-title">Are you sure?</div>
+            <div className="dialog-sub">This action cannot be undone.</div>
+          </div>
+          <button className="btn-icon" onClick={onClose}><IconClose size={16} /></button>
+        </div>
+        <div className="dialog-foot">
+          <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+          <button className="btn btn-primary" onClick={onConfirm}>Confirm</button>
+        </div>
+      </div>
+    </Scrim>
+  );
+}
+```
+
+Classes:
+- `.scrim` — fixed full-screen backdrop (use `<Scrim onClose={fn}>` component instead)
+- `.dialog` — white card, centered, `max-width: 560px` by default; override with `style={{ maxWidth: 440 }}`
+- `.dialog-head` — flex row: left content + close button
+- `.dialog-title` — bold heading
+- `.dialog-sub` — muted subtitle / body copy
+- `.dialog-foot` — right-aligned action buttons row
+- For destructive CTAs add `style={{ background: 'var(--en-error-dark)' }}` to `.btn-primary`
+
+`Scrim` is available as a global — use it directly.
 
 ---
 

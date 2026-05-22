@@ -479,24 +479,28 @@ function ManageModal({
 /* ============================================================
    Delete confirm
    ============================================================ */
-function DeleteConfirm({ template, onClose, onConfirm }) {
+function DeleteConfirm({ template, onClose, onConfirm, confirmLabel = 'Delete template', title, message }) {
+  const resolvedTitle = title || `Delete “${template.name}”?`;
+  const resolvedMessage = message || (
+    <>
+      This template will no longer be available to anyone in your organization.
+      {template.usageCount > 0 && ` Existing proposals (${template.usageCount.toLocaleString()}) that used it won't be affected.`}
+    </>
+  );
   return (
     <Scrim onClose={onClose}>
-      <div className="dialog" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440 }}>
-        <div className="dialog-head">
+      <div className=”dialog” onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440 }}>
+        <div className=”dialog-head”>
           <div>
-            <div className="dialog-title">Delete “{template.name}”?</div>
-            <div className="dialog-sub">
-              This template will no longer be available to anyone in your organization.
-              {template.usageCount > 0 && ` Existing proposals (${template.usageCount.toLocaleString()}) that used it won't be affected.`}
-            </div>
+            <div className=”dialog-title”>{resolvedTitle}</div>
+            <div className=”dialog-sub”>{resolvedMessage}</div>
           </div>
-          <button className="btn-icon" onClick={onClose}><IconClose size={16} /></button>
+          <button className=”btn-icon” onClick={onClose}><IconClose size={16} /></button>
         </div>
-        <div className="dialog-foot">
-          <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
-          <button className="btn btn-primary" style={{ background: 'var(--en-error-dark)' }} onClick={onConfirm}>
-            Delete template
+        <div className=”dialog-foot”>
+          <button className=”btn btn-secondary” onClick={onClose}>Cancel</button>
+          <button className=”btn btn-primary” style={{ background: 'var(--en-error-dark)' }} onClick={onConfirm}>
+            {confirmLabel}
           </button>
         </div>
       </div>
