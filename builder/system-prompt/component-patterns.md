@@ -1,5 +1,63 @@
 # ennabl Component Patterns
 
+## Scope rule
+
+Match the PRD's scope exactly — a filter modal is just a modal, a table section is just a table, a chart widget is just the chart. Only wrap in a full `.stage` page layout when the PRD describes a complete screen. Never pad a focused component into a page it doesn't need.
+
+## Multi-view / drilldown navigation
+
+The preview has no router. Use `useState` to switch views:
+
+```jsx
+const [view, setView] = useState('list') // 'list' | 'detail' | 'create'
+
+// Render current view
+if (view === 'detail') return <DetailView item={selected} onBack={() => setView('list')} />
+if (view === 'create') return <CreateView onBack={() => setView('list')} onSave={handleSave} />
+
+// Default: list view
+return (
+  <div className="stage">
+    {/* list content — clicking a row calls setView('detail') */}
+  </div>
+)
+```
+
+Rules:
+- Always include a back button / breadcrumb that returns to the previous view
+- Keep all views inside the single `App` function as inline functions or nested returns
+- Use `selected` state to pass the drilled-into item to the detail view
+
+## Charts (Recharts)
+
+Recharts is loaded globally. Destructure what you need:
+
+```jsx
+const { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+        XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } = Recharts
+
+function App() {
+  const data = [
+    { month: 'Jan', premium: 420000, policies: 38 },
+    { month: 'Feb', premium: 380000, policies: 32 },
+    { month: 'Mar', premium: 510000, policies: 45 },
+  ]
+  return (
+    <ResponsiveContainer width="100%" height={260}>
+      <BarChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--en-divider)" />
+        <XAxis dataKey="month" tick={{ fontSize: 12, fill: 'var(--en-fg-secondary)' }} />
+        <YAxis tick={{ fontSize: 12, fill: 'var(--en-fg-secondary)' }} />
+        <Tooltip />
+        <Bar dataKey="premium" fill="var(--en-primary)" radius={[4,4,0,0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  )
+}
+```
+
+Color palette for charts: `var(--en-primary)`, `var(--en-data-producers)`, `var(--en-data-accounts)`, `var(--en-data-premium)`, `var(--en-data-policies)`.
+
 ## Page layout
 
 ```jsx

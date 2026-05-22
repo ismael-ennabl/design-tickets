@@ -1,9 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
+
+import colorsCssRaw from '../../../youtrack/_design_system/colors_and_type.css?raw'
+import stylesCssRaw from '../../../youtrack/_design_system/styles.css?raw'
+import iconsJsRaw from '../../../youtrack/_shared/icons.jsx?raw'
+import pickerJsRaw from '../../../youtrack/_shared/picker.jsx?raw'
+import dialogsJsRaw from '../../../youtrack/_shared/dialogs.jsx?raw'
+import step3JsRaw from '../../../youtrack/_shared/step3.jsx?raw'
+
 import './DesignCanvas.css'
 
-const BASE = import.meta.env.BASE_URL
+const colorsCSS = colorsCssRaw.replace(/@font-face\s*\{[^}]*\}/g, '')
+const sharedCode = [pickerJsRaw, dialogsJsRaw, step3JsRaw].join('\n\n')
 
-function buildSrcdoc(code, colorsCSS, stylesCSS, iconsCode, sharedCode) {
+function buildSrcdoc(code) {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -15,8 +24,9 @@ function buildSrcdoc(code, colorsCSS, stylesCSS, iconsCode, sharedCode) {
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+  <script src="https://unpkg.com/recharts@2/umd/Recharts.min.js" crossorigin></script>
   <style>${colorsCSS}</style>
-  <style>${stylesCSS}</style>
+  <style>${stylesCssRaw}</style>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body { margin: 0; min-height: 100vh; background: var(--en-bg-grey, #f4f6fc); }
@@ -25,7 +35,7 @@ function buildSrcdoc(code, colorsCSS, stylesCSS, iconsCode, sharedCode) {
 <body>
   <div id="root"></div>
   <script type="text/babel">
-${iconsCode}
+${iconsJsRaw}
   </script>
   <script type="text/babel">
 ${sharedCode}
@@ -41,25 +51,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(
 export default function DesignCanvas({ code }) {
   const iframeRef = useRef(null)
   const [view, setView] = useState('preview')
-  const [assets, setAssets] = useState(null)
 
   useEffect(() => {
-    Promise.all([
-      fetch(`${BASE}design-system/colors.css`).then(r => r.text()),
-      fetch(`${BASE}design-system/styles.css`).then(r => r.text()),
-      fetch(`${BASE}design-system/icons.js`).then(r => r.text()),
-      fetch(`${BASE}design-system/shared.js`).then(r => r.text()),
-    ]).then(([colors, styles, icons, shared]) => {
-      setAssets({ colors, styles, icons, shared })
-    }).catch(() => {})
-  }, [])
-
-  useEffect(() => {
-    if (!iframeRef.current || !code || !assets) return
-    iframeRef.current.srcdoc = buildSrcdoc(
-      code, assets.colors, assets.styles, assets.icons, assets.shared
-    )
-  }, [code, assets])
+    if (!iframeRef.current || !code) return
+    iframeRef.current.srcdoc = buildSrcdoc(code)
+  }, [code])
 
   if (!code) {
     return (
