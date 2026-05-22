@@ -4,6 +4,7 @@ import RightPanel from './components/RightPanel'
 import ApiSetup from './components/ApiSetup'
 import { getApiKey } from './lib/apiKey'
 import { newSession, calcCost, saveSession } from './lib/reports'
+import { loadHistory, saveHistory, makeEntry } from './lib/history'
 import './App.css'
 
 export default function App() {
@@ -12,6 +13,21 @@ export default function App() {
   const [messages, setMessages] = useState([])
   const [apiReady, setApiReady] = useState(() => !!getApiKey())
   const [session, setSession] = useState(null)
+  const [history, setHistory] = useState(loadHistory)
+
+  function handleCodeGenerated(code) {
+    setGeneratedCode(code)
+    if (prd) {
+      const entry = makeEntry({
+        prdName: prd.name,
+        code,
+        iteration: (session?.iterations ?? 0) + 1,
+      })
+      const updated = [entry, ...history].slice(0, 50)
+      setHistory(updated)
+      saveHistory(updated)
+    }
+  }
 
   function handleIterationComplete({ inputTokens, outputTokens, cacheReadTokens, componentsUsed }) {
     setSession(prev => {
@@ -41,6 +57,11 @@ export default function App() {
     reader.readAsText(file)
   }
 
+  function handleHistoryClear() {
+    setHistory([])
+    saveHistory([])
+  }
+
   if (!apiReady) return <ApiSetup onDone={() => setApiReady(true)} />
 
   return (
@@ -62,13 +83,18 @@ export default function App() {
       </header>
 
       <main className="app-panels">
-        <LeftPanel code={generatedCode} prd={prd} />
+        <LeftPanel
+          code={generatedCode}
+          prd={prd}
+          history={history}
+          onHistoryClear={handleHistoryClear}
+        />
         <div className="app-divider" />
         <RightPanel
           prd={prd}
           messages={messages}
           setMessages={setMessages}
-          onCodeGenerated={setGeneratedCode}
+          onCodeGenerated={handleCodeGenerated}
           onIterationComplete={handleIterationComplete}
           session={session}
           onSessionUpdate={setSession}
