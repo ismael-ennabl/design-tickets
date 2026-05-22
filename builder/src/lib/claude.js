@@ -1,10 +1,18 @@
 import { getApiKey } from './apiKey'
+import { getModel } from './model'
 import systemPrompt from './systemPrompt'
 
-const MODEL = 'claude-opus-4-7'
 const API_URL = 'https://api.anthropic.com/v1/messages'
 
+function thinkingParams(model) {
+  if (model === 'claude-opus-4-7') {
+    return { max_tokens: 8192, thinking: { type: 'enabled', budget_tokens: 5000 } }
+  }
+  return { max_tokens: 8192 }
+}
+
 export async function streamChat({ messages, onText, onDone }) {
+  const model = getModel()
   const res = await fetch(API_URL, {
     method: 'POST',
     headers: {
@@ -14,9 +22,8 @@ export async function streamChat({ messages, onText, onDone }) {
       'anthropic-dangerous-direct-browser-access': 'true',
     },
     body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 8192,
-      thinking: { type: 'enabled', budget_tokens: 5000 },
+      model,
+      ...thinkingParams(model),
       system: [
         { type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } },
       ],

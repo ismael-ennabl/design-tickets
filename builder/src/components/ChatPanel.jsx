@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { streamChat } from '../lib/claude'
 import { extractComponents } from '../lib/reports'
+import { MODELS, getModel, setModel } from '../lib/model'
 import './ChatPanel.css'
 
 function extractCode(text) {
@@ -11,6 +12,7 @@ function extractCode(text) {
 export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated, onSwitchToPrd, onIterationComplete }) {
   const [input, setInput] = useState('')
   const [streaming, setStreaming] = useState(false)
+  const [selectedModel, setSelectedModel] = useState(getModel)
   const bottomRef = useRef(null)
   const textareaRef = useRef(null)
 
@@ -110,23 +112,37 @@ export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated,
       </div>
 
       <div className="chat-input-area">
-        <textarea
-          ref={textareaRef}
-          className="chat-input"
-          placeholder={prd ? `Build from ${prd.name}…` : 'Load a PRD first…'}
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          onKeyDown={onKeyDown}
-          disabled={!prd || streaming}
-          rows={3}
-        />
-        <button
-          className="chat-send-btn"
-          onClick={send}
-          disabled={!prd || !input.trim() || streaming}
-        >
-          {streaming ? <span className="chat-spinner" /> : '↑'}
-        </button>
+        <div className="chat-model-row">
+          {MODELS.map(m => (
+            <button
+              key={m.id}
+              className={`chat-model-btn ${selectedModel === m.id ? 'chat-model-btn--active' : ''}`}
+              onClick={() => { setSelectedModel(m.id); setModel(m.id) }}
+              title={m.note}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+        <div className="chat-input-row">
+          <textarea
+            ref={textareaRef}
+            className="chat-input"
+            placeholder={prd ? `Build from ${prd.name}…` : 'Load a PRD first…'}
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={onKeyDown}
+            disabled={!prd || streaming}
+            rows={3}
+          />
+          <button
+            className="chat-send-btn"
+            onClick={send}
+            disabled={!prd || !input.trim() || streaming}
+          >
+            {streaming ? <span className="chat-spinner" /> : '↑'}
+          </button>
+        </div>
       </div>
     </div>
   )

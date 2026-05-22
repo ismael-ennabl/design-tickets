@@ -69,11 +69,48 @@
 
 .chat-input-area {
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
   gap: 8px;
   padding: 12px;
   border-top: 1px solid var(--border-subtle);
   flex-shrink: 0;
+}
+
+.chat-input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.chat-model-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chat-model-btn {
+  font-size: 11px;
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.1s, border-color 0.1s, background 0.1s;
+  white-space: nowrap;
+}
+
+.chat-model-btn:hover {
+  color: var(--text);
+  border-color: var(--border-subtle);
+}
+
+.chat-model-btn--active {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--accent);
 }
 
 .chat-input {
