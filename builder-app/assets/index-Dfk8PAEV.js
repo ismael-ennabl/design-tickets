@@ -1595,7 +1595,7 @@ function TemplatePicker({
 
           <div className="menu-list">
             {filtered.length === 0 && (
-              <div className="menu-empty">No templates match “{q}”.</div>
+              <div className="menu-empty">No templates match "{q}".</div>
             )}
             {filtered.map(t => (
               <TemplateRow
@@ -1811,7 +1811,7 @@ function UpdateTemplateDialog({ template, summary, onClose, onConfirm, onSaveAsN
       <div className="dialog" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 520 }}>
         <div className="dialog-head">
           <div>
-            <div className="dialog-title">Save changes to “{template.name}”?</div>
+            <div className="dialog-title">Save changes to "{template.name}"?</div>
             <ul className="dialog-sub" style={{ margin: '6px 0 0', paddingLeft: 18 }}>
               <li>This will be updated for everyone. Last updated {shortDate(template.updatedAt)} by {template.owner.name}.</li>
               {template.usageCount > 0 && (
@@ -1974,7 +1974,7 @@ function ManageModal({
               ))}
               {filtered.length === 0 && (
                 <tr><td colSpan={6} style={{ textAlign: 'center', padding: 40, color: 'var(--en-fg-secondary)' }}>
-                  No templates match “{q}”.
+                  No templates match "{q}".
                 </td></tr>
               )}
             </tbody>
@@ -1996,7 +1996,7 @@ function ManageModal({
    Delete confirm
    ============================================================ */
 function DeleteConfirm({ template, onClose, onConfirm, confirmLabel = 'Delete template', title, message }) {
-  const resolvedTitle = title || \`Delete “\${template.name}”?\`;
+  const resolvedTitle = title || \`Delete "\${template.name}"?\`;
   const resolvedMessage = message || (
     <>
       This template will no longer be available to anyone in your organization.
@@ -2005,17 +2005,17 @@ function DeleteConfirm({ template, onClose, onConfirm, confirmLabel = 'Delete te
   );
   return (
     <Scrim onClose={onClose}>
-      <div className=”dialog” onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440 }}>
-        <div className=”dialog-head”>
+      <div className="dialog" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440 }}>
+        <div className="dialog-head">
           <div>
-            <div className=”dialog-title”>{resolvedTitle}</div>
-            <div className=”dialog-sub”>{resolvedMessage}</div>
+            <div className="dialog-title">{resolvedTitle}</div>
+            <div className="dialog-sub">{resolvedMessage}</div>
           </div>
-          <button className=”btn-icon” onClick={onClose}><IconClose size={16} /></button>
+          <button className="btn-icon" onClick={onClose}><IconClose size={16} /></button>
         </div>
-        <div className=”dialog-foot”>
-          <button className=”btn btn-secondary” onClick={onClose}>Cancel</button>
-          <button className=”btn btn-primary” style={{ background: 'var(--en-error-dark)' }} onClick={onConfirm}>
+        <div className="dialog-foot">
+          <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+          <button className="btn btn-primary" style={{ background: 'var(--en-error-dark)' }} onClick={onConfirm}>
             {confirmLabel}
           </button>
         </div>

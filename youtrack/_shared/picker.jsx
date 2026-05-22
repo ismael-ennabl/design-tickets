@@ -75,7 +75,7 @@ function TemplatePicker({
 
           <div className="menu-list">
             {filtered.length === 0 && (
-              <div className="menu-empty">No templates match “{q}”.</div>
+              <div className="menu-empty">No templates match "{q}".</div>
             )}
             {filtered.map(t => (
               <TemplateRow
