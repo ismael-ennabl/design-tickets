@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { getApiUrl } from '../lib/apiUrl'
 import './DesignCanvas.css'
 
-function buildSrcdoc(code, iconsCode, apiUrl) {
+function buildSrcdoc(code, iconsCode, sharedCode, apiUrl) {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -27,6 +27,9 @@ function buildSrcdoc(code, iconsCode, apiUrl) {
 ${iconsCode}
   </script>
   <script type="text/babel">
+${sharedCode}
+  </script>
+  <script type="text/babel">
 ${code}
 ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
   </script>
@@ -38,18 +41,23 @@ export default function DesignCanvas({ code }) {
   const iframeRef = useRef(null)
   const [view, setView] = useState('preview') // 'preview' | 'code'
   const [iconsCode, setIconsCode] = useState('')
+  const [sharedCode, setSharedCode] = useState('')
 
   useEffect(() => {
-    fetch(`${getApiUrl()}/design-system/icons.js`)
-      .then(r => r.text())
-      .then(setIconsCode)
-      .catch(() => setIconsCode(''))
+    const api = getApiUrl()
+    Promise.all([
+      fetch(`${api}/design-system/icons.js`).then(r => r.text()),
+      fetch(`${api}/design-system/shared.js`).then(r => r.text()),
+    ]).then(([icons, shared]) => {
+      setIconsCode(icons)
+      setSharedCode(shared)
+    }).catch(() => {})
   }, [])
 
   useEffect(() => {
     if (!iframeRef.current || !code || !iconsCode) return
-    iframeRef.current.srcdoc = buildSrcdoc(code, iconsCode, getApiUrl())
-  }, [code, iconsCode])
+    iframeRef.current.srcdoc = buildSrcdoc(code, iconsCode, sharedCode, getApiUrl())
+  }, [code, iconsCode, sharedCode])
 
   if (!code) {
     return (

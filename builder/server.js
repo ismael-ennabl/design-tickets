@@ -15,6 +15,7 @@ function loadSystemPrompt() {
 
   const tokens   = read(join(__dirname, 'system-prompt/design-tokens.md'))
   const patterns = read(join(__dirname, 'system-prompt/component-patterns.md'))
+  const shared   = read(join(__dirname, 'system-prompt/shared-components.md'))
 
   return `You are an expert UI engineer for ennabl, an insurance analytics platform for insurance agencies and brokers.
 
@@ -78,6 +79,10 @@ ${tokens}
 
 ${patterns}
 
+## Shared components (available as globals in the preview)
+
+${shared}
+
 ## Context
 
 The generated code runs inside a Vite + React app. The ennabl design system CSS (colors_and_type.css + styles.css) is already loaded globally — you can use all \`--en-*\` variables and \`.en-*\` classes directly without importing them.`
@@ -103,6 +108,15 @@ app.get('/design-system/styles.css', (req, res) => {
 app.get('/design-system/icons.js', (req, res) => {
   res.set({ 'Content-Type': 'text/plain', ...CORS })
     .send(readFileSync(join(SHARED, 'icons.jsx'), 'utf8'))
+})
+
+// All _shared components concatenated — loaded into the preview iframe
+app.get('/design-system/shared.js', (req, res) => {
+  const files = ['picker.jsx', 'dialogs.jsx', 'step3.jsx']
+  const combined = files
+    .map(f => `// === ${f} ===\n` + readFileSync(join(SHARED, f), 'utf8'))
+    .join('\n\n')
+  res.set({ 'Content-Type': 'text/plain', ...CORS }).send(combined)
 })
 
 app.post('/api/chat', async (req, res) => {
