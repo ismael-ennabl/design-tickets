@@ -9,7 +9,7 @@ function extractCode(text) {
   return match ? match[1].trim() : null
 }
 
-export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated, onSwitchToPrd, onIterationComplete }) {
+export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated, onSwitchToPrd, onIterationComplete, initTrigger }) {
   const [input, setInput] = useState('')
   const [streaming, setStreaming] = useState(false)
   const [selectedModel, setSelectedModel] = useState(getModel)
@@ -20,8 +20,14 @@ export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated,
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  async function send() {
-    const text = input.trim()
+  useEffect(() => {
+    if (initTrigger > 0 && prd && !streaming) {
+      send('Build a complete UI from this PRD.')
+    }
+  }, [initTrigger])
+
+  async function send(overrideText) {
+    const text = (overrideText ?? input).trim()
     if (!text || streaming) return
 
     const userMessage = { role: 'user', content: text }
@@ -36,7 +42,7 @@ export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated,
     ]
 
     setMessages(prev => [...prev, userMessage])
-    setInput('')
+    if (!overrideText) setInput('')
     setStreaming(true)
     setMessages(prev => [...prev, { role: 'assistant', content: '' }])
 

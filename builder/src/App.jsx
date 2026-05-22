@@ -20,6 +20,7 @@ export default function App() {
   const [messages, setMessages] = useState([])
   const [session, setSession] = useState(null)
   const [history, setHistory] = useState(loadHistory)
+  const [initTrigger, setInitTrigger] = useState(0)
 
   function navigate(next) {
     if (next.page === 'builder' && next.prdId) {
@@ -118,6 +119,7 @@ export default function App() {
           prd={prd}
           history={history}
           onHistoryClear={handleHistoryClear}
+          onInitDesign={() => setInitTrigger(t => t + 1)}
         />
         <div className="app-divider" />
         <RightPanel
@@ -128,6 +130,7 @@ export default function App() {
           onIterationComplete={handleIterationComplete}
           session={session}
           onSessionUpdate={setSession}
+          initTrigger={initTrigger}
         />
       </main>
     </div>

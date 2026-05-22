@@ -5,7 +5,7 @@ import './RightPanel.css'
 
 export default function RightPanel({
   prd, messages, setMessages, onCodeGenerated, onIterationComplete,
-  session, onSessionUpdate,
+  session, onSessionUpdate, initTrigger,
 }) {
   const [tab, setTab] = useState('chat')
 
@@ -37,6 +37,7 @@ export default function RightPanel({
             onCodeGenerated={onCodeGenerated}
             onIterationComplete={onIterationComplete}
             onSwitchToPrd={() => setTab('prd')}
+            initTrigger={initTrigger}
           />
         )}
         {tab === 'report' && (

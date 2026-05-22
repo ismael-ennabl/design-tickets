@@ -5,7 +5,7 @@ import StorybookTab from './StorybookTab'
 import FigmaTab from './FigmaTab'
 import './LeftPanel.css'
 
-export default function LeftPanel({ code, prd, history, onHistoryClear }) {
+export default function LeftPanel({ code, prd, history, onHistoryClear, onInitDesign }) {
   const [tab, setTab] = useState('design')
 
   return (
@@ -40,7 +40,27 @@ export default function LeftPanel({ code, prd, history, onHistoryClear }) {
 
       <div className="left-content">
         <div className={`left-canvas-wrap ${tab !== 'design' ? 'left-canvas-wrap--hidden' : ''}`}>
-          <DesignCanvas code={code} />
+          {!code && tab === 'design' ? (
+            <div className="design-empty">
+              {prd ? (
+                <>
+                  <div className="design-empty-icon">✦</div>
+                  <div className="design-empty-title">{prd.name}</div>
+                  <div className="design-empty-sub">PRD loaded — ready to generate</div>
+                  <button className="design-empty-cta" onClick={onInitDesign}>
+                    Init Design
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="design-empty-icon">◎</div>
+                  <div className="design-empty-sub">Open a PRD from Projects to start</div>
+                </>
+              )}
+            </div>
+          ) : (
+            <DesignCanvas code={code} />
+          )}
         </div>
         {tab === 'prd' && prd && (
           <div
