@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
-import { getApiUrl } from '../lib/apiUrl'
-import { extractComponents, calcCost } from '../lib/reports'
+import { streamChat } from '../lib/claude'
+import { extractComponents } from '../lib/reports'
 import './ChatPanel.css'
 
 function extractCode(text) {
@@ -36,47 +36,26 @@ export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated,
     setMessages(prev => [...prev, userMessage])
     setInput('')
     setStreaming(true)
-
-    const assistantMessage = { role: 'assistant', content: '' }
-    setMessages(prev => [...prev, assistantMessage])
+    setMessages(prev => [...prev, { role: 'assistant', content: '' }])
 
     try {
-      const res = await fetch(`${getApiUrl()}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: apiMessages })
-      })
-
-      const reader = res.body.getReader()
-      const decoder = new TextDecoder()
       let full = ''
       let usage = null
 
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-
-        const chunk = decoder.decode(value)
-        const lines = chunk.split('\n')
-
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue
-          const data = line.slice(6)
-          if (data === '[DONE]') continue
-          try {
-            const parsed = JSON.parse(data)
-            if (parsed.text) {
-              full += parsed.text
-              setMessages(prev => {
-                const updated = [...prev]
-                updated[updated.length - 1] = { role: 'assistant', content: full }
-                return updated
-              })
-            }
-            if (parsed.usage) usage = parsed.usage
-          } catch {}
-        }
-      }
+      await streamChat({
+        messages: apiMessages,
+        onText: (chunk) => {
+          full += chunk
+          setMessages(prev => {
+            const updated = [...prev]
+            updated[updated.length - 1] = { role: 'assistant', content: full }
+            return updated
+          })
+        },
+        onDone: (usageData) => {
+          usage = usageData
+        },
+      })
 
       const code = extractCode(full)
       if (code) onCodeGenerated(code)

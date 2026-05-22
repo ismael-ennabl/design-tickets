@@ -6,7 +6,7 @@ on:
     paths:
       - 'builder/**'
       - 'youtrack/_design_system/**'
-      - 'youtrack/_shared/icons.jsx'
+      - 'youtrack/_shared/**'
 
 jobs:
   build-and-deploy:
@@ -30,8 +30,6 @@ jobs:
       - name: Build
         run: npm run build
         working-directory: builder
-        env:
-          VITE_API_URL: ${{ secrets.BUILDER_API_URL }}
 
       - name: Commit builder-app to main
         run: |

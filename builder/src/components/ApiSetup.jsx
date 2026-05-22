@@ -1,26 +1,19 @@
 import { useState } from 'react'
-import { setApiUrl } from '../lib/apiUrl'
+import { setApiKey } from '../lib/apiKey'
 import './ApiSetup.css'
 
 export default function ApiSetup({ onDone }) {
-  const [url, setUrl] = useState('http://localhost:3001')
-  const [testing, setTesting] = useState(false)
+  const [key, setKey] = useState('')
   const [error, setError] = useState(null)
 
-  async function handleSave() {
-    const cleaned = url.trim().replace(/\/$/, '')
-    if (!cleaned) return
-    setTesting(true)
-    setError(null)
-    try {
-      await fetch(`${cleaned}/design-system/colors.css`, { signal: AbortSignal.timeout(4000) })
-      setApiUrl(cleaned)
-      onDone()
-    } catch {
-      setError('Could not reach that URL. Make sure the builder server is running.')
-    } finally {
-      setTesting(false)
+  function handleSave() {
+    const trimmed = key.trim()
+    if (!trimmed.startsWith('sk-ant-') && !trimmed.startsWith('sk-')) {
+      setError('Paste your Anthropic API key — it starts with sk-ant-')
+      return
     }
+    setApiKey(trimmed)
+    onDone()
   }
 
   return (
@@ -31,21 +24,23 @@ export default function ApiSetup({ onDone }) {
           <span className="setup-logo-suffix">builder</span>
         </div>
         <p className="setup-desc">
-          Enter the URL where the builder API is running.<br />
-          For local dev this is <code>http://localhost:3001</code>.
+          Paste your Anthropic API key to get started.<br />
+          It's stored only in your browser's local storage.
         </p>
-        <label className="setup-label">API URL</label>
+        <label className="setup-label">Anthropic API Key</label>
         <input
           className="setup-input"
-          value={url}
-          onChange={e => setUrl(e.target.value)}
+          type="password"
+          value={key}
+          onChange={e => { setKey(e.target.value); setError(null) }}
           onKeyDown={e => e.key === 'Enter' && handleSave()}
-          placeholder="https://your-api.vercel.app"
+          placeholder="sk-ant-..."
           spellCheck={false}
+          autoFocus
         />
         {error && <p className="setup-error">{error}</p>}
-        <button className="setup-btn" onClick={handleSave} disabled={testing || !url.trim()}>
-          {testing ? 'Connecting…' : 'Connect'}
+        <button className="setup-btn" onClick={handleSave} disabled={!key.trim()}>
+          Save & continue
         </button>
       </div>
     </div>

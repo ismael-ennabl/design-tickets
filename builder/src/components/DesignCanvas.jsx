@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { getApiUrl } from '../lib/apiUrl'
 import './DesignCanvas.css'
 
-function buildSrcdoc(code, iconsCode, sharedCode, apiUrl) {
+const BASE = import.meta.env.BASE_URL
+
+function buildSrcdoc(code, colorsCSS, stylesCSS, iconsCode, sharedCode) {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -11,11 +12,11 @@ function buildSrcdoc(code, iconsCode, sharedCode, apiUrl) {
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,100..900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="${apiUrl}/design-system/colors.css">
-  <link rel="stylesheet" href="${apiUrl}/design-system/styles.css">
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+  <style>${colorsCSS}</style>
+  <style>${stylesCSS}</style>
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body { margin: 0; min-height: 100vh; background: var(--en-bg-grey, #f4f6fc); }
@@ -39,25 +40,26 @@ ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(
 
 export default function DesignCanvas({ code }) {
   const iframeRef = useRef(null)
-  const [view, setView] = useState('preview') // 'preview' | 'code'
-  const [iconsCode, setIconsCode] = useState('')
-  const [sharedCode, setSharedCode] = useState('')
+  const [view, setView] = useState('preview')
+  const [assets, setAssets] = useState(null)
 
   useEffect(() => {
-    const api = getApiUrl()
     Promise.all([
-      fetch(`${api}/design-system/icons.js`).then(r => r.text()),
-      fetch(`${api}/design-system/shared.js`).then(r => r.text()),
-    ]).then(([icons, shared]) => {
-      setIconsCode(icons)
-      setSharedCode(shared)
+      fetch(`${BASE}design-system/colors.css`).then(r => r.text()),
+      fetch(`${BASE}design-system/styles.css`).then(r => r.text()),
+      fetch(`${BASE}design-system/icons.js`).then(r => r.text()),
+      fetch(`${BASE}design-system/shared.js`).then(r => r.text()),
+    ]).then(([colors, styles, icons, shared]) => {
+      setAssets({ colors, styles, icons, shared })
     }).catch(() => {})
   }, [])
 
   useEffect(() => {
-    if (!iframeRef.current || !code || !iconsCode) return
-    iframeRef.current.srcdoc = buildSrcdoc(code, iconsCode, sharedCode, getApiUrl())
-  }, [code, iconsCode, sharedCode])
+    if (!iframeRef.current || !code || !assets) return
+    iframeRef.current.srcdoc = buildSrcdoc(
+      code, assets.colors, assets.styles, assets.icons, assets.shared
+    )
+  }, [code, assets])
 
   if (!code) {
     return (

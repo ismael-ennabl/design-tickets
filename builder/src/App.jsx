@@ -2,7 +2,7 @@ import { useState } from 'react'
 import DesignCanvas from './components/DesignCanvas'
 import RightPanel from './components/RightPanel'
 import ApiSetup from './components/ApiSetup'
-import { getApiUrl } from './lib/apiUrl'
+import { getApiKey } from './lib/apiKey'
 import { newSession, calcCost, saveSession } from './lib/reports'
 import './App.css'
 
@@ -10,7 +10,7 @@ export default function App() {
   const [prd, setPrd] = useState(null)
   const [generatedCode, setGeneratedCode] = useState(null)
   const [messages, setMessages] = useState([])
-  const [apiReady, setApiReady] = useState(() => !!getApiUrl())
+  const [apiReady, setApiReady] = useState(() => !!getApiKey())
   const [session, setSession] = useState(null)
 
   function handleIterationComplete({ inputTokens, outputTokens, cacheReadTokens, componentsUsed }) {

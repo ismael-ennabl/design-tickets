@@ -1,0 +1,203 @@
+/* ================================================================
+   Ennabl Design System — Colors, Type, Spacing, Radii, Motion
+   Extracted from app-frontend/src/core/themes/themeDecisions
+   ================================================================ */
+
+
+
+
+:root {
+  /* ---------- Core palette (from palette/index.ts) ---------- */
+  --en-black: #1E1E1E;
+  --en-white: #FFFFFF;
+
+  /* Primary — deep indigo; Ennabl's action color */
+  --en-primary-light: #6139F9;
+  --en-primary: #0000C5;
+  --en-primary-dark: #000093;
+
+  /* Secondary — pale backgrounds used behind action pills */
+  --en-secondary-light: #FFFFFF;
+  --en-secondary: #F5F8FD;
+  --en-secondary-dark: #EEF3FC;
+
+  /* Semantic */
+  --en-error-light: #FF8C6F;
+  --en-error: #FC5943;
+  --en-error-dark: #C22019;
+
+  --en-success-light: #67EBAD;
+  --en-success: #3DD598;
+  --en-success-dark: #008751;
+
+  --en-warning-light: #FFE751;
+  --en-warning: #FFC542;
+  --en-warning-dark: #C78600;
+
+  /* Text */
+  --en-fg: rgba(30, 30, 30, 0.87);
+  --en-fg-secondary: rgba(130, 135, 176, 0.8);
+  --en-fg-disabled: rgba(30, 30, 30, 0.38);
+
+  /* Icon */
+  --en-icon: rgb(59, 59, 59);
+  --en-icon-secondary: #9B9FC0;
+  --en-icon-disabled: rgb(169, 169, 169);
+
+  /* Sidebar */
+  --en-sidebar: #71748C;
+
+  /* Backgrounds — three tiered neutrals */
+  --en-bg: hsla(0, 0%, 100%, 1);            /* white surface */
+  --en-bg-grey: hsla(218, 67%, 98%, 1);     /* canvas */
+  --en-bg-dark-grey: hsla(218, 61%, 94%, 1); /* subtle fill / chip */
+  --en-bg-black: hsla(186, 5%, 54%, 1);     /* Unknown.50 */
+
+  /* Divider — faint blue-tinted neutral */
+  --en-divider: hsla(217, 68%, 94%, 1);
+
+  /* Logo */
+  --en-logo-primary: #1B2337;   /* deep navy */
+  --en-logo-accent: #FA5F0C;    /* ennabl orange — used in the mark only */
+
+  /* Action states */
+  --en-action-hover: rgba(0, 0, 197, 0.04);
+  --en-outlined-hover: hsla(240, 100%, 95%, 1);
+  --en-heading: hsla(227, 26%, 42%, 1);
+
+  /* ---------- Global tokens (colorVariables.Global) ---------- */
+  --en-bg-hover: hsla(226, 25%, 96%, 1);
+  --en-bg-active: hsla(207, 100%, 96%, 1);
+  --en-bg-empty: hsla(206, 25%, 92%, 1);
+  --en-bg-primary: hsla(206, 100%, 50%, 1);    /* command blue — used as action highlight */
+  --en-bg-primary-hover: hsla(206, 100%, 40%, 1);
+  --en-bg-primary-active: hsla(206, 100%, 28%, 1);
+  --en-border: hsla(228, 80%, 90%, 1);
+  --en-border-danger: hsla(360, 96%, 66%, 1);
+  --en-text-secondary: hsla(206, 100%, 50%, 1);
+  --en-text-tertiary: hsla(206, 100%, 28%, 1);
+  --en-text-success: hsla(165, 65%, 50%, 1);
+  --en-text-warning: hsla(360, 96%, 66%, 1);
+
+  /* ---------- Products ---------- */
+  --en-product-commercial: hsla(196, 100%, 34%, 1);
+  --en-product-personal: hsla(196, 95%, 64%, 1);
+  --en-product-benefits: hsla(196, 95%, 22%, 1);
+
+  /* ---------- Data types (50 = base) ---------- */
+  --en-data-accounts: hsla(255, 72%, 54%, 1);
+  --en-data-account-managers: hsla(313, 73%, 54%, 1);
+  --en-data-benefits: hsla(288, 100%, 54%, 1);
+  --en-data-book: hsla(209, 100%, 54%, 1);
+  --en-data-carriers: hsla(47, 98%, 54%, 1);
+  --en-data-clients: hsla(189, 100%, 54%, 1);
+  --en-data-commercial: hsla(324, 100%, 54%, 1);
+  --en-data-industries: hsla(340, 95%, 54%, 1);
+  --en-data-intermediaries: hsla(25, 97%, 54%, 1);
+  --en-data-personal: hsla(260, 73%, 54%, 1);
+  --en-data-policies: hsla(176, 73%, 54%, 1);
+  --en-data-premium: hsla(98, 32%, 54%, 1);
+  --en-data-producers: hsla(254, 52%, 54%, 1);
+  --en-data-revenue: hsla(156, 61%, 54%, 1);
+  --en-data-unknown: hsla(186, 5%, 54%, 1);
+
+  /* ---------- Graph ramps (from colorVariables.Graph) ---------- */
+  --en-graph-client-10: hsla(206, 100%, 96%, 1);
+  --en-graph-client-100: hsla(206, 100%, 72%, 1);
+  --en-graph-client-600: hsla(206, 100%, 50%, 1);
+  --en-graph-client-1200: hsla(206, 100%, 28%, 1);
+  --en-graph-carrier-600: hsla(45, 86%, 62%, 1);
+  --en-graph-industry-600: hsla(21, 96%, 51%, 1);
+  --en-graph-producer-600: hsla(180, 92%, 34%, 1);
+  --en-graph-revenue-600: hsla(165, 65%, 50%, 1);
+
+  /* ---------- Type ---------- */
+  --en-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --en-font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* base multiplier — spacing(N) = N * 4px */
+  --en-space: 4px;
+
+  /* Radii (from shape/index.ts) */
+  --en-radius-sm: 2px;
+  --en-radius: 4px;
+  --en-radius-regular: 8px;   /* button / input */
+  --en-radius-medium: 12px;
+  --en-radius-large: 16px;    /* paper */
+  --en-radius-xl: 24px;
+
+  /* Container widths */
+  --en-container-lg: 1200px;
+  --en-container-sm: 864px;
+
+  /* Elevation — Ennabl uses almost no shadow; elevation=0 papers dominate.
+     These are the practical shadows present on menus/tooltips. */
+  --en-shadow-none: none;
+  --en-shadow-menu: 0 4px 12px rgba(30, 30, 30, 0.08), 0 0 1px rgba(30, 30, 30, 0.12);
+  --en-shadow-tooltip: 0 2px 8px rgba(30, 30, 30, 0.16);
+  --en-shadow-card-hover: 0 1px 2px rgba(0, 0, 197, 0.06);
+
+  /* Motion — MUI defaults; transitions are subtle */
+  --en-duration-shortest: 150ms;
+  --en-duration-short: 200ms;
+  --en-easing: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ================================================================
+   Typography scale — mirrors themeDecisions/typography/index.ts
+   All values in px; line-height is the computed ratio × size.
+   ================================================================ */
+
+html, body {
+  font-family: var(--en-font-sans);
+  color: var(--en-fg);
+  background: var(--en-bg-grey);
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.en-h1 { font: 400 48px/52px var(--en-font-sans); }
+.en-h2 { font: 400 34px/40px var(--en-font-sans); letter-spacing: 0.25px; }
+.en-h3 { font: 700 24px/32px var(--en-font-sans); letter-spacing: 0.25px; }
+.en-h4 { font: 700 20px/28px var(--en-font-sans); letter-spacing: 0.15px; }
+.en-h5 { font: 700 14px/16px var(--en-font-sans); letter-spacing: 0.15px; }
+
+.en-body1       { font: 400 16px/24px var(--en-font-sans); letter-spacing: 0.15px; }
+.en-body1-bold  { font: 700 16px/24px var(--en-font-sans); letter-spacing: 0.15px; }
+.en-body2       { font: 400 14px/20px var(--en-font-sans); letter-spacing: 0.17px; }
+.en-body2-bold  { font: 700 14px/20px var(--en-font-sans); letter-spacing: 0.17px; }
+.en-body3       { font: 400 12px/16px var(--en-font-sans); letter-spacing: 0.17px; }
+.en-body3-bold  { font: 700 12px/16px var(--en-font-sans); letter-spacing: 0.17px; }
+
+.en-subtitle1   { font: 400 16px/24px var(--en-font-sans); letter-spacing: 0.15px; }
+.en-subtitle2   { font: 500 14px/16px var(--en-font-sans); letter-spacing: 0.1px; }
+.en-subtitle3   { font: 500 12px/16px var(--en-font-sans); letter-spacing: 0.1px; }
+
+.en-caption        { font: 400 12px/16px var(--en-font-sans); letter-spacing: 0.4px; }
+.en-caption-bold   { font: 700 12px/16px var(--en-font-sans); letter-spacing: 0.4px; }
+
+.en-overline       { font: 400 12px/20px var(--en-font-sans); letter-spacing: 1px; text-transform: uppercase; }
+.en-overline-bold  { font: 700 12px/20px var(--en-font-sans); letter-spacing: 1px; text-transform: uppercase; }
+
+.en-code { font: 400 12px/16px var(--en-font-mono); letter-spacing: 0.17px; }
+
+.en-btn-large   { font: 400 16px/24px var(--en-font-sans); letter-spacing: 0.15px; text-transform: none; }
+.en-btn-medium  { font: 400 14px/20px var(--en-font-sans); letter-spacing: 0.15px; text-transform: none; }
+.en-btn-small   { font: 400 12px/16px var(--en-font-sans); letter-spacing: 0.15px; text-transform: none; }
+
+.en-tab-large   { font: 600 16px/20px var(--en-font-sans); letter-spacing: 0.15px; text-transform: none; }
+.en-tab-medium  { font: 600 14px/16px var(--en-font-sans); letter-spacing: 0.15px; text-transform: none; }
+.en-tab-small   { font: 600 12px/16px var(--en-font-sans); letter-spacing: 0.15px; text-transform: none; }
+
+.en-table-header { font: 500 14px/24px var(--en-font-sans); letter-spacing: 0.1px; }
+.en-table-text   { font: 400 14px/24px var(--en-font-sans); letter-spacing: 0.15px; }
+
+/* Semantic element defaults (if you want base tags styled) */
+h1 { font: 400 48px/52px var(--en-font-sans); margin: 0; }
+h2 { font: 400 34px/40px var(--en-font-sans); letter-spacing: 0.25px; margin: 0; }
+h3 { font: 700 24px/32px var(--en-font-sans); letter-spacing: 0.25px; margin: 0; }
+h4 { font: 700 20px/28px var(--en-font-sans); letter-spacing: 0.15px; margin: 0; }
+h5 { font: 700 14px/16px var(--en-font-sans); letter-spacing: 0.15px; margin: 0; }
+p  { font: 400 14px/20px var(--en-font-sans); letter-spacing: 0.17px; margin: 0; }
+code { font-family: var(--en-font-mono); font-size: 0.92em; }
