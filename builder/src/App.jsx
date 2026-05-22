@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import DesignCanvas from './components/DesignCanvas'
+import LeftPanel from './components/LeftPanel'
 import RightPanel from './components/RightPanel'
 import ApiSetup from './components/ApiSetup'
 import { getApiKey } from './lib/apiKey'
@@ -62,7 +62,7 @@ export default function App() {
       </header>
 
       <main className="app-panels">
-        <DesignCanvas code={generatedCode} />
+        <LeftPanel code={generatedCode} prd={prd} />
         <div className="app-divider" />
         <RightPanel
           prd={prd}

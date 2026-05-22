@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { marked } from 'marked'
 import ChatPanel from './ChatPanel'
 import ReportTab from './ReportTab'
 import './RightPanel.css'
@@ -18,12 +17,6 @@ export default function RightPanel({
           onClick={() => setTab('chat')}
         >
           Chat
-        </button>
-        <button
-          className={`right-tab ${tab === 'prd' ? 'right-tab--active' : ''} ${!prd ? 'right-tab--disabled' : ''}`}
-          onClick={() => prd && setTab('prd')}
-        >
-          {prd ? prd.name : 'PRD'}
         </button>
         <button
           className={`right-tab ${tab === 'report' ? 'right-tab--active' : ''}`}
@@ -45,15 +38,6 @@ export default function RightPanel({
             onIterationComplete={onIterationComplete}
             onSwitchToPrd={() => setTab('prd')}
           />
-        )}
-        {tab === 'prd' && prd && (
-          <div
-            className="prd-view"
-            dangerouslySetInnerHTML={{ __html: marked.parse(prd.content) }}
-          />
-        )}
-        {tab === 'prd' && !prd && (
-          <div className="prd-empty">No PRD loaded</div>
         )}
         {tab === 'report' && (
           <ReportTab
