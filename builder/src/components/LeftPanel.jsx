@@ -40,27 +40,7 @@ export default function LeftPanel({ code, prd, history, onHistoryClear, onInitDe
 
       <div className="left-content">
         <div className={`left-canvas-wrap ${tab !== 'design' ? 'left-canvas-wrap--hidden' : ''}`}>
-          {!code && tab === 'design' ? (
-            <div className="design-empty">
-              {prd ? (
-                <>
-                  <div className="design-empty-icon">✦</div>
-                  <div className="design-empty-title">{prd.name}</div>
-                  <div className="design-empty-sub">PRD loaded — ready to generate</div>
-                  <button className="design-empty-cta" onClick={onInitDesign}>
-                    Init Design
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div className="design-empty-icon">◎</div>
-                  <div className="design-empty-sub">Open a PRD from Projects to start</div>
-                </>
-              )}
-            </div>
-          ) : (
-            <DesignCanvas code={code} />
-          )}
+          <DesignCanvas code={code} prd={prd} onInitDesign={onInitDesign} />
         </div>
         {tab === 'prd' && prd && (
           <div

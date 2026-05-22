@@ -30,25 +30,43 @@ function buildSrcdoc(code) {
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     body { margin: 0; min-height: 100vh; background: var(--en-bg-grey, #f4f6fc); }
+    #__err { display:none; position:fixed; inset:0; background:#1a1a1a; color:#f87171; font:13px/1.6 monospace; padding:24px; white-space:pre-wrap; z-index:9999; overflow:auto; }
+    #__err.show { display:block; }
   </style>
+  <script>
+    window.onerror = function(msg, src, line, col, err) {
+      var el = document.getElementById('__err');
+      if (el) { el.textContent = (err ? err.stack : msg) || msg; el.className = 'show'; }
+      return true;
+    };
+    window.addEventListener('unhandledrejection', function(e) {
+      var el = document.getElementById('__err');
+      if (el) { el.textContent = String(e.reason); el.className = 'show'; }
+    });
+  </script>
 </head>
 <body>
   <div id="root"></div>
+  <div id="__err"></div>
   <script type="text/babel">
 ${iconsJsRaw}
-  </script>
-  <script type="text/babel">
+
 ${sharedCode}
-  </script>
-  <script type="text/babel">
+
 ${code}
-ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+
+try {
+  ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(App));
+} catch(e) {
+  var el = document.getElementById('__err');
+  if (el) { el.textContent = e.stack || e.message; el.className = 'show'; }
+}
   </script>
 </body>
 </html>`
 }
 
-export default function DesignCanvas({ code }) {
+export default function DesignCanvas({ code, prd, onInitDesign }) {
   const iframeRef = useRef(null)
   const [view, setView] = useState('preview')
 
@@ -60,11 +78,22 @@ export default function DesignCanvas({ code }) {
   if (!code) {
     return (
       <div className="canvas canvas--empty">
-        <div className="canvas-empty-inner">
-          <div className="canvas-empty-icon">◻</div>
-          <p>Your design will appear here</p>
-          <span>Load a PRD and describe the UI in the chat</span>
-        </div>
+        {prd ? (
+          <>
+            <div className="canvas-empty-icon">✦</div>
+            <p className="canvas-empty-title">{prd.name}</p>
+            <span className="canvas-empty-sub">PRD loaded — ready to generate</span>
+            <button className="canvas-init-btn" onClick={onInitDesign}>
+              Init Design
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="canvas-empty-icon">◎</div>
+            <p className="canvas-empty-title">No PRD loaded</p>
+            <span className="canvas-empty-sub">Open a PRD from Projects to start</span>
+          </>
+        )}
       </div>
     )
   }
