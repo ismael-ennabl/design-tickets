@@ -1,19 +1,48 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import LeftPanel from './components/LeftPanel'
 import RightPanel from './components/RightPanel'
 import ApiSetup from './components/ApiSetup'
+import PrdSearch from './components/PrdSearch'
+import ProjectsPage from './pages/ProjectsPage'
+import ProjectView from './pages/ProjectView'
 import { getApiKey } from './lib/apiKey'
 import { newSession, calcCost, saveSession } from './lib/reports'
 import { loadHistory, saveHistory, makeEntry } from './lib/history'
+import { loadPrds, savePrds, seedIfEmpty, getPrd } from './lib/prds'
 import './App.css'
 
 export default function App() {
+  const [apiReady, setApiReady] = useState(() => !!getApiKey())
+  const [route, setRoute] = useState({ page: 'projects' })
+  const [prds, setPrds] = useState(() => { seedIfEmpty(); return loadPrds() })
   const [prd, setPrd] = useState(null)
   const [generatedCode, setGeneratedCode] = useState(null)
   const [messages, setMessages] = useState([])
-  const [apiReady, setApiReady] = useState(() => !!getApiKey())
   const [session, setSession] = useState(null)
   const [history, setHistory] = useState(loadHistory)
+
+  function navigate(next) {
+    if (next.page === 'builder' && next.prdId) {
+      const found = getPrd(next.prdId)
+      if (found) loadPrdById(found)
+    }
+    setRoute(next)
+  }
+
+  function handlePrdsChange(updater) {
+    setPrds(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater
+      savePrds(next)
+      return next
+    })
+  }
+
+  function loadPrdById(prdObj) {
+    setPrd({ id: prdObj.id, name: prdObj.title, content: prdObj.content })
+    setMessages([])
+    setGeneratedCode(null)
+    setSession(newSession(prdObj.title))
+  }
 
   function handleCodeGenerated(code) {
     setGeneratedCode(code)
@@ -46,17 +75,6 @@ export default function App() {
     })
   }
 
-  function loadPrd(file) {
-    const reader = new FileReader()
-    reader.onload = ev => {
-      setPrd({ name: file.name, content: ev.target.result })
-      setMessages([])
-      setGeneratedCode(null)
-      setSession(newSession(file.name))
-    }
-    reader.readAsText(file)
-  }
-
   function handleHistoryClear() {
     setHistory([])
     saveHistory([])
@@ -64,22 +82,34 @@ export default function App() {
 
   if (!apiReady) return <ApiSetup onDone={() => setApiReady(true)} />
 
+  if (route.page === 'projects') {
+    return <ProjectsPage prds={prds} onNavigate={navigate} />
+  }
+
+  if (route.page === 'project') {
+    return (
+      <ProjectView
+        projectId={route.projectId}
+        prds={prds}
+        onNavigate={navigate}
+        onPrdsChange={handlePrdsChange}
+      />
+    )
+  }
+
   return (
     <div className="app">
       <header className="app-header">
         <div className="app-header-left">
+          <button className="app-back-btn" onClick={() => navigate({ page: 'projects' })}>
+            ← Projects
+          </button>
+          <span className="app-header-sep" />
           <span className="app-logo">ennabl</span>
           <span className="app-logo-suffix">builder</span>
+          {prd && <span className="app-prd-badge">{prd.name}</span>}
         </div>
-        <label className="prd-pick-btn">
-          {prd ? 'swap PRD' : 'load PRD'}
-          <input
-            type="file"
-            accept=".md,.txt"
-            style={{ display: 'none' }}
-            onChange={e => { if (e.target.files[0]) loadPrd(e.target.files[0]) }}
-          />
-        </label>
+        <PrdSearch onSelect={p => { loadPrdById(p); }} />
       </header>
 
       <main className="app-panels">

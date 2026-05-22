@@ -1,0 +1,301 @@
+.project-view {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background: var(--bg);
+}
+
+/* Header */
+.project-view-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+  height: 48px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.project-back-btn {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  padding: 4px 8px;
+  border-radius: 5px;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+.project-back-btn:hover { color: var(--text); }
+
+.project-view-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+}
+
+.project-view-icon { font-size: 16px; }
+
+.project-view-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.project-view-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.view-toggle {
+  display: flex;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.view-toggle-btn {
+  font-size: 11px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  padding: 3px 10px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.1s, background 0.1s;
+}
+.view-toggle-btn.active { background: var(--surface); color: var(--text); }
+
+.new-prd-btn {
+  font-size: 12px;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  padding: 5px 12px;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.new-prd-btn:hover { background: var(--accent-hover); }
+
+/* Body */
+.project-view-body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* List view */
+.prd-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+
+.prd-list-empty {
+  padding: 48px 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.prd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.prd-table thead tr {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.prd-table th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 12px;
+}
+
+.prd-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+
+.prd-table tbody tr:hover td { background: rgba(108, 99, 255, 0.04); }
+
+.prd-table-title { font-weight: 500; color: var(--text); }
+.prd-table-date { color: var(--text-muted); font-size: 12px; white-space: nowrap; }
+
+.prd-table-actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+.prd-action-btn {
+  font-size: 11px;
+  font-family: 'Inter', sans-serif;
+  padding: 3px 9px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.1s, border-color 0.1s;
+}
+.prd-action-btn:hover { color: var(--text); border-color: var(--text-muted); }
+.prd-action-btn--danger:hover { color: #f87171; border-color: #f87171; }
+
+/* Status badges */
+.prd-status {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+.prd-status--backlog { background: rgba(255,255,255,0.06); color: var(--text-muted); }
+.prd-status--todo    { background: rgba(250,204,21,0.12);  color: #fbbf24; }
+.prd-status--doing   { background: rgba(108,99,255,0.12);  color: var(--accent); }
+.prd-status--done    { background: rgba(61,213,152,0.12);  color: #3dd598; }
+
+/* Kanban */
+.kanban-board {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  padding: 20px 24px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 100%;
+}
+
+.kanban-col {
+  flex: 1;
+  min-width: 220px;
+  max-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.kanban-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.kanban-col-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.kanban-col-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 1px solid var(--border-subtle);
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.kanban-col-cards {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 60px;
+}
+
+.kanban-col-empty {
+  padding: 16px;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+  opacity: 0.4;
+  border: 1px dashed var(--border-subtle);
+  border-radius: 6px;
+}
+
+.kanban-card {
+  background: var(--bg);
+  border: 1px solid var(--border-subtle);
+  border-radius: 7px;
+  padding: 10px 12px;
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  user-select: none;
+  touch-action: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.kanban-card:hover { border-color: var(--accent); }
+.kanban-card:active { cursor: grabbing; }
+
+.kanban-card--overlay {
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  border-color: var(--accent);
+  cursor: grabbing;
+}
+
+.kanban-card-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.kanban-card-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.kanban-card-actions {
+  display: flex;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.kanban-card-btn {
+  font-size: 10px;
+  font-family: 'Inter', sans-serif;
+  padding: 2px 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.1s, border-color 0.1s;
+}
+.kanban-card-btn:hover { color: var(--text); border-color: var(--text-muted); }
+.kanban-card-btn--danger:hover { color: #f87171; border-color: #f87171; }
