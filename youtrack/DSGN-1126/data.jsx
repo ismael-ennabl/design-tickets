@@ -44,7 +44,7 @@ const INITIAL_TEMPLATES = [
     shared: true,
     usageCount: 142,
     producerTables: [
-      { id: 'tab-c1', name: 'Producer Team', producers: SAMPLE_PRODUCERS.commercial },
+      { id: 'tab-c1', name: 'Team', producers: SAMPLE_PRODUCERS.commercial },
     ],
     agency: AGENCY_DEFAULT,
   },
@@ -72,7 +72,7 @@ const INITIAL_TEMPLATES = [
     shared: true,
     usageCount: 21,
     producerTables: [
-      { id: 'tab-p1', name: 'Producer Team', producers: SAMPLE_PRODUCERS.personal },
+      { id: 'tab-p1', name: 'Team', producers: SAMPLE_PRODUCERS.personal },
     ],
     agency: AGENCY_DEFAULT,
   },
