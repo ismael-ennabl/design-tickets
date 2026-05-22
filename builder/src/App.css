@@ -1,0 +1,74 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  height: 48px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.app-logo {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.app-logo-suffix {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.app-prd-badge {
+  margin-left: 8px;
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--user-bubble);
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  opacity: 0.8;
+}
+
+.prd-pick-btn {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.prd-pick-btn:hover {
+  color: var(--text);
+  border-color: var(--text-muted);
+}
+
+.app-panels {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.app-divider {
+  width: 1px;
+  background: var(--border-subtle);
+  flex-shrink: 0;
+}

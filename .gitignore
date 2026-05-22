@@ -1,2 +1,10 @@
 .design-config
 published.log
+
+*storybook.log
+storybook-static
+
+# builder source deps / local env
+builder/node_modules/
+builder/dist/
+builder/.env
