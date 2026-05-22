@@ -141,12 +141,24 @@ app.post('/api/chat', async (req, res) => {
       messages
     })
 
+    let inputTokens = 0
+    let outputTokens = 0
+    let cacheReadTokens = 0
+
     for await (const event of stream) {
+      if (event.type === 'message_start') {
+        inputTokens = event.message.usage?.input_tokens ?? 0
+        cacheReadTokens = event.message.usage?.cache_read_input_tokens ?? 0
+      }
       if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
         res.write(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`)
       }
+      if (event.type === 'message_delta') {
+        outputTokens = event.usage?.output_tokens ?? 0
+      }
     }
 
+    res.write(`data: ${JSON.stringify({ usage: { inputTokens, outputTokens, cacheReadTokens } })}\n\n`)
     res.write('data: [DONE]\n\n')
     res.end()
   } catch (err) {

@@ -3,13 +3,32 @@ import DesignCanvas from './components/DesignCanvas'
 import RightPanel from './components/RightPanel'
 import ApiSetup from './components/ApiSetup'
 import { getApiUrl } from './lib/apiUrl'
+import { newSession, calcCost, saveSession } from './lib/reports'
 import './App.css'
 
 export default function App() {
-  const [prd, setPrd] = useState(null) // { name, content }
+  const [prd, setPrd] = useState(null)
   const [generatedCode, setGeneratedCode] = useState(null)
   const [messages, setMessages] = useState([])
   const [apiReady, setApiReady] = useState(() => !!getApiUrl())
+  const [session, setSession] = useState(null)
+
+  function handleIterationComplete({ inputTokens, outputTokens, cacheReadTokens, componentsUsed }) {
+    setSession(prev => {
+      if (!prev) return prev
+      const updated = {
+        ...prev,
+        iterations: prev.iterations + 1,
+        inputTokens: prev.inputTokens + inputTokens,
+        outputTokens: prev.outputTokens + outputTokens,
+        cacheReadTokens: prev.cacheReadTokens + cacheReadTokens,
+        componentsUsed: [...new Set([...prev.componentsUsed, ...componentsUsed])],
+      }
+      updated.cost = calcCost(updated)
+      saveSession(updated)
+      return updated
+    })
+  }
 
   function loadPrd(file) {
     const reader = new FileReader()
@@ -17,6 +36,7 @@ export default function App() {
       setPrd({ name: file.name, content: ev.target.result })
       setMessages([])
       setGeneratedCode(null)
+      setSession(newSession(file.name))
     }
     reader.readAsText(file)
   }
@@ -49,6 +69,9 @@ export default function App() {
           messages={messages}
           setMessages={setMessages}
           onCodeGenerated={setGeneratedCode}
+          onIterationComplete={handleIterationComplete}
+          session={session}
+          onSessionUpdate={setSession}
         />
       </main>
     </div>

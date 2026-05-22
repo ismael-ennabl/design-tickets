@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { getApiUrl } from '../lib/apiUrl'
+import { extractComponents, calcCost } from '../lib/reports'
 import './ChatPanel.css'
 
 function extractCode(text) {
@@ -7,7 +8,7 @@ function extractCode(text) {
   return match ? match[1].trim() : null
 }
 
-export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated, onSwitchToPrd }) {
+export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated, onSwitchToPrd, onIterationComplete }) {
   const [input, setInput] = useState('')
   const [streaming, setStreaming] = useState(false)
   const bottomRef = useRef(null)
@@ -49,6 +50,7 @@ export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated,
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
       let full = ''
+      let usage = null
 
       while (true) {
         const { done, value } = await reader.read()
@@ -71,12 +73,23 @@ export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated,
                 return updated
               })
             }
+            if (parsed.usage) usage = parsed.usage
           } catch {}
         }
       }
 
       const code = extractCode(full)
       if (code) onCodeGenerated(code)
+
+      if (onIterationComplete) {
+        const u = usage || {}
+        onIterationComplete({
+          inputTokens: u.inputTokens || 0,
+          outputTokens: u.outputTokens || 0,
+          cacheReadTokens: u.cacheReadTokens || 0,
+          componentsUsed: extractComponents(code),
+        })
+      }
     } catch (err) {
       setMessages(prev => {
         const updated = [...prev]

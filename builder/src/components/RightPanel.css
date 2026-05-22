@@ -45,6 +45,19 @@
   cursor: default;
 }
 
+.right-tab-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  margin-left: 5px;
+  vertical-align: middle;
+  margin-top: -1px;
+}
+
+.right-tab-dot--green { background: #3dd598; }
+
 .right-content {
   flex: 1;
   overflow: hidden;
