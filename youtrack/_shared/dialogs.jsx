@@ -355,4 +355,4 @@ function DeleteConfirm({ template, onClose, onConfirm, confirmLabel = 'Delete te
   );
 }
 
-Object.assign(window, { SaveTemplateDialog, UpdateTemplateDialog, ManageModal, DeleteConfirm });
+Object.assign(window, { Scrim, SaveTemplateDialog, UpdateTemplateDialog, ManageModal, DeleteConfirm });
