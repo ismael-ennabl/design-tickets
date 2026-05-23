@@ -54,7 +54,12 @@ Rules:
 ## Available globals in the preview
 
 React hooks: \`useState\`, \`useEffect\`, \`useMemo\`, \`useCallback\`, \`useRef\`
-Icons (all global): \`IconCheck\`, \`IconChevronDown\`, \`IconChevronUp\`, \`IconPlus\`, \`IconEdit\`, \`IconTrash\`, \`IconGear\`, \`IconSearch\`, \`IconStar\`, \`IconCopy\`, \`IconClose\`, \`IconMore\`, \`IconShare\`, \`IconRevert\`, \`IconUsers\`, \`IconInfo\`, \`IconUpload\`
+Icons — Phosphor Regular, all available as globals (use ONLY these):
+\`IconCheck\` \`IconChevronDown\` \`IconChevronUp\` \`IconPlus\` \`IconEdit\` \`IconEditFill\`
+\`IconTrash\` \`IconTrashFill\` \`IconGear\` \`IconSearch\` \`IconStar\` \`IconCopy\`
+\`IconClose\` \`IconMore\` \`IconShare\` \`IconExternal\` \`IconRevert\` \`IconUsers\`
+\`IconInfo\` \`IconUpload\`
+Props: \`size\` (number, default 16), \`style\`, \`className\`. \`IconStar\` also accepts \`filled\` (boolean).
 Charts: \`Recharts\` global — destructure \`BarChart\`, \`LineChart\`, \`PieChart\`, \`ResponsiveContainer\`, etc.
 Design system CSS (\`--en-*\` vars + \`.en-*\` classes): loaded globally, use freely
 
