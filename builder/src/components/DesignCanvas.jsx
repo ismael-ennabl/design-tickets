@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 
 import colorsCssRaw from '../../../youtrack/_design_system/colors_and_type.css?raw'
 import stylesCssRaw from '../../../youtrack/_design_system/styles.css?raw'
@@ -10,6 +10,27 @@ import step3JsRaw from '../../../youtrack/_shared/step3.jsx?raw'
 import './DesignCanvas.css'
 
 const colorsCSS = colorsCssRaw.replace(/@font-face\s*\{[^}]*\}/g, '')
+
+// Navigation bridge injected into every srcdoc.
+// Generated code calls window.__navigate('/path') to push a route.
+// hashchange events are also captured so hash-router patterns work.
+const NAV_BRIDGE = `
+<script>
+  window.__navigate = function(path) {
+    var hash = path.startsWith('#') ? path : '#' + path;
+    window.location.hash = hash;
+    window.parent.postMessage({ type: '__route', path: hash }, '*');
+  };
+  window.addEventListener('hashchange', function() {
+    window.parent.postMessage({ type: '__route', path: window.location.hash || '#/' }, '*');
+  });
+  // report initial route after React mounts
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      window.parent.postMessage({ type: '__route', path: window.location.hash || '#/' }, '*');
+    }, 100);
+  });
+<\/script>`
 
 function buildSrcdoc(code) {
   return `<!doctype html>
@@ -43,6 +64,7 @@ function buildSrcdoc(code) {
       if (el) { el.textContent = String(e.reason); el.className = 'show'; }
     });
   </script>
+  ${NAV_BRIDGE}
 </head>
 <body>
   <div id="root"></div>
@@ -76,11 +98,70 @@ try {
 export default function DesignCanvas({ code, prd, onInitDesign }) {
   const iframeRef = useRef(null)
   const [view, setView] = useState('preview')
+  const [route, setRoute] = useState('#/')
+  const [routeInput, setRouteInput] = useState('#/')
+  const [history, setHistory] = useState(['#/'])
+  const [historyIdx, setHistoryIdx] = useState(0)
+
+  // Listen for route messages from iframe
+  useEffect(() => {
+    function onMessage(e) {
+      if (e.data?.type !== '__route') return
+      const path = e.data.path || '#/'
+      setRoute(path)
+      setRouteInput(path)
+      setHistory(prev => {
+        const trimmed = prev.slice(0, historyIdx + 1)
+        if (trimmed[trimmed.length - 1] === path) return trimmed
+        return [...trimmed, path]
+      })
+      setHistoryIdx(prev => prev + 1)
+    }
+    window.addEventListener('message', onMessage)
+    return () => window.removeEventListener('message', onMessage)
+  }, [historyIdx])
 
   useEffect(() => {
     if (!iframeRef.current || !code) return
+    setRoute('#/')
+    setRouteInput('#/')
+    setHistory(['#/'])
+    setHistoryIdx(0)
     iframeRef.current.srcdoc = buildSrcdoc(code)
   }, [code])
+
+  function sendNavigate(path) {
+    iframeRef.current?.contentWindow?.postMessage({ type: '__navigate', path }, '*')
+    // also directly set hash if accessible
+    try {
+      if (iframeRef.current?.contentWindow) {
+        iframeRef.current.contentWindow.__navigate?.(path)
+      }
+    } catch {}
+  }
+
+  function goBack() {
+    if (historyIdx <= 0) return
+    const prev = history[historyIdx - 1]
+    setHistoryIdx(i => i - 1)
+    setRoute(prev)
+    setRouteInput(prev)
+    sendNavigate(prev)
+  }
+
+  function goForward() {
+    if (historyIdx >= history.length - 1) return
+    const next = history[historyIdx + 1]
+    setHistoryIdx(i => i + 1)
+    setRoute(next)
+    setRouteInput(next)
+    sendNavigate(next)
+  }
+
+  function handleRouteSubmit(e) {
+    e.preventDefault()
+    sendNavigate(routeInput)
+  }
 
   if (!code) {
     return (
@@ -122,6 +203,32 @@ export default function DesignCanvas({ code, prd, onInitDesign }) {
             Code
           </button>
         </div>
+
+        {view === 'preview' && (
+          <div className="canvas-urlbar">
+            <button
+              className="canvas-nav-btn"
+              onClick={goBack}
+              disabled={historyIdx <= 0}
+              title="Back"
+            >←</button>
+            <button
+              className="canvas-nav-btn"
+              onClick={goForward}
+              disabled={historyIdx >= history.length - 1}
+              title="Forward"
+            >→</button>
+            <form className="canvas-url-form" onSubmit={handleRouteSubmit}>
+              <input
+                className="canvas-url-input"
+                value={routeInput}
+                onChange={e => setRouteInput(e.target.value)}
+                spellCheck={false}
+              />
+            </form>
+          </div>
+        )}
+
         <button
           className="canvas-copy-btn"
           onClick={() => navigator.clipboard.writeText(code)}

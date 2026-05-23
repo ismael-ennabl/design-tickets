@@ -6,19 +6,24 @@ Match the PRD's scope exactly — a filter modal is just a modal, a table sectio
 
 ## Multi-view / drilldown navigation
 
-The preview has no router. Use `useState` to switch views:
+The builder has a URL bar that tracks routes. Use `useState` for view switching **and** call `window.__navigate('/path')` whenever the view changes so the URL bar updates:
 
 ```jsx
 const [view, setView] = useState('list') // 'list' | 'detail' | 'create'
 
+function goTo(v) {
+  setView(v)
+  window.__navigate?.('/' + v)
+}
+
 // Render current view
-if (view === 'detail') return <DetailView item={selected} onBack={() => setView('list')} />
-if (view === 'create') return <CreateView onBack={() => setView('list')} onSave={handleSave} />
+if (view === 'detail') return <DetailView item={selected} onBack={() => goTo('list')} />
+if (view === 'create') return <CreateView onBack={() => goTo('list')} onSave={handleSave} />
 
 // Default: list view
 return (
   <div className="stage">
-    {/* list content — clicking a row calls setView('detail') */}
+    {/* clicking a row: goTo('detail') and setSelected(row) */}
   </div>
 )
 ```
@@ -27,6 +32,7 @@ Rules:
 - Always include a back button / breadcrumb that returns to the previous view
 - Keep all views inside the single `App` function as inline functions or nested returns
 - Use `selected` state to pass the drilled-into item to the detail view
+- Call `window.__navigate?.('/route-name')` on every view transition — the builder URL bar tracks it
 
 ## Charts (Recharts)
 
