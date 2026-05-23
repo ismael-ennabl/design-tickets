@@ -65,3 +65,7 @@
   flex-direction: column;
 }
 
+.right-panel-hidden {
+  display: none;
+}
+

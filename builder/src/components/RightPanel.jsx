@@ -29,7 +29,7 @@ export default function RightPanel({
       </div>
 
       <div className="right-content">
-        {tab === 'chat' && (
+        <div className={tab !== 'chat' ? 'right-panel-hidden' : ''}>
           <ChatPanel
             prd={prd}
             messages={messages}
@@ -39,7 +39,7 @@ export default function RightPanel({
             onSwitchToPrd={() => setTab('prd')}
             initTrigger={initTrigger}
           />
-        )}
+        </div>
         {tab === 'report' && (
           <ReportTab
             session={session}

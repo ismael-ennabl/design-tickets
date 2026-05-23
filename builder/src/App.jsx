@@ -10,6 +10,7 @@ import { getApiKey } from './lib/apiKey'
 import { newSession, calcCost, saveSession } from './lib/reports'
 import { loadHistory, saveHistory, makeEntry } from './lib/history'
 import { loadPrds, savePrds, seedIfEmpty } from './lib/prds'
+import { loadBuilderState, saveBuilderState } from './lib/builderState'
 import {
   isPbReady, pbLoadPrds, pbCreatePrd, pbUpdatePrd, pbDeletePrd,
 } from './lib/pb'
@@ -64,11 +65,21 @@ export default function App() {
   }
 
   function loadPrdObj(prdObj) {
+    const saved = loadBuilderState(prdObj.id)
     setPrd({ id: prdObj.id, name: prdObj.title, content: prdObj.content })
-    setMessages([])
-    setGeneratedCode(null)
+    setMessages(saved.messages || [])
+    setGeneratedCode(saved.code || null)
     setSession(newSession(prdObj.title))
   }
+
+  // Persist builder state per PRD
+  useEffect(() => {
+    if (prd?.id) saveBuilderState(prd.id, { messages })
+  }, [messages, prd?.id])
+
+  useEffect(() => {
+    if (prd?.id && generatedCode) saveBuilderState(prd.id, { code: generatedCode })
+  }, [generatedCode, prd?.id])
 
   // ── CRUD ────────────────────────────────────────────────────────────────
 
@@ -117,7 +128,7 @@ export default function App() {
 
   // ── Builder callbacks ────────────────────────────────────────────────────
 
-  function handleCodeGenerated(code) {
+  function handleCodeGenerated(code, prose) {
     setGeneratedCode(code)
     if (prd) {
       const entry = makeEntry({
@@ -128,6 +139,19 @@ export default function App() {
       const updated = [entry, ...history].slice(0, 50)
       setHistory(updated)
       saveHistory(updated)
+
+      // Sync PRD: append key decision to build log
+      if (prose) {
+        const today = new Date().toISOString().slice(0, 10)
+        const logLine = `**${today} · iter ${(session?.iterations ?? 0) + 1}:** ${prose}`
+        const cur = prds.find(p => p.id === prd.id)
+        const base = cur?.content || prd.content || ''
+        const newContent = base.includes('## Build log')
+          ? base + '\n' + logLine
+          : base + '\n\n## Build log\n\n' + logLine
+        handleUpdatePrd(prd.id, { content: newContent })
+        setPrd(prev => prev ? { ...prev, content: newContent } : prev)
+      }
     }
   }
 

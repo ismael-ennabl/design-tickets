@@ -68,7 +68,8 @@ export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated,
 
       const code = extractCode(full)
       if (code) {
-        onCodeGenerated(code)
+        const prose = full.replace(/```[\s\S]*?```/g, '').trim()
+        onCodeGenerated(code, prose)
         const validation = validateCode(code)
         setMessages(prev => {
           const updated = [...prev]
