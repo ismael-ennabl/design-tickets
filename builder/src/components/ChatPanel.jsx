@@ -105,15 +105,18 @@ export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated,
               : <>Load a PRD first, then describe what to build.</>}
           </div>
         )}
-        {messages.map((msg, i) => (
-          <div key={i} className={`chat-msg chat-msg--${msg.role}`}>
-            {msg.role === 'assistant' ? (
-              <MessageContent content={msg.content} />
-            ) : (
-              <span>{msg.content}</span>
-            )}
-          </div>
-        ))}
+        {messages.map((msg, i) => {
+          const isStreamingThis = streaming && msg.role === 'assistant' && i === messages.length - 1
+          return (
+            <div key={i} className={`chat-msg chat-msg--${msg.role}`}>
+              {msg.role === 'assistant' ? (
+                isStreamingThis ? <ThinkingBubble /> : <MessageContent content={msg.content} />
+              ) : (
+                <span>{msg.content}</span>
+              )}
+            </div>
+          )
+        })}
         <div ref={bottomRef} />
       </div>
 
@@ -154,17 +157,44 @@ export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated,
   )
 }
 
-function MessageContent({ content }) {
-  const parts = content.split(/(```[\s\S]*?```)/g)
+const STEPS = [
+  { icon: '✦', verb: 'Reading PRD' },
+  { icon: '◎', verb: 'Mapping structure' },
+  { icon: '⚡', verb: 'Designing layout' },
+  { icon: '⬡', verb: 'Building components' },
+  { icon: '↑', verb: 'Writing code' },
+  { icon: '✦', verb: 'Polishing output' },
+]
+
+function ThinkingBubble() {
+  const [step, setStep] = useState(0)
+  useEffect(() => {
+    const t = setInterval(() => setStep(s => (s + 1) % STEPS.length), 2000)
+    return () => clearInterval(t)
+  }, [])
+  const { icon, verb } = STEPS[step]
   return (
-    <div className="chat-msg-content">
-      {parts.map((part, i) => {
-        if (part.startsWith('```')) {
-          const code = part.replace(/^```[^\n]*\n?/, '').replace(/```$/, '')
-          return <pre key={i} className="chat-code-block"><code>{code}</code></pre>
-        }
-        return <span key={i}>{part}</span>
-      })}
+    <div className="thinking-bubble">
+      <span className="thinking-icon" key={step}>{icon}</span>
+      <span className="thinking-verb" key={verb}>{verb}</span>
+      <span className="thinking-dots"><span /><span /><span /></span>
     </div>
   )
+}
+
+function MessageContent({ content }) {
+  const hasCode = /```/.test(content)
+  if (hasCode) {
+    const prose = content.replace(/```[\s\S]*?```/g, '').trim()
+    return (
+      <div className="chat-done-card">
+        <span className="chat-done-icon">✓</span>
+        <div>
+          <div className="chat-done-title">Design ready</div>
+          {prose && <div className="chat-done-sub">{prose}</div>}
+        </div>
+      </div>
+    )
+  }
+  return <div className="chat-msg-content">{content}</div>
 }
