@@ -2,19 +2,26 @@ import { useState, useEffect } from 'react'
 import LeftPanel from './components/LeftPanel'
 import RightPanel from './components/RightPanel'
 import ApiSetup from './components/ApiSetup'
+import PbSetup from './components/PbSetup'
 import PrdSearch from './components/PrdSearch'
 import ProjectsPage from './pages/ProjectsPage'
 import ProjectView from './pages/ProjectView'
 import { getApiKey } from './lib/apiKey'
 import { newSession, calcCost, saveSession } from './lib/reports'
 import { loadHistory, saveHistory, makeEntry } from './lib/history'
-import { loadPrds, savePrds, seedIfEmpty, getPrd } from './lib/prds'
+import { loadPrds, savePrds, seedIfEmpty } from './lib/prds'
+import {
+  isPbReady, pbLoadPrds, pbCreatePrd, pbUpdatePrd, pbDeletePrd,
+} from './lib/pb'
 import './App.css'
 
 export default function App() {
   const [apiReady, setApiReady] = useState(() => !!getApiKey())
+  const [pbReady, setPbReady] = useState(isPbReady)
+  const [pbSkipped, setPbSkipped] = useState(false)
   const [route, setRoute] = useState({ page: 'projects' })
-  const [prds, setPrds] = useState(() => { seedIfEmpty(); return loadPrds() })
+  const [prds, setPrds] = useState([])
+  const [prdsLoaded, setPrdsLoaded] = useState(false)
   const [prd, setPrd] = useState(null)
   const [generatedCode, setGeneratedCode] = useState(null)
   const [messages, setMessages] = useState([])
@@ -22,28 +29,93 @@ export default function App() {
   const [history, setHistory] = useState(loadHistory)
   const [initTrigger, setInitTrigger] = useState(0)
 
+  const usePb = pbReady && !pbSkipped
+
+  // Load PRDs once storage is decided
+  useEffect(() => {
+    if (!apiReady) return
+    if (!pbReady && !pbSkipped) return // still showing PbSetup
+
+    async function load() {
+      if (usePb) {
+        try {
+          const data = await pbLoadPrds()
+          setPrds(data)
+        } catch {
+          // PB connection lost — fall back to localStorage
+          seedIfEmpty()
+          setPrds(loadPrds())
+        }
+      } else {
+        seedIfEmpty()
+        setPrds(loadPrds())
+      }
+      setPrdsLoaded(true)
+    }
+    load()
+  }, [apiReady, pbReady, pbSkipped])
+
   function navigate(next) {
     if (next.page === 'builder' && next.prdId) {
-      const found = getPrd(next.prdId)
-      if (found) loadPrdById(found)
+      const found = prds.find(p => p.id === next.prdId)
+      if (found) loadPrdObj(found)
     }
     setRoute(next)
   }
 
-  function handlePrdsChange(updater) {
-    setPrds(prev => {
-      const next = typeof updater === 'function' ? updater(prev) : updater
-      savePrds(next)
-      return next
-    })
-  }
-
-  function loadPrdById(prdObj) {
+  function loadPrdObj(prdObj) {
     setPrd({ id: prdObj.id, name: prdObj.title, content: prdObj.content })
     setMessages([])
     setGeneratedCode(null)
     setSession(newSession(prdObj.title))
   }
+
+  // ── CRUD ────────────────────────────────────────────────────────────────
+
+  async function handleCreatePrd(projectId, data) {
+    if (usePb) {
+      const created = await pbCreatePrd({ projectId, ...data })
+      setPrds(prev => [created, ...prev])
+    } else {
+      const created = {
+        id: `prd-${Date.now()}`,
+        projectId,
+        status: 'backlog',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        ...data,
+      }
+      setPrds(prev => { const next = [created, ...prev]; savePrds(next); return next })
+    }
+  }
+
+  async function handleUpdatePrd(id, changes) {
+    if (usePb) {
+      const updated = await pbUpdatePrd(id, { ...changes, updated: new Date().toISOString() })
+      setPrds(prev => prev.map(p => p.id === id ? updated : p))
+    } else {
+      setPrds(prev => {
+        const next = prev.map(p =>
+          p.id === id ? { ...p, ...changes, updatedAt: new Date().toISOString() } : p
+        )
+        savePrds(next)
+        return next
+      })
+    }
+  }
+
+  async function handleDeletePrd(id) {
+    if (usePb) {
+      await pbDeletePrd(id)
+    }
+    setPrds(prev => {
+      const next = prev.filter(p => p.id !== id)
+      if (!usePb) savePrds(next)
+      return next
+    })
+  }
+
+  // ── Builder callbacks ────────────────────────────────────────────────────
 
   function handleCodeGenerated(code) {
     setGeneratedCode(code)
@@ -81,7 +153,28 @@ export default function App() {
     saveHistory([])
   }
 
+  // ── Gates ────────────────────────────────────────────────────────────────
+
   if (!apiReady) return <ApiSetup onDone={() => setApiReady(true)} />
+
+  if (!pbReady && !pbSkipped) {
+    return (
+      <PbSetup
+        onDone={() => {
+          if (isPbReady()) setPbReady(true)
+          else setPbSkipped(true)
+        }}
+      />
+    )
+  }
+
+  if (!prdsLoaded) {
+    return (
+      <div style={{ height: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', color: 'var(--text-muted)', fontSize: 13 }}>
+        Loading…
+      </div>
+    )
+  }
 
   if (route.page === 'projects') {
     return <ProjectsPage prds={prds} onNavigate={navigate} />
@@ -93,7 +186,9 @@ export default function App() {
         projectId={route.projectId}
         prds={prds}
         onNavigate={navigate}
-        onPrdsChange={handlePrdsChange}
+        onCreatePrd={handleCreatePrd}
+        onUpdatePrd={handleUpdatePrd}
+        onDeletePrd={handleDeletePrd}
       />
     )
   }
@@ -110,7 +205,7 @@ export default function App() {
           <span className="app-logo-suffix">builder</span>
           {prd && <span className="app-prd-badge">{prd.name}</span>}
         </div>
-        <PrdSearch onSelect={p => { loadPrdById(p); }} />
+        <PrdSearch prds={prds} onSelect={loadPrdObj} />
       </header>
 
       <main className="app-panels">

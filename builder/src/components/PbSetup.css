@@ -1,0 +1,127 @@
+.pb-setup {
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+}
+
+.pb-setup-card {
+  width: 400px;
+  max-width: calc(100vw - 40px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pb-setup-logo {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.pb-setup-logo-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
+
+.pb-setup-logo-suffix {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.pb-setup-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+  letter-spacing: -0.4px;
+}
+
+.pb-setup-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.pb-setup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.pb-setup-input {
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.pb-setup-input:focus { border-color: var(--accent); }
+.pb-setup-input::placeholder { color: var(--text-muted); opacity: 0.5; }
+.pb-setup-input:disabled { opacity: 0.5; }
+
+.pb-setup-error {
+  font-size: 12px;
+  color: #f87171;
+  line-height: 1.4;
+  padding: 8px 12px;
+  background: rgba(248, 113, 113, 0.08);
+  border-radius: 6px;
+  border: 1px solid rgba(248, 113, 113, 0.2);
+}
+
+.pb-setup-btn {
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  padding: 10px;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+.pb-setup-btn:hover { background: var(--accent-hover); }
+.pb-setup-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.pb-setup-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.pb-setup-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.pb-setup-link {
+  color: var(--accent);
+  text-decoration: none;
+}
+.pb-setup-link:hover { text-decoration: underline; }
+
+.pb-setup-skip {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  padding: 0;
+  text-align: left;
+  transition: color 0.15s;
+}
+.pb-setup-skip:hover { color: var(--text); }

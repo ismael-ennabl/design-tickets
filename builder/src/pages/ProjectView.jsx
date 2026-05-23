@@ -68,7 +68,7 @@ function KanbanColumn({ status, prds, onEdit, onDelete, onOpen, activeId }) {
   )
 }
 
-export default function ProjectView({ projectId, prds, onNavigate, onPrdsChange }) {
+export default function ProjectView({ projectId, prds, onNavigate, onCreatePrd, onUpdatePrd, onDeletePrd }) {
   const project = getProject(projectId)
   const projectPrds = prds.filter(p => p.projectId === projectId)
   const [viewMode, setViewMode] = useState('kanban')
@@ -85,21 +85,12 @@ export default function ProjectView({ projectId, prds, onNavigate, onPrdsChange 
   function handleDragEnd({ active, over }) {
     setActiveId(null)
     if (!over || active.id === over.id) return
-
     const draggedPrd = projectPrds.find(p => p.id === active.id)
     if (!draggedPrd) return
-
-    // over.id is either a prd id or a column status
     const targetPrd = projectPrds.find(p => p.id === over.id)
     const newStatus = targetPrd ? targetPrd.status : over.id
-
     if (STATUSES.includes(newStatus) && draggedPrd.status !== newStatus) {
-      onPrdsChange(prev =>
-        prev.map(p => p.id === active.id
-          ? { ...p, status: newStatus, updatedAt: new Date().toISOString() }
-          : p
-        )
-      )
+      onUpdatePrd(active.id, { status: newStatus })
     }
   }
 
@@ -109,12 +100,7 @@ export default function ProjectView({ projectId, prds, onNavigate, onPrdsChange 
     const targetPrd = projectPrds.find(p => p.id === over.id)
     if (!draggedPrd || !targetPrd) return
     if (draggedPrd.status !== targetPrd.status) {
-      onPrdsChange(prev =>
-        prev.map(p => p.id === active.id
-          ? { ...p, status: targetPrd.status, updatedAt: new Date().toISOString() }
-          : p
-        )
-      )
+      onUpdatePrd(active.id, { status: targetPrd.status })
     }
   }
 
@@ -165,7 +151,7 @@ export default function ProjectView({ projectId, prds, onNavigate, onPrdsChange 
                       <td className="prd-table-actions">
                         <button className="prd-action-btn" onClick={() => onNavigate({ page: 'builder', prdId: prd.id })}>Open →</button>
                         <button className="prd-action-btn" onClick={() => { setEditingPrd(prd); setEditorOpen(true) }}>Edit</button>
-                        <button className="prd-action-btn prd-action-btn--danger" onClick={() => onPrdsChange(prev => prev.filter(p => p.id !== prd.id))}>Delete</button>
+                        <button className="prd-action-btn prd-action-btn--danger" onClick={() => onDeletePrd(prd.id)}>Delete</button>
                       </td>
                     </tr>
                   ))}
@@ -188,7 +174,7 @@ export default function ProjectView({ projectId, prds, onNavigate, onPrdsChange 
                   status={status}
                   prds={projectPrds.filter(p => p.status === status)}
                   onEdit={prd => { setEditingPrd(prd); setEditorOpen(true) }}
-                  onDelete={id => onPrdsChange(prev => prev.filter(p => p.id !== id))}
+                  onDelete={id => onDeletePrd(id)}
                   onOpen={prd => onNavigate({ page: 'builder', prdId: prd.id })}
                   activeId={activeId}
                 />
@@ -212,21 +198,9 @@ export default function ProjectView({ projectId, prds, onNavigate, onPrdsChange 
           onClose={() => setEditorOpen(false)}
           onSave={(data) => {
             if (editingPrd) {
-              onPrdsChange(prev => prev.map(p =>
-                p.id === editingPrd.id
-                  ? { ...p, ...data, updatedAt: new Date().toISOString() }
-                  : p
-              ))
+              onUpdatePrd(editingPrd.id, data)
             } else {
-              const newPrd = {
-                id: `prd-${Date.now()}`,
-                projectId,
-                status: 'backlog',
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                ...data,
-              }
-              onPrdsChange(prev => [...prev, newPrd])
+              onCreatePrd(projectId, data)
             }
             setEditorOpen(false)
           }}

@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
-import { searchPrds, getProject } from '../lib/prds'
+import { getProject } from '../lib/prds'
 import './PrdSearch.css'
 
-export default function PrdSearch({ onSelect }) {
+export default function PrdSearch({ prds = [], onSelect }) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState([])
   const [open, setOpen] = useState(false)
@@ -12,11 +12,12 @@ export default function PrdSearch({ onSelect }) {
 
   useEffect(() => {
     if (!query.trim()) { setResults([]); setOpen(false); return }
-    const hits = searchPrds(query)
+    const q = query.toLowerCase()
+    const hits = prds.filter(p => p.title.toLowerCase().includes(q)).slice(0, 8)
     setResults(hits)
     setOpen(hits.length > 0)
     setFocused(0)
-  }, [query])
+  }, [query, prds])
 
   useEffect(() => {
     function onDown(e) {
