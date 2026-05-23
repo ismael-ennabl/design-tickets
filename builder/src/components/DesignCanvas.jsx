@@ -10,7 +10,6 @@ import step3JsRaw from '../../../youtrack/_shared/step3.jsx?raw'
 import './DesignCanvas.css'
 
 const colorsCSS = colorsCssRaw.replace(/@font-face\s*\{[^}]*\}/g, '')
-const sharedCode = [pickerJsRaw, dialogsJsRaw, step3JsRaw].join('\n\n')
 
 function buildSrcdoc(code) {
   return `<!doctype html>
@@ -50,9 +49,17 @@ function buildSrcdoc(code) {
   <div id="__err"></div>
   <script type="text/babel">
 ${iconsJsRaw}
-
-${sharedCode}
-
+  </script>
+  <script type="text/babel">
+${pickerJsRaw}
+  </script>
+  <script type="text/babel">
+${dialogsJsRaw}
+  </script>
+  <script type="text/babel">
+${step3JsRaw}
+  </script>
+  <script type="text/babel">
 ${code}
 
 try {
