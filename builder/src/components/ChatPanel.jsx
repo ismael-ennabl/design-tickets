@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { streamChat } from '../lib/claude'
 import { extractComponents } from '../lib/reports'
 import { MODELS, getModel, setModel } from '../lib/model'
+import { validateCode } from '../lib/validate'
 import './ChatPanel.css'
 
 function extractCode(text) {
@@ -66,7 +67,15 @@ export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated,
       })
 
       const code = extractCode(full)
-      if (code) onCodeGenerated(code)
+      if (code) {
+        onCodeGenerated(code)
+        const validation = validateCode(code)
+        setMessages(prev => {
+          const updated = [...prev]
+          updated[updated.length - 1] = { ...updated[updated.length - 1], validation }
+          return updated
+        })
+      }
 
       if (onIterationComplete) {
         const u = usage || {}
@@ -110,7 +119,7 @@ export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated,
           return (
             <div key={i} className={`chat-msg chat-msg--${msg.role}`}>
               {msg.role === 'assistant' ? (
-                isStreamingThis ? <ThinkingBubble /> : <MessageContent content={msg.content} />
+                isStreamingThis ? <ThinkingBubble /> : <MessageContent content={msg.content} validation={msg.validation} />
               ) : (
                 <span>{msg.content}</span>
               )}
@@ -182,7 +191,7 @@ function ThinkingBubble() {
   )
 }
 
-function MessageContent({ content }) {
+function MessageContent({ content, validation }) {
   const hasCode = /```/.test(content)
   if (hasCode) {
     const prose = content.replace(/```[\s\S]*?```/g, '').trim()
@@ -192,6 +201,19 @@ function MessageContent({ content }) {
         <div>
           <div className="chat-done-title">Design ready</div>
           {prose && <div className="chat-done-sub">{prose}</div>}
+          {validation && (
+            <div className={`chat-done-validation ${validation.ok ? 'chat-done-validation--ok' : 'chat-done-validation--warn'}`}>
+              {validation.ok
+                ? '✓ tokens clean'
+                : validation.issues.slice(0, 4).map((issue, i) => (
+                    <div key={i}>⚠ {issue.msg}</div>
+                  ))
+              }
+              {validation && !validation.ok && validation.issues.length > 4 && (
+                <div>+{validation.issues.length - 4} more</div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     )
