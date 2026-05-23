@@ -15,4 +15,5 @@ COPY pb_migrations/ pb_migrations/
 
 EXPOSE 8080
 
-CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080", "--dir=/pb/pb_data"]
+# Use Railway's $PORT if set, otherwise fall back to 8080
+CMD /pb/pocketbase serve --http=0.0.0.0:${PORT:-8080} --dir=/pb/pb_data
