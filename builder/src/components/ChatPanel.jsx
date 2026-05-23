@@ -21,7 +21,7 @@ export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated,
   }, [messages])
 
   useEffect(() => {
-    if (initTrigger > 0 && prd && !streaming) {
+    if (initTrigger > 0 && prd && !streaming && messages.length === 0) {
       send('Build a complete UI from this PRD.')
     }
   }, [initTrigger])
