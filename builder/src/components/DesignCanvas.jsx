@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 
-import colorsCssRaw from '../../../youtrack/_design_system/colors_and_type.css?raw'
-import stylesCssRaw from '../../../youtrack/_design_system/styles.css?raw'
-import iconsJsRaw from '../../../youtrack/_shared/icons.jsx?raw'
-import pickerJsRaw from '../../../youtrack/_shared/picker.jsx?raw'
-import dialogsJsRaw from '../../../youtrack/_shared/dialogs.jsx?raw'
-import step3JsRaw from '../../../youtrack/_shared/step3.jsx?raw'
+import colorsCssRaw from '../../../design-system/_design_system/colors_and_type.css?raw'
+import stylesCssRaw from '../../../design-system/_design_system/styles.css?raw'
+import iconsJsRaw from '../../../design-system/_shared/icons.jsx?raw'
+import pickerJsRaw from '../../../design-system/_shared/picker.jsx?raw'
+import dialogsJsRaw from '../../../design-system/_shared/dialogs.jsx?raw'
+import step3JsRaw from '../../../design-system/_shared/step3.jsx?raw'
 
 import './DesignCanvas.css'
 

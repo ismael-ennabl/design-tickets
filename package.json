@@ -1,0 +1,45 @@
+{
+  "name": "design-tickets",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build-index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ismael-ennabl/design-tickets.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ismael-ennabl/design-tickets/issues"
+  },
+  "homepage": "https://github.com/ismael-ennabl/design-tickets#readme",
+  "devDependencies": {
+    "@chromatic-com/storybook": "^5.2.1",
+    "@figma/code-connect": "^1.4.5",
+    "@storybook/addon-a11y": "^10.4.0",
+    "@storybook/addon-docs": "^10.4.0",
+    "@storybook/addon-mcp": "^0.6.0",
+    "@storybook/addon-vitest": "^10.4.0",
+    "@storybook/react-vite": "^10.4.0",
+    "@vitejs/plugin-react": "^6.0.2",
+    "@vitest/browser-playwright": "^4.1.7",
+    "@vitest/coverage-v8": "^4.1.7",
+    "playwright": "^1.60.0",
+    "prop-types": "^15.8.1",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "storybook": "^10.4.0",
+    "vite": "^8.0.13",
+    "vitest": "^4.1.7"
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "^2.1.10"
+  }
+}

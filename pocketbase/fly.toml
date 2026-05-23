@@ -1,5 +1,4 @@
 app = "ennabl-pb"
-primary_region = "iad"
 
 [build]
   dockerfile = "Dockerfile"

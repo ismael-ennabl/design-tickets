@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = join(__dirname, '..')
-const src = join(root, '..', 'youtrack')
+const src = join(root, '..', 'design-system')
 const out = join(root, 'public', 'design-system')
 
 mkdirSync(out, { recursive: true })
