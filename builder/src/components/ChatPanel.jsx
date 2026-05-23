@@ -36,10 +36,11 @@ export default function ChatPanel({ prd, messages, setMessages, onCodeGenerated,
       ? `\n\n---\nPRD: ${prd.name}\n\n${prd.content}\n---\n`
       : ''
 
+    const clean = messages.map(({ role, content }) => ({ role, content }))
     const apiMessages = [
       ...(prd && messages.length === 0
         ? [{ role: 'user', content: `${prdContext}\n${text}` }]
-        : [...messages, userMessage])
+        : [...clean, userMessage])
     ]
 
     setMessages(prev => [...prev, userMessage])

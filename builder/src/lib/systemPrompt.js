@@ -49,6 +49,7 @@ Rules:
 - Buttons/inputs: \`border-radius: 8px\` (var(--en-radius-regular))
 - Spacing in multiples of 4px
 - Transitions: \`200ms cubic-bezier(0.4, 0, 0.2, 1)\`
+- NEVER use custom SVGs, \`<img>\`, or emoji as icons — only use the \`Icon*\` globals listed above. If no matching icon exists, use a short text label or initials badge instead.
 
 ## Available globals in the preview
 
