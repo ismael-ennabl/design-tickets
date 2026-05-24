@@ -21,7 +21,7 @@ const VALID_CLASSES = new Set([
 
 const VALID_ICONS = new Set([
   'IconCheck', 'IconChevronDown', 'IconChevronUp', 'IconClose', 'IconCopy',
-  'IconEdit', 'IconEditFill', 'IconExternal', 'IconGear', 'IconInfo',
+  'IconDownload', 'IconEdit', 'IconEditFill', 'IconExternal', 'IconGear', 'IconInfo',
   'IconMore', 'IconPlus', 'IconRevert', 'IconSearch', 'IconShare',
   'IconStar', 'IconTrash', 'IconTrashFill', 'IconUpload', 'IconUsers',
 ])

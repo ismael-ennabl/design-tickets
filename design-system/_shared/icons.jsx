@@ -81,6 +81,8 @@ const IconInfo = (p) => <PhIcon {...p} d="M128,24A104,104,0,1,0,232,128,104.11,1
 // Phosphor: UploadSimple
 const IconUpload = (p) => <PhIcon {...p} d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0ZM93.66,77.66,120,51.31V144a8,8,0,0,0,16,0V51.31l26.34,26.35a8,8,0,0,0,11.32-11.32l-40-40a8,8,0,0,0-11.32,0l-40,40A8,8,0,0,0,93.66,77.66Z" />;
 
+const IconDownload = (p) => <PhIcon {...p} d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0ZM117.66,138.34a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,109.37V32a8,8,0,0,0-16,0v77.37L98.34,87a8,8,0,0,0-11.32,11.32Z" />;
+
 // Phosphor: PencilSimple (fill weight)
 const IconEditFill = ({ size = 16, style }) => (
   <PhIcon size={size} style={style} d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM192,108.68,147.31,64l24-24L216,84.68Z" />
@@ -94,6 +96,6 @@ const IconTrashFill = ({ size = 16, style }) => (
 Object.assign(window, {
   IconCheck, IconChevronDown, IconChevronUp, IconPlus, IconEdit, IconTrash,
   IconGear, IconSearch, IconStar, IconCopy, IconClose, IconMore, IconShare,
-  IconExternal, IconRevert, IconUsers, IconInfo, IconUpload,
+  IconExternal, IconRevert, IconUsers, IconInfo, IconUpload, IconDownload,
   IconEditFill, IconTrashFill,
 });
