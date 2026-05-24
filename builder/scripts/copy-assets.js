@@ -17,7 +17,7 @@ writeFileSync(join(out, 'styles.css'), readFileSync(join(src, '_design_system', 
 
 writeFileSync(join(out, 'icons.js'), readFileSync(join(src, '_shared', 'icons.jsx'), 'utf8'))
 
-const shared = ['picker.jsx', 'dialogs.jsx', 'step3.jsx']
+const shared = ['picker.jsx', 'dialogs.jsx', 'step3.jsx', 'ui.jsx']
   .map(f => `// === ${f} ===\n` + readFileSync(join(src, '_shared', f), 'utf8'))
   .join('\n\n')
 writeFileSync(join(out, 'shared.js'), shared)

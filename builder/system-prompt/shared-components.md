@@ -4,6 +4,133 @@ These components are available as globals in the preview. Use them directly — 
 
 ---
 
+## Button
+
+Canonical button. Use instead of bare `<button className="btn ...">` to get consistent loading + disabled states.
+
+```jsx
+<Button variant="primary" onClick={save}>Save changes</Button>
+<Button variant="secondary" icon={<IconPlus size={14} />}>Add row</Button>
+<Button variant="text">Cancel</Button>
+<Button variant="danger">Delete</Button>
+<Button variant="primary" loading={saving}>Saving…</Button>
+<Button variant="primary" disabled>Unavailable</Button>
+<Button variant="icon" onClick={edit}><IconEdit size={16} /></Button>
+<Button variant="secondary" size="sm">Small</Button>
+```
+
+Props:
+- `variant` `'primary' | 'secondary' | 'text' | 'danger' | 'icon'` (default `'primary'`)
+- `size` `'sm'` — smaller 12px padding variant
+- `loading` boolean — shows spinner, disables click
+- `disabled` boolean
+- `icon` ReactNode — shown left of label (hidden when loading)
+- `className` string — extra classes
+- All standard `<button>` props (`onClick`, `type`, etc.)
+
+---
+
+## FormField
+
+Label + input wrapper with hint and error states.
+
+```jsx
+<FormField label="Agency name" hint="Shown on all proposals" htmlFor="agency">
+  <Input id="agency" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Acme Insurance" />
+</FormField>
+
+<FormField label="Notes" error={errors.notes}>
+  <Input multiline value={notes} onChange={e => setNotes(e.target.value)} rows={4} />
+</FormField>
+```
+
+Props:
+- `label` string
+- `hint` string — shown below input when no error
+- `error` string — shown below input in red (takes priority over hint)
+- `htmlFor` string — links label to input `id`
+
+---
+
+## Input
+
+Styled text input or textarea that matches the design system.
+
+```jsx
+<Input value={v} onChange={e => setV(e.target.value)} placeholder="Search…" />
+<Input multiline value={v} onChange={e => setV(e.target.value)} rows={3} />
+<Input error value={v} onChange={e => setV(e.target.value)} /> {/* red border */}
+```
+
+Props:
+- `multiline` boolean — renders `<textarea>` instead of `<input>`
+- `error` boolean — applies red border + focus ring
+- All standard `<input>` / `<textarea>` props
+
+Use inside `<FormField>` for labels and error messages.
+
+---
+
+## Table
+
+Data table with optional sorting, row actions, and empty state.
+
+```jsx
+const columns = [
+  { key: 'name',   label: 'Name',   sortable: true, width: '40%' },
+  { key: 'status', label: 'Status', render: row => <Badge variant={row.active ? 'success' : 'default'}>{row.active ? 'Active' : 'Inactive'}</Badge> },
+  { key: 'date',   label: 'Updated' },
+]
+
+<Table
+  columns={columns}
+  rows={data}
+  sortKey={sortKey}
+  sortDir={sortDir}
+  onSort={(key, dir) => { setSortKey(key); setSortDir(dir) }}
+  emptyState={<>No results — <button className="btn btn-text" onClick={clear}>clear filters</button></>}
+  getRowActions={row => (
+    <>
+      <Button variant="icon" onClick={() => edit(row)}><IconEdit size={14} /></Button>
+      <Button variant="icon" onClick={() => del(row)}><IconTrash size={14} /></Button>
+    </>
+  )}
+/>
+```
+
+Props:
+- `columns` array of `{ key, label, sortable?, width?, render?(row) => node }`
+- `rows` array of objects — use an `id` field for stable keys
+- `sortKey` string — currently sorted column key
+- `sortDir` `'asc' | 'desc'`
+- `onSort(key, dir)` — called when a sortable header is clicked
+- `getRowActions(row)` — renders action buttons in the last column
+- `emptyState` ReactNode — shown when rows is empty (defaults to "No data")
+- `compact` boolean — tighter row padding
+
+---
+
+## Badge
+
+Small status label. Use for status, labels, and counts.
+
+```jsx
+<Badge variant="success">Active</Badge>
+<Badge variant="warning">Pending</Badge>
+<Badge variant="error">Overdue</Badge>
+<Badge variant="primary">New</Badge>
+<Badge variant="default">Draft</Badge>
+<Badge variant="success" icon={<IconCheck size={10} />}>Verified</Badge>
+```
+
+Props:
+- `variant` `'default' | 'primary' | 'success' | 'warning' | 'error'`
+- `icon` ReactNode — shown left of text
+
+---
+
+---
+
 ## CollapsibleSection
 
 Collapsible card section with an optional unsaved-changes dot.
