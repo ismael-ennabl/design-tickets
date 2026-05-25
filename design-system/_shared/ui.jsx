@@ -7,6 +7,13 @@
 // variant: 'primary' | 'secondary' | 'text' | 'danger' | 'icon'
 // size: undefined (default 13px) | 'sm'
 function Button({ variant = 'primary', size, loading, disabled, icon, children, className = '', ...props }) {
+  if (variant === 'link') {
+    return (
+      <button className={`btn-link ${className}`} disabled={disabled || loading} {...props}>
+        {children}
+      </button>
+    )
+  }
   if (variant === 'icon') {
     return (
       <button className={`btn-icon ${className}`} disabled={disabled || loading} {...props}>

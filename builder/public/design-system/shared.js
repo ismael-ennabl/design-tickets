@@ -989,6 +989,13 @@ Object.assign(window, { Step3Body });
 // variant: 'primary' | 'secondary' | 'text' | 'danger' | 'icon'
 // size: undefined (default 13px) | 'sm'
 function Button({ variant = 'primary', size, loading, disabled, icon, children, className = '', ...props }) {
+  if (variant === 'link') {
+    return (
+      <button className={`btn-link ${className}`} disabled={disabled || loading} {...props}>
+        {children}
+      </button>
+    )
+  }
   if (variant === 'icon') {
     return (
       <button className={`btn-icon ${className}`} disabled={disabled || loading} {...props}>
@@ -1116,5 +1123,483 @@ function Badge({ variant = 'default', icon, children }) {
       {icon}
       {children}
     </span>
+  )
+}
+
+
+// === Toggle.jsx ===
+// Toggle — animated on/off switch with label
+
+function Toggle({ checked, defaultChecked = false, onChange, disabled, label, id }) {
+  const { useState } = React
+  const [internalOn, setInternalOn] = useState(defaultChecked)
+  const isControlled = checked !== undefined
+  const isOn = isControlled ? checked : internalOn
+
+  function handleToggle() {
+    if (disabled) return
+    const next = !isOn
+    if (!isControlled) setInternalOn(next)
+    onChange && onChange(next)
+  }
+
+  return (
+    <>
+      <style>{`
+        .tgl-root {
+          display: inline-flex; align-items: center; gap: 8px;
+          cursor: pointer; user-select: none; box-sizing: border-box;
+        }
+        .tgl-root.tgl-disabled { cursor: not-allowed; opacity: 0.38; }
+        .tgl-track {
+          position: relative; width: 40px; height: 22px; border-radius: 11px;
+          background: var(--en-bg-empty);
+          transition: background 200ms cubic-bezier(0.4, 0, 0.2, 1);
+          flex-shrink: 0;
+        }
+        .tgl-root:not(.tgl-disabled):hover .tgl-track { background: var(--en-bg-dark-grey); }
+        .tgl-root.tgl-on .tgl-track { background: var(--en-primary); }
+        .tgl-root.tgl-on:not(.tgl-disabled):hover .tgl-track { background: var(--en-primary-light); }
+        .tgl-thumb {
+          position: absolute; top: 3px; left: 3px; width: 16px; height: 16px;
+          border-radius: 50%; background: var(--en-white);
+          box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+          transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tgl-root.tgl-on .tgl-thumb { transform: translateX(18px); }
+        .tgl-label { font: 400 14px/20px var(--en-font-sans); color: var(--en-fg); }
+      `}</style>
+      <div
+        className={`tgl-root${isOn ? ' tgl-on' : ''}${disabled ? ' tgl-disabled' : ''}`}
+        onClick={handleToggle}
+        role="switch"
+        aria-checked={isOn}
+        aria-disabled={disabled}
+        tabIndex={disabled ? -1 : 0}
+        onKeyDown={e => (e.key === ' ' || e.key === 'Enter') && (e.preventDefault(), handleToggle())}
+        id={id}
+      >
+        <div className="tgl-track">
+          <div className="tgl-thumb" />
+        </div>
+        {label && <span className="tgl-label">{label}</span>}
+      </div>
+    </>
+  )
+}
+
+
+// === Avatar.jsx ===
+// Avatar — initials circle with sm / md / lg sizes
+
+// size: 'sm' (24px) | 'md' (32px) | 'lg' (40px)
+// color: optional CSS color string; defaults to --en-data-accounts (purple)
+function Avatar({ name = '', size = 'md', color, className = '', style: extraStyle = {} }) {
+  const initials = name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(w => w[0].toUpperCase())
+    .join('') || '?'
+
+  const dim   = { sm: 24, md: 32, lg: 40 }[size] || 32
+  const fs    = { sm: 9,  md: 12, lg: 14 }[size] || 12
+  const bg    = color || 'var(--en-data-accounts)'
+
+  return (
+    <>
+      <style>{`
+        .av-root {
+          display: inline-flex; align-items: center; justify-content: center;
+          border-radius: 50%; flex-shrink: 0;
+          font-family: var(--en-font-sans); font-weight: 700;
+          color: var(--en-white); user-select: none; box-sizing: border-box;
+        }
+      `}</style>
+      <div
+        className={`av-root ${className}`}
+        style={{ width: dim, height: dim, background: bg, fontSize: fs, ...extraStyle }}
+        title={name}
+      >
+        {initials}
+      </div>
+    </>
+  )
+}
+
+
+// === Dialog.jsx ===
+// Dialog — modal overlay with title, subtitle, body slot, and optional footer
+
+// open: bool — controls visibility
+// onClose: fn — called on backdrop click, Escape key, or X button
+// title: string
+// subtitle: string (optional)
+// footer: ReactNode (optional) — renders right-aligned action row
+// width: number (default 480)
+function Dialog({ open, onClose, title, subtitle, children, footer, width = 480 }) {
+  const { useEffect } = React
+
+  useEffect(() => {
+    if (!open) return
+    function onKey(e) { if (e.key === 'Escape') onClose && onClose() }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open])
+
+  if (!open) return null
+
+  return (
+    <>
+      <style>{`
+        .dlg-backdrop {
+          position: fixed; inset: 0; z-index: 1000;
+          background: rgba(30, 30, 30, 0.4);
+          display: flex; align-items: center; justify-content: center; padding: 24px;
+        }
+        .dlg-card {
+          background: var(--en-bg); border-radius: var(--en-radius-large);
+          box-shadow: 0 8px 32px rgba(30,30,30,0.16), 0 0 1px rgba(30,30,30,0.12);
+          display: flex; flex-direction: column;
+          max-height: calc(100vh - 48px); overflow: hidden; box-sizing: border-box;
+        }
+        .dlg-header {
+          display: flex; align-items: flex-start; justify-content: space-between;
+          gap: 16px; padding: 24px 24px 16px;
+        }
+        .dlg-titles { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+        .dlg-title { font: 700 16px/24px var(--en-font-sans); color: var(--en-fg); margin: 0; }
+        .dlg-subtitle { font: 400 14px/20px var(--en-font-sans); color: var(--en-fg-secondary); margin: 0; }
+        .dlg-close {
+          width: 28px; height: 28px; border-radius: var(--en-radius-regular);
+          border: none; background: none; cursor: pointer;
+          display: flex; align-items: center; justify-content: center;
+          color: var(--en-icon); flex-shrink: 0;
+          transition: background 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .dlg-close:hover { background: var(--en-bg-hover); }
+        .dlg-divider { height: 1px; background: var(--en-divider); margin: 0; border: none; flex-shrink: 0; }
+        .dlg-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+        .dlg-footer {
+          display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+          padding: 16px 24px; border-top: 1px solid var(--en-divider); flex-shrink: 0;
+        }
+      `}</style>
+      <div
+        className="dlg-backdrop"
+        onClick={e => e.target === e.currentTarget && onClose && onClose()}
+      >
+        <div className="dlg-card" style={{ width }}>
+          <div className="dlg-header">
+            <div className="dlg-titles">
+              {title    && <h2 className="dlg-title">{title}</h2>}
+              {subtitle && <p  className="dlg-subtitle">{subtitle}</p>}
+            </div>
+            {onClose && (
+              <button className="dlg-close" onClick={onClose} aria-label="Close">
+                <IconClose size={16} />
+              </button>
+            )}
+          </div>
+          <hr className="dlg-divider" />
+          <div className="dlg-body">{children}</div>
+          {footer && <div className="dlg-footer">{footer}</div>}
+        </div>
+      </div>
+    </>
+  )
+}
+
+
+// === Chip.jsx ===
+// Chip — dismissible pill tag with 5 color variants and 3 styles
+
+// variant: 'neutral' | 'primary' | 'success' | 'error' | 'warning'
+// style:   'subtle' (outline tint) | 'filled' (solid) | 'dot' (tint + trailing dot)
+// dismissible: bool — shows × button
+// onDismiss: fn
+function Chip({ variant = 'neutral', style: chipStyle = 'subtle', dot, dismissible, onDismiss, children, className = '' }) {
+  const effectiveStyle = dot ? 'dot' : chipStyle
+
+  return (
+    <>
+      <style>{`
+        .ch-root {
+          display: inline-flex; align-items: center; gap: 5px;
+          padding: 3px 10px; border-radius: 100px;
+          font: 400 12px/16px var(--en-font-sans); letter-spacing: 0.17px;
+          border: 1.5px solid transparent;
+          box-sizing: border-box; white-space: nowrap; vertical-align: middle;
+        }
+        .ch-dot-indicator { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+        .ch-dismiss {
+          display: inline-flex; align-items: center; justify-content: center;
+          width: 14px; height: 14px; border-radius: 50%;
+          border: none; background: none; cursor: pointer; padding: 0; margin-left: 1px;
+          opacity: 0.6; transition: opacity 150ms; flex-shrink: 0;
+        }
+        .ch-dismiss:hover { opacity: 1; }
+
+        /* neutral */
+        .ch-neutral.ch-subtle { color: var(--en-fg); background: var(--en-bg-dark-grey); border-color: var(--en-border); }
+        .ch-neutral.ch-filled { color: var(--en-white); background: var(--en-fg-secondary); }
+        .ch-neutral.ch-dot    { color: var(--en-fg); background: var(--en-bg-dark-grey); border-color: var(--en-border); }
+        .ch-neutral.ch-dot .ch-dot-indicator { background: var(--en-fg-secondary); }
+
+        /* primary */
+        .ch-primary.ch-subtle { color: var(--en-primary); background: hsla(240,100%,95%,1); border-color: var(--en-primary); }
+        .ch-primary.ch-filled { color: var(--en-white); background: var(--en-primary); }
+        .ch-primary.ch-dot    { color: var(--en-primary); background: hsla(240,100%,95%,1); border-color: var(--en-primary); }
+        .ch-primary.ch-dot .ch-dot-indicator { background: var(--en-primary); }
+
+        /* success */
+        .ch-success.ch-subtle { color: var(--en-success-dark); background: hsla(160,56%,92%,1); border-color: var(--en-success); }
+        .ch-success.ch-filled { color: var(--en-white); background: var(--en-success-dark); }
+        .ch-success.ch-dot    { color: var(--en-success-dark); background: hsla(160,56%,92%,1); border-color: var(--en-success); }
+        .ch-success.ch-dot .ch-dot-indicator { background: var(--en-success); }
+
+        /* error */
+        .ch-error.ch-subtle { color: var(--en-error-dark); background: hsla(2,100%,96%,1); border-color: var(--en-error); }
+        .ch-error.ch-filled { color: var(--en-white); background: var(--en-error); }
+        .ch-error.ch-dot    { color: var(--en-error-dark); background: hsla(2,100%,96%,1); border-color: var(--en-error); }
+        .ch-error.ch-dot .ch-dot-indicator { background: var(--en-error); }
+
+        /* warning */
+        .ch-warning.ch-subtle { color: var(--en-warning-dark); background: hsla(43,100%,93%,1); border-color: var(--en-warning); }
+        .ch-warning.ch-filled { color: var(--en-black); background: var(--en-warning); }
+        .ch-warning.ch-dot    { color: var(--en-warning-dark); background: hsla(43,100%,93%,1); border-color: var(--en-warning); }
+        .ch-warning.ch-dot .ch-dot-indicator { background: var(--en-warning); }
+      `}</style>
+      <span className={`ch-root ch-${variant} ch-${effectiveStyle} ${className}`}>
+        {children}
+        {effectiveStyle === 'dot' && <span className="ch-dot-indicator" />}
+        {dismissible && (
+          <button className="ch-dismiss" onClick={onDismiss} aria-label="Remove">
+            <IconClose size={10} />
+          </button>
+        )}
+      </span>
+    </>
+  )
+}
+
+
+// === Select.jsx ===
+// Select — dropdown field with label, states, and option list
+
+// options: string[] | { value, label }[]
+// value / onChange — controlled; omit for uncontrolled
+function Select({ label, options = [], error, disabled, placeholder = 'Select option...', value, onChange, className = '' }) {
+  const { useState, useRef, useEffect } = React
+  const [open,     setOpen]     = useState(false)
+  const [internal, setInternal] = useState('')
+  const ref = useRef(null)
+
+  const isControlled  = value !== undefined
+  const currentValue  = isControlled ? value : internal
+
+  const currentOption = options.find(o => (typeof o === 'object' ? o.value : o) === currentValue)
+  const displayLabel  = currentValue
+    ? (typeof currentOption === 'object' ? currentOption?.label : currentOption) || currentValue
+    : placeholder
+
+  useEffect(() => {
+    function onClick(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    document.addEventListener('mousedown', onClick)
+    return () => document.removeEventListener('mousedown', onClick)
+  }, [])
+
+  function handleSelect(opt) {
+    const val = typeof opt === 'object' ? opt.value : opt
+    if (!isControlled) setInternal(val)
+    setOpen(false)
+    onChange && onChange(val)
+  }
+
+  return (
+    <>
+      <style>{`
+        .sel-wrapper { position: relative; display: flex; flex-direction: column; gap: 4px; box-sizing: border-box; }
+        .sel-label { font: 400 12px/16px var(--en-font-sans); color: var(--en-fg-secondary); }
+        .sel-label--focused { color: var(--en-primary); }
+        .sel-trigger {
+          display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 36px;
+          background: var(--en-bg); border: 1.5px solid var(--en-border);
+          border-radius: var(--en-radius-regular); cursor: pointer;
+          box-sizing: border-box; user-select: none;
+          transition: border-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sel-trigger:hover:not(.sel-trigger--disabled) { border-color: var(--en-primary); }
+        .sel-trigger:focus { outline: none; border-color: var(--en-primary); }
+        .sel-trigger--open { border-color: var(--en-primary); }
+        .sel-trigger--error { border-color: var(--en-error); }
+        .sel-trigger--disabled { background: var(--en-bg-dark-grey); cursor: not-allowed; opacity: 0.55; }
+        .sel-value { flex: 1; font: 400 14px/20px var(--en-font-sans); color: var(--en-fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .sel-value--placeholder { color: var(--en-fg-disabled); }
+        .sel-chevron { flex-shrink: 0; color: var(--en-icon-secondary); transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1); }
+        .sel-chevron--open { transform: rotate(180deg); }
+        .sel-dropdown {
+          position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 200;
+          background: var(--en-bg); border-radius: var(--en-radius-regular);
+          box-shadow: var(--en-shadow-menu); overflow-y: auto; max-height: 240px; padding: 4px 0;
+        }
+        .sel-option {
+          padding: 8px 12px; font: 400 14px/20px var(--en-font-sans); color: var(--en-fg);
+          cursor: pointer; transition: background 150ms;
+        }
+        .sel-option:hover { background: var(--en-bg-hover); }
+        .sel-option--active { color: var(--en-primary); background: var(--en-outlined-hover); }
+      `}</style>
+      <div className={`sel-wrapper ${className}`} ref={ref}>
+        {label && (
+          <label className={`sel-label${open ? ' sel-label--focused' : ''}`}>{label}</label>
+        )}
+        <div
+          className={`sel-trigger${open ? ' sel-trigger--open' : ''}${error ? ' sel-trigger--error' : ''}${disabled ? ' sel-trigger--disabled' : ''}`}
+          onClick={() => !disabled && setOpen(o => !o)}
+          tabIndex={disabled ? -1 : 0}
+          onKeyDown={e => {
+            if (disabled) return
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(o => !o) }
+            if (e.key === 'Escape') setOpen(false)
+          }}
+        >
+          <span className={`sel-value${!currentValue ? ' sel-value--placeholder' : ''}`}>{displayLabel}</span>
+          <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor" className={`sel-chevron${open ? ' sel-chevron--open' : ''}`}>
+            <path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/>
+          </svg>
+        </div>
+        {error && <span className="form-error">{error}</span>}
+        {open && !disabled && (
+          <div className="sel-dropdown">
+            {options.map((opt, i) => {
+              const val = typeof opt === 'object' ? opt.value : opt
+              const lbl = typeof opt === 'object' ? opt.label : opt
+              return (
+                <div
+                  key={i}
+                  className={`sel-option${val === currentValue ? ' sel-option--active' : ''}`}
+                  onMouseDown={e => { e.preventDefault(); handleSelect(opt) }}
+                >
+                  {lbl}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </>
+  )
+}
+
+
+// === Stepper.jsx ===
+// Stepper — horizontal multi-step progress indicator
+
+// steps: [{ label: string, status: 'completed' | 'active' | 'upcoming' }]
+function Stepper({ steps = [], className = '' }) {
+  return (
+    <>
+      <style>{`
+        .stp-root { display: flex; align-items: flex-start; box-sizing: border-box; }
+        .stp-step {
+          display: flex; flex-direction: column; align-items: center; gap: 8px;
+          flex: 1; position: relative; min-width: 0;
+        }
+        .stp-step:not(:last-child)::after {
+          content: ''; position: absolute;
+          top: 14px; left: calc(50% + 16px);
+          width: calc(100% - 32px); height: 1.5px;
+          background: var(--en-divider);
+        }
+        .stp-step.stp-completed:not(:last-child)::after { background: var(--en-primary); }
+        .stp-icon {
+          width: 28px; height: 28px; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0; box-sizing: border-box;
+          font: 700 12px/1 var(--en-font-sans); z-index: 1;
+          background: var(--en-bg);
+        }
+        .stp-completed .stp-icon { background: var(--en-primary); color: var(--en-white); }
+        .stp-active    .stp-icon { background: var(--en-primary); color: var(--en-white); }
+        .stp-upcoming  .stp-icon { border: 1.5px solid var(--en-border); color: var(--en-fg-disabled); }
+        .stp-label {
+          font: 400 12px/16px var(--en-font-sans); color: var(--en-fg-secondary);
+          text-align: center; white-space: nowrap;
+        }
+        .stp-active .stp-label { font-weight: 700; color: var(--en-fg); }
+      `}</style>
+      <div className={`stp-root ${className}`}>
+        {steps.map((step, i) => (
+          <div key={i} className={`stp-step stp-${step.status || 'upcoming'}`}>
+            <div className="stp-icon">
+              {step.status === 'completed'
+                ? <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34Z"/></svg>
+                : i + 1}
+            </div>
+            <span className="stp-label">{step.label}</span>
+          </div>
+        ))}
+      </div>
+    </>
+  )
+}
+
+
+// === Tooltip.jsx ===
+// Tooltip — dark contextual tooltip shown on hover
+
+// label:       string — bold heading (required)
+// description: string — secondary text (optional)
+// position:    'top' | 'bottom' | 'left' | 'right' (default 'top')
+function Tooltip({ label, description, position = 'top', children, className = '' }) {
+  const { useState } = React
+  const [visible, setVisible] = useState(false)
+
+  return (
+    <>
+      <style>{`
+        .tt-root { position: relative; display: inline-flex; align-items: center; }
+        .tt-box {
+          position: absolute; z-index: 300;
+          background: var(--en-black); color: var(--en-white);
+          border-radius: var(--en-radius-regular); padding: 6px 10px;
+          box-shadow: var(--en-shadow-tooltip); pointer-events: none;
+          white-space: nowrap; box-sizing: border-box;
+          animation: tt-in 120ms ease forwards;
+        }
+        @keyframes tt-in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+        .tt-top    { bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); }
+        .tt-bottom { top: calc(100% + 8px);    left: 50%; transform: translateX(-50%); }
+        .tt-left   { right: calc(100% + 8px);  top: 50%;  transform: translateY(-50%); }
+        .tt-right  { left: calc(100% + 8px);   top: 50%;  transform: translateY(-50%); }
+        .tt-arrow {
+          position: absolute; width: 8px; height: 8px;
+          background: var(--en-black); transform: rotate(45deg);
+        }
+        .tt-top    .tt-arrow { bottom: -4px; left: 50%; margin-left: -4px; }
+        .tt-bottom .tt-arrow { top: -4px;    left: 50%; margin-left: -4px; }
+        .tt-left   .tt-arrow { right: -4px;  top: 50%;  margin-top: -4px; }
+        .tt-right  .tt-arrow { left: -4px;   top: 50%;  margin-top: -4px; }
+        .tt-label { font: 700 12px/16px var(--en-font-sans); display: block; }
+        .tt-desc  { font: 400 12px/16px var(--en-font-sans); display: block; margin-top: 2px; opacity: 0.75; }
+      `}</style>
+      <div
+        className={`tt-root ${className}`}
+        onMouseEnter={() => setVisible(true)}
+        onMouseLeave={() => setVisible(false)}
+        onFocus={() => setVisible(true)}
+        onBlur={() => setVisible(false)}
+      >
+        {children}
+        {visible && label && (
+          <div className={`tt-box tt-${position}`}>
+            <span className="tt-arrow" />
+            <span className="tt-label">{label}</span>
+            {description && <span className="tt-desc">{description}</span>}
+          </div>
+        )}
+      </div>
+    </>
   )
 }

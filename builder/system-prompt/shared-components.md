@@ -20,7 +20,7 @@ Canonical button. Use instead of bare `<button className="btn ...">` to get cons
 ```
 
 Props:
-- `variant` `'primary' | 'secondary' | 'text' | 'danger' | 'icon'` (default `'primary'`)
+- `variant` `'primary' | 'secondary' | 'text' | 'danger' | 'icon' | 'link'` (default `'primary'`)
 - `size` `'sm'` — smaller 12px padding variant
 - `loading` boolean — shows spinner, disables click
 - `disabled` boolean
@@ -350,6 +350,163 @@ The full Step 3 form body — producer tables + agency fields.
 `modified` shape: `{ producers, tables: { [id]: bool }, agencyName, aboutUs, disclosures, serviceSummary, logoFile }`
 
 Agency shape: `{ agencyName, aboutUs, disclosures, serviceSummary, logoFile }`
+
+---
+
+## Toggle
+
+Animated on/off switch. Supports controlled and uncontrolled usage.
+
+```jsx
+<Toggle label="Notifications" />
+<Toggle defaultChecked label="Dark mode" />
+<Toggle checked={on} onChange={setOn} label="Feature flag" />
+<Toggle disabled label="Locked" />
+```
+
+Props:
+- `checked` boolean — controlled value
+- `defaultChecked` boolean — initial uncontrolled value
+- `onChange(value: bool)` — called on toggle
+- `label` string — shown to the right of the switch
+- `disabled` boolean
+
+---
+
+## Avatar
+
+Initials circle with 3 sizes. Defaults to purple (`--en-data-accounts`).
+
+```jsx
+<Avatar name="Ismael Viejo" size="md" />
+<Avatar name="John" size="sm" />
+<Avatar name="Alice" size="lg" color="var(--en-primary)" />
+```
+
+Props:
+- `name` string — split into initials (max 2 chars)
+- `size` `'sm'` (24px) | `'md'` (32px) | `'lg'` (40px)
+- `color` CSS color string — defaults to `var(--en-data-accounts)`
+
+---
+
+## Dialog
+
+Modal overlay with title, subtitle, content slot, and optional footer row.
+
+```jsx
+<Dialog
+  open={open}
+  onClose={() => setOpen(false)}
+  title="Confirm deletion"
+  subtitle="This cannot be undone."
+  footer={<>
+    <Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+    <Button variant="danger" onClick={handleDelete}>Delete</Button>
+  </>}
+>
+  <p className="en-body2">Are you sure you want to delete <strong>{item.name}</strong>?</p>
+</Dialog>
+```
+
+Props:
+- `open` boolean
+- `onClose` () => void — Escape key, X button, and backdrop click all call this
+- `title` string
+- `subtitle` string (optional)
+- `footer` ReactNode (optional) — right-aligned action buttons
+- `width` number (default 480)
+
+---
+
+## Chip
+
+Dismissible pill tag with 5 color variants and 3 styles.
+
+```jsx
+<Chip variant="primary">Producer</Chip>
+<Chip variant="success" style="filled">Active</Chip>
+<Chip variant="warning" dot>Pending</Chip>
+<Chip variant="error" style="subtle" dismissible onDismiss={() => remove(id)}>Overdue</Chip>
+```
+
+Props:
+- `variant` `'neutral' | 'primary' | 'success' | 'error' | 'warning'`
+- `style` `'subtle'` (outline tint) | `'filled'` (solid) | `'dot'` (tint + trailing dot)
+- `dot` boolean — shorthand for `style="dot"`
+- `dismissible` boolean — shows × button
+- `onDismiss` () => void
+
+---
+
+## Select
+
+Dropdown input with label, states, and option list.
+
+```jsx
+<Select
+  label="Policy type"
+  options={['Commercial', 'Personal', 'Benefits']}
+  placeholder="Select type..."
+  onChange={val => setType(val)}
+/>
+
+// Object options with value/label
+<Select
+  label="Market"
+  options={[{ value: 'wholesale', label: 'Wholesale' }, { value: 'retail', label: 'Retail' }]}
+  value={market}
+  onChange={setMarket}
+/>
+```
+
+Props:
+- `label` string
+- `options` `string[]` or `{ value, label }[]`
+- `placeholder` string (default `'Select option...'`)
+- `value` string — controlled value
+- `onChange(value)` fn
+- `error` string — shows red border + error text
+- `disabled` boolean
+
+---
+
+## Stepper
+
+Horizontal multi-step progress indicator. Connecting lines fill as steps complete.
+
+```jsx
+<Stepper steps={[
+  { label: 'Policy details', status: 'completed' },
+  { label: 'Coverage',       status: 'active' },
+  { label: 'Review',         status: 'upcoming' },
+  { label: 'Confirm',        status: 'upcoming' },
+]} />
+```
+
+Props:
+- `steps` array of `{ label: string, status: 'completed' | 'active' | 'upcoming' }`
+
+---
+
+## Tooltip
+
+Dark tooltip shown on hover. Wraps any children — no position anchoring needed.
+
+```jsx
+<Tooltip label="Download report" position="top">
+  <Button variant="icon"><IconDownload size={16} /></Button>
+</Tooltip>
+
+<Tooltip label="GWP" description="Gross Written Premium for the policy year" position="bottom">
+  <span className="en-body2">GWP</span>
+</Tooltip>
+```
+
+Props:
+- `label` string — bold heading (required to show tooltip)
+- `description` string (optional) — secondary line
+- `position` `'top'` | `'bottom'` | `'left'` | `'right'` (default `'top'`)
 
 ---
 
