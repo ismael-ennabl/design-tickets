@@ -3,8 +3,8 @@
 /** @type { import('@storybook/react-vite').StorybookConfig } */
 const config = {
   "stories": [
-    "../youtrack/**/__stories__/*.stories.@(js|jsx)",
-    "../youtrack/**/*.stories.@(js|jsx)"
+    "../design-system/**/__stories__/*.stories.@(js|jsx)",
+    "../design-system/**/*.stories.@(js|jsx)"
   ],
   "addons": [
     "@chromatic-com/storybook",
