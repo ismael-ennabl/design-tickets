@@ -1,13 +1,13 @@
 const KEY = 'ennabl_builder_prds'
 
 export const PROJECTS = [
-  { id: 'ai',        name: 'AI',        icon: '✦' },
-  { id: 'insights',  name: 'Insights',  icon: '◎' },
-  { id: 'workflows', name: 'Workflows', icon: '⚡' },
-  { id: 'data',      name: 'Data',      icon: '⬡' },
-  { id: 'growth',    name: 'Growth',    icon: '↑' },
-  { id: 'updates',   name: 'Updates',   icon: '◉' },
-  { id: 'settings',  name: 'Settings',  icon: '⚙' },
+  { id: 'ai',        name: 'AI',        phosphorIcon: 'Sparkle'   },
+  { id: 'insights',  name: 'Insights',  phosphorIcon: 'ChartBar'  },
+  { id: 'workflows', name: 'Workflows', phosphorIcon: 'FlowArrow' },
+  { id: 'data',      name: 'Data',      phosphorIcon: 'Database'  },
+  { id: 'growth',    name: 'Growth',    phosphorIcon: 'TrendUp'   },
+  { id: 'updates',   name: 'Updates',   phosphorIcon: 'Bell'      },
+  { id: 'settings',  name: 'Settings',  phosphorIcon: 'GearSix'   },
 ]
 
 export const STATUSES = ['backlog', 'todo', 'doing', 'done']

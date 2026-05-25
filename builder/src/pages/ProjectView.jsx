@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Sparkle, ChartBar, FlowArrow, Database, TrendUp, Bell, GearSix } from '@phosphor-icons/react'
 import {
   DndContext, DragOverlay, PointerSensor, useSensor, useSensors,
   closestCorners,
@@ -6,6 +7,8 @@ import {
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { PROJECTS, STATUSES, STATUS_LABELS, getProject } from '../lib/prds'
+
+const PROJECT_ICONS = { Sparkle, ChartBar, FlowArrow, Database, TrendUp, Bell, GearSix }
 import PrdEditor from '../components/PrdEditor'
 import './ProjectView.css'
 
@@ -70,6 +73,7 @@ function KanbanColumn({ status, prds, onEdit, onDelete, onOpen, activeId }) {
 
 export default function ProjectView({ projectId, prds, onNavigate, onCreatePrd, onUpdatePrd, onDeletePrd }) {
   const project = getProject(projectId)
+  const ProjectIcon = project ? PROJECT_ICONS[project.phosphorIcon] : null
   const projectPrds = prds.filter(p => p.projectId === projectId)
   const [viewMode, setViewMode] = useState('kanban')
   const [editorOpen, setEditorOpen] = useState(false)
@@ -113,7 +117,7 @@ export default function ProjectView({ projectId, prds, onNavigate, onCreatePrd, 
           ← Projects
         </button>
         <div className="project-view-title">
-          <span className="project-view-icon">{project?.icon}</span>
+          {ProjectIcon && <ProjectIcon size={20} weight="fill" className="project-view-icon" />}
           <span className="project-view-name">{project?.name}</span>
         </div>
         <div className="project-view-actions">

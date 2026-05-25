@@ -1,5 +1,8 @@
+import { Sparkle, ChartBar, FlowArrow, Database, TrendUp, Bell, GearSix } from '@phosphor-icons/react'
 import { PROJECTS, getPrdsForProject } from '../lib/prds'
 import './ProjectsPage.css'
+
+const PROJECT_ICONS = { Sparkle, ChartBar, FlowArrow, Database, TrendUp, Bell, GearSix }
 
 export default function ProjectsPage({ prds, onNavigate }) {
   return (
@@ -17,13 +20,14 @@ export default function ProjectsPage({ prds, onNavigate }) {
           {PROJECTS.map(project => {
             const projectPrds = prds.filter(p => p.projectId === project.id)
             const doing = projectPrds.filter(p => p.status === 'doing').length
+            const Icon = PROJECT_ICONS[project.phosphorIcon]
             return (
               <button
                 key={project.id}
                 className="project-card"
                 onClick={() => onNavigate({ page: 'project', projectId: project.id })}
               >
-                <div className="project-card-icon">{project.icon}</div>
+                <div className="project-card-icon">{Icon && <Icon size={24} weight="regular" />}</div>
                 <div className="project-card-name">{project.name}</div>
                 <div className="project-card-meta">
                   {projectPrds.length > 0 ? (
