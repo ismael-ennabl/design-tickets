@@ -1,5 +1,15 @@
 const KEY = 'ennabl_builder_prds'
 
+export const PROJECT_PREFIXES = {
+  ai:        'AI',
+  insights:  'INS',
+  workflows: 'WFL',
+  data:      'DAT',
+  growth:    'GRW',
+  updates:   'UPD',
+  settings:  'SET',
+}
+
 export const PROJECTS = [
   { id: 'ai',        name: 'AI',        phosphorIcon: 'Sparkle'   },
   { id: 'insights',  name: 'Insights',  phosphorIcon: 'ChartBar'  },
@@ -13,10 +23,40 @@ export const PROJECTS = [
 export const STATUSES = ['backlog', 'todo', 'doing', 'done']
 export const STATUS_LABELS = { backlog: 'Backlog', todo: 'To Do', doing: 'Doing', done: 'Done' }
 
+export function generatePrdId(projectId, allPrds) {
+  const prefix = PROJECT_PREFIXES[projectId] || projectId.slice(0, 3).toUpperCase()
+  const count = allPrds.filter(p => p.projectId === projectId).length + 1
+  return `${prefix}-${String(count).padStart(2, '0')}`
+}
+
+// Adds prdId + sprintIds to any PRD missing them; returns updated array (saves if changed).
+export function migratePrds(prds) {
+  // Group by project to assign sequential IDs
+  const counters = {}
+  let changed = false
+  const migrated = prds.map(p => {
+    const updates = {}
+    if (!p.prdId) {
+      counters[p.projectId] = (counters[p.projectId] || 0) + 1
+      const prefix = PROJECT_PREFIXES[p.projectId] || p.projectId.slice(0, 3).toUpperCase()
+      updates.prdId = `${prefix}-${String(counters[p.projectId]).padStart(2, '0')}`
+      changed = true
+    } else {
+      counters[p.projectId] = (counters[p.projectId] || 0) + 1
+    }
+    if (!p.sprintIds) { updates.sprintIds = []; changed = true }
+    return Object.keys(updates).length ? { ...p, ...updates } : p
+  })
+  if (changed) savePrds(migrated)
+  return migrated
+}
+
 const MOCK_PRDS = [
   {
     id: 'prd-mock-1',
     projectId: 'workflows',
+    prdId: 'WFL-01',
+    sprintIds: [],
     title: 'Producer Filter Modal',
     content: `# Producer Filter Modal
 
@@ -45,6 +85,8 @@ Redesign the filter panel for the Producer Team step to support multi-select fil
   {
     id: 'prd-mock-2',
     projectId: 'workflows',
+    prdId: 'WFL-02',
+    sprintIds: [],
     title: 'Template Save Flow',
     content: `# Template Save Flow
 
@@ -85,14 +127,16 @@ export function seedIfEmpty() {
   if (existing.length === 0) savePrds(MOCK_PRDS)
 }
 
-export function createPrd({ projectId, title, content }) {
+export function createPrd({ projectId, title, content, sprintIds = [] }) {
   const prds = loadPrds()
   const prd = {
     id: `prd-${Date.now()}`,
     projectId,
+    prdId: generatePrdId(projectId, prds),
     title: title.trim(),
     content,
     status: 'backlog',
+    sprintIds,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   }

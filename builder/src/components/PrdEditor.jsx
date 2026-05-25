@@ -1,9 +1,11 @@
 import { useState, useRef } from 'react'
+import { sprintLabel } from '../lib/sprints'
 import './PrdEditor.css'
 
-export default function PrdEditor({ prd, projectId, onClose, onSave }) {
+export default function PrdEditor({ prd, projectId, sprints = [], onClose, onSave }) {
   const [title, setTitle] = useState(prd?.title ?? '')
   const [content, setContent] = useState(prd?.content ?? '')
+  const [sprintIds, setSprintIds] = useState(prd?.sprintIds ?? [])
   const fileRef = useRef()
 
   function handleFile(e) {
@@ -18,17 +20,26 @@ export default function PrdEditor({ prd, projectId, onClose, onSave }) {
     reader.readAsText(file)
   }
 
+  function toggleSprint(id) {
+    setSprintIds(prev =>
+      prev.includes(id) ? prev.filter(s => s !== id) : [...prev, id]
+    )
+  }
+
   function handleSave() {
     const t = title.trim()
     if (!t) return
-    onSave({ title: t, content })
+    onSave({ title: t, content, sprintIds })
   }
 
   return (
     <div className="prd-editor-scrim" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="prd-editor-modal">
         <div className="prd-editor-header">
-          <span className="prd-editor-title">{prd ? 'Edit PRD' : 'New PRD'}</span>
+          <div className="prd-editor-header-left">
+            <span className="prd-editor-title">{prd ? 'Edit PRD' : 'New PRD'}</span>
+            {prd?.prdId && <span className="prd-editor-id">{prd.prdId}</span>}
+          </div>
           <button className="prd-editor-close" onClick={onClose}>✕</button>
         </div>
 
@@ -44,6 +55,25 @@ export default function PrdEditor({ prd, projectId, onClose, onSave }) {
               autoFocus
             />
           </div>
+
+          {sprints.length > 0 && (
+            <div className="prd-editor-field">
+              <label className="prd-editor-label">Sprints</label>
+              <div className="prd-sprint-list">
+                {sprints.map(s => (
+                  <label key={s.id} className="prd-sprint-item">
+                    <input
+                      type="checkbox"
+                      className="prd-sprint-check"
+                      checked={sprintIds.includes(s.id)}
+                      onChange={() => toggleSprint(s.id)}
+                    />
+                    <span className="prd-sprint-name">{sprintLabel(s)}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="prd-editor-field prd-editor-field--grow">
             <div className="prd-editor-label-row">

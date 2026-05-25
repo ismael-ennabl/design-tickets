@@ -299,3 +299,71 @@
 }
 .kanban-card-btn:hover { color: var(--text); border-color: var(--text-muted); }
 .kanban-card-btn--danger:hover { color: #f87171; border-color: #f87171; }
+
+/* Kanban card top row */
+.kanban-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.kanban-prd-id {
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  letter-spacing: 0.03em;
+}
+
+.kanban-card-time {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Sprint chips on kanban card */
+.kanban-sprint-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.kanban-sprint-chip {
+  font-size: 10px;
+  font-family: 'Inter', sans-serif;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(108, 99, 255, 0.12);
+  color: var(--accent);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* List view ID column */
+.prd-table-id {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  white-space: nowrap;
+  width: 80px;
+}
+
+/* List view sprints column */
+.prd-table-sprints {
+  max-width: 180px;
+}
+
+.list-sprint-chip {
+  display: inline-block;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgba(108, 99, 255, 0.12);
+  color: var(--accent);
+  font-weight: 500;
+  margin-right: 3px;
+}
+
+.prd-table-none { color: var(--text-muted); font-size: 12px; }

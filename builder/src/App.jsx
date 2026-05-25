@@ -7,9 +7,10 @@ import PrdSearch from './components/PrdSearch'
 import ProjectsPage from './pages/ProjectsPage'
 import ProjectView from './pages/ProjectView'
 import { getApiKey, getTheme, saveTheme } from './lib/apiKey'
+import { loadSprints, saveSprints, createSprint } from './lib/sprints'
+import { loadPrds, savePrds, migratePrds, seedIfEmpty } from './lib/prds'
 import { newSession, calcCost, saveSession } from './lib/reports'
 import { loadHistory, saveHistory, makeEntry } from './lib/history'
-import { loadPrds, savePrds, seedIfEmpty } from './lib/prds'
 import { loadBuilderState, saveBuilderState } from './lib/builderState'
 import {
   isPbReady, pbLoadPrds, pbCreatePrd, pbUpdatePrd, pbDeletePrd,
@@ -37,6 +38,35 @@ export default function App() {
   function handleSignOut() {
     setApiReady(false)
   }
+
+  // ── Sprint CRUD ──────────────────────────────────────────────────────────
+
+  function handleCreateSprint(data) {
+    const sprint = createSprint(data)
+    setSprints(prev => {
+      const next = [...prev, sprint]
+      saveSprints(next)
+      return next
+    })
+  }
+
+  function handleDeleteSprint(id) {
+    setSprints(prev => {
+      const next = prev.filter(s => s.id !== id)
+      saveSprints(next)
+      return next
+    })
+    // Remove deleted sprint from all PRDs
+    setPrds(prev => {
+      const next = prev.map(p =>
+        p.sprintIds?.includes(id)
+          ? { ...p, sprintIds: p.sprintIds.filter(s => s !== id) }
+          : p
+      )
+      if (!usePb) savePrds(next)
+      return next
+    })
+  }
   const [pbReady, setPbReady] = useState(isPbReady)
   const [pbSkipped, setPbSkipped] = useState(false)
   const [route, setRoute] = useState({ page: 'projects' })
@@ -48,6 +78,7 @@ export default function App() {
   const [session, setSession] = useState(null)
   const [history, setHistory] = useState(loadHistory)
   const [initTrigger, setInitTrigger] = useState(0)
+  const [sprints, setSprints] = useState(loadSprints)
 
   const usePb = pbReady && !pbSkipped
 
@@ -57,19 +88,19 @@ export default function App() {
     if (!pbReady && !pbSkipped) return // still showing PbSetup
 
     async function load() {
+      let data
       if (usePb) {
         try {
-          const data = await pbLoadPrds()
-          setPrds(data)
+          data = await pbLoadPrds()
         } catch {
-          // PB connection lost — fall back to localStorage
           seedIfEmpty()
-          setPrds(loadPrds())
+          data = loadPrds()
         }
       } else {
         seedIfEmpty()
-        setPrds(loadPrds())
+        data = loadPrds()
       }
+      setPrds(migratePrds(data))
       setPrdsLoaded(true)
     }
     load()
@@ -236,10 +267,13 @@ export default function App() {
       <ProjectView
         projectId={route.projectId}
         prds={prds}
+        sprints={sprints}
         onNavigate={navigate}
         onCreatePrd={handleCreatePrd}
         onUpdatePrd={handleUpdatePrd}
         onDeletePrd={handleDeletePrd}
+        onCreateSprint={handleCreateSprint}
+        onDeleteSprint={handleDeleteSprint}
         theme={theme}
         onThemeToggle={toggleTheme}
         onSignOut={handleSignOut}

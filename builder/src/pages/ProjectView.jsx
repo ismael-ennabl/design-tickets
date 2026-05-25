@@ -7,7 +7,9 @@ import {
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { PROJECTS, STATUSES, STATUS_LABELS, getProject } from '../lib/prds'
+import { sprintLabel } from '../lib/sprints'
 import PrdEditor from '../components/PrdEditor'
+import SprintBar from '../components/SprintBar'
 import UserMenu from '../components/UserMenu'
 import './ProjectView.css'
 
@@ -26,17 +28,24 @@ function StatusBadge({ status }) {
   return <span className={`prd-status prd-status--${status}`}>{STATUS_LABELS[status]}</span>
 }
 
-function KanbanCard({ prd, onEdit, onDelete, onOpen, isDragging }) {
+function KanbanCard({ prd, sprints, onEdit, onDelete, onOpen, isDragging }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: prd.id })
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  }
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.4 : 1 }
+  const cardSprints = sprints.filter(s => prd.sprintIds?.includes(s.id))
   return (
     <div ref={setNodeRef} style={style} className="kanban-card" {...attributes} {...listeners}>
+      <div className="kanban-card-top">
+        {prd.prdId && <span className="kanban-prd-id">{prd.prdId}</span>}
+        <span className="kanban-card-time">{timeAgo(prd.updatedAt)}</span>
+      </div>
       <div className="kanban-card-title">{prd.title}</div>
-      <div className="kanban-card-meta">{timeAgo(prd.updatedAt)}</div>
+      {cardSprints.length > 0 && (
+        <div className="kanban-sprint-chips">
+          {cardSprints.map(s => (
+            <span key={s.id} className="kanban-sprint-chip">{s.name}</span>
+          ))}
+        </div>
+      )}
       <div className="kanban-card-actions" onPointerDown={e => e.stopPropagation()}>
         <button className="kanban-card-btn" onClick={() => onOpen(prd)}>Open →</button>
         <button className="kanban-card-btn" onClick={() => onEdit(prd)}>Edit</button>
@@ -46,7 +55,7 @@ function KanbanCard({ prd, onEdit, onDelete, onOpen, isDragging }) {
   )
 }
 
-function KanbanColumn({ status, prds, onEdit, onDelete, onOpen, activeId }) {
+function KanbanColumn({ status, prds, sprints, onEdit, onDelete, onOpen, activeId }) {
   return (
     <div className="kanban-col">
       <div className="kanban-col-header">
@@ -59,6 +68,7 @@ function KanbanColumn({ status, prds, onEdit, onDelete, onOpen, activeId }) {
             <KanbanCard
               key={prd.id}
               prd={prd}
+              sprints={sprints}
               onEdit={onEdit}
               onDelete={onDelete}
               onOpen={onOpen}
@@ -72,20 +82,31 @@ function KanbanColumn({ status, prds, onEdit, onDelete, onOpen, activeId }) {
   )
 }
 
-export default function ProjectView({ projectId, prds, onNavigate, onCreatePrd, onUpdatePrd, onDeletePrd, theme, onThemeToggle, onSignOut }) {
+export default function ProjectView({
+  projectId, prds, sprints = [], onNavigate,
+  onCreatePrd, onUpdatePrd, onDeletePrd,
+  onCreateSprint, onDeleteSprint,
+  theme, onThemeToggle, onSignOut,
+}) {
   const project = getProject(projectId)
   const ProjectIcon = project ? PROJECT_ICONS[project.phosphorIcon] : null
   const projectPrds = prds.filter(p => p.projectId === projectId)
   const [viewMode, setViewMode] = useState('kanban')
+  const [activeSprint, setActiveSprint] = useState(null) // null=all, '__none__'=unassigned, id=sprint
   const [editorOpen, setEditorOpen] = useState(false)
   const [editingPrd, setEditingPrd] = useState(null)
   const [activeId, setActiveId] = useState(null)
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 
-  function handleDragStart({ active }) {
-    setActiveId(active.id)
-  }
+  // Sprint filtering
+  const visiblePrds = activeSprint === null
+    ? projectPrds
+    : activeSprint === '__none__'
+      ? projectPrds.filter(p => !p.sprintIds?.length)
+      : projectPrds.filter(p => p.sprintIds?.includes(activeSprint))
+
+  function handleDragStart({ active }) { setActiveId(active.id) }
 
   function handleDragEnd({ active, over }) {
     setActiveId(null)
@@ -133,34 +154,58 @@ export default function ProjectView({ projectId, prds, onNavigate, onCreatePrd, 
         </div>
       </header>
 
+      <SprintBar
+        sprints={sprints}
+        activeSprint={activeSprint}
+        onSelectSprint={setActiveSprint}
+        onCreateSprint={onCreateSprint}
+        onDeleteSprint={id => {
+          // Remove sprint from filter if it was selected
+          if (activeSprint === id) setActiveSprint(null)
+          onDeleteSprint(id)
+        }}
+      />
+
       <div className="project-view-body">
         {viewMode === 'list' ? (
           <div className="prd-list">
-            {projectPrds.length === 0 ? (
+            {visiblePrds.length === 0 ? (
               <div className="prd-list-empty">No PRDs yet — create one to get started.</div>
             ) : (
               <table className="prd-table">
                 <thead>
                   <tr>
+                    <th>ID</th>
                     <th>Title</th>
+                    <th>Sprints</th>
                     <th>Status</th>
                     <th>Updated</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
-                  {projectPrds.map(prd => (
-                    <tr key={prd.id}>
-                      <td className="prd-table-title">{prd.title}</td>
-                      <td><StatusBadge status={prd.status} /></td>
-                      <td className="prd-table-date">{timeAgo(prd.updatedAt)}</td>
-                      <td className="prd-table-actions">
-                        <button className="prd-action-btn" onClick={() => onNavigate({ page: 'builder', prdId: prd.id })}>Open →</button>
-                        <button className="prd-action-btn" onClick={() => { setEditingPrd(prd); setEditorOpen(true) }}>Edit</button>
-                        <button className="prd-action-btn prd-action-btn--danger" onClick={() => onDeletePrd(prd.id)}>Delete</button>
-                      </td>
-                    </tr>
-                  ))}
+                  {visiblePrds.map(prd => {
+                    const prdSprints = sprints.filter(s => prd.sprintIds?.includes(s.id))
+                    return (
+                      <tr key={prd.id}>
+                        <td className="prd-table-id">{prd.prdId || '—'}</td>
+                        <td className="prd-table-title">{prd.title}</td>
+                        <td className="prd-table-sprints">
+                          {prdSprints.length > 0
+                            ? prdSprints.map(s => <span key={s.id} className="list-sprint-chip">{s.name}</span>)
+                            : <span className="prd-table-none">—</span>
+                          }
+                        </td>
+                        <td><StatusBadge status={prd.status} /></td>
+                        <td className="prd-table-date">{timeAgo(prd.updatedAt)}</td>
+                        <td className="prd-table-actions">
+                          <button className="prd-action-btn" onClick={() => onNavigate({ page: 'builder', prdId: prd.id })}>Open →</button>
+                          <button className="prd-action-btn" onClick={() => { setEditingPrd(prd); setEditorOpen(true) }}>Edit</button>
+                          <button className="prd-action-btn prd-action-btn--danger" onClick={() => onDeletePrd(prd.id)}>Delete</button>
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             )}
@@ -178,7 +223,8 @@ export default function ProjectView({ projectId, prds, onNavigate, onCreatePrd, 
                 <KanbanColumn
                   key={status}
                   status={status}
-                  prds={projectPrds.filter(p => p.status === status)}
+                  prds={visiblePrds.filter(p => p.status === status)}
+                  sprints={sprints}
                   onEdit={prd => { setEditingPrd(prd); setEditorOpen(true) }}
                   onDelete={id => onDeletePrd(id)}
                   onOpen={prd => onNavigate({ page: 'builder', prdId: prd.id })}
@@ -189,6 +235,7 @@ export default function ProjectView({ projectId, prds, onNavigate, onCreatePrd, 
             <DragOverlay>
               {activePrd ? (
                 <div className="kanban-card kanban-card--overlay">
+                  {activePrd.prdId && <span className="kanban-prd-id">{activePrd.prdId}</span>}
                   <div className="kanban-card-title">{activePrd.title}</div>
                 </div>
               ) : null}
@@ -201,6 +248,7 @@ export default function ProjectView({ projectId, prds, onNavigate, onCreatePrd, 
         <PrdEditor
           prd={editingPrd}
           projectId={projectId}
+          sprints={sprints}
           onClose={() => setEditorOpen(false)}
           onSave={(data) => {
             if (editingPrd) {

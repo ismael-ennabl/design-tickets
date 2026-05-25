@@ -1,0 +1,166 @@
+.sprint-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+/* ── Dropdown ──────────────────────────────────── */
+
+.sprint-selector {
+  position: relative;
+}
+
+.sprint-dropdown-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s;
+  white-space: nowrap;
+}
+.sprint-dropdown-btn:hover { border-color: var(--accent); }
+.sprint-dropdown-btn--active { border-color: var(--accent); color: var(--accent); }
+
+.sprint-dropdown-label { max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+
+.sprint-dropdown {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-width: 220px;
+  z-index: 50;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+
+.sprint-option {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.1s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sprint-option:hover { background: var(--bg); }
+.sprint-option--active { color: var(--accent); font-weight: 500; }
+
+.sprint-option-divider { height: 1px; background: var(--border-subtle); margin: 2px 0; }
+
+.sprint-option-row {
+  display: flex;
+  align-items: center;
+}
+.sprint-option-row .sprint-option { flex: 1; min-width: 0; }
+
+.sprint-option-delete {
+  flex-shrink: 0;
+  width: 28px;
+  height: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  transition: color 0.1s;
+}
+.sprint-option-delete:hover { color: #e05555; }
+
+/* ── New sprint button ─────────────────────────── */
+
+.sprint-new-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: none;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.sprint-new-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ── Inline create form ────────────────────────── */
+
+.sprint-create-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sprint-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.sprint-input:focus { border-color: var(--accent); }
+.sprint-input::placeholder { color: var(--text-muted); }
+.sprint-input--date { width: 130px; color-scheme: dark; }
+[data-theme="light"] .sprint-input--date { color-scheme: light; }
+
+.sprint-range-sep {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.sprint-create-btn {
+  padding: 5px 12px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.sprint-create-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.sprint-create-btn:not(:disabled):hover { opacity: 0.85; }
+
+.sprint-cancel-btn {
+  padding: 5px 10px;
+  background: none;
+  border: none;
+  font-size: 12px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.sprint-cancel-btn:hover { color: var(--text); }
