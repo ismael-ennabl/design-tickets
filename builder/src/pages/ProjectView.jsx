@@ -7,10 +7,11 @@ import {
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { PROJECTS, STATUSES, STATUS_LABELS, getProject } from '../lib/prds'
+import PrdEditor from '../components/PrdEditor'
+import UserMenu from '../components/UserMenu'
+import './ProjectView.css'
 
 const PROJECT_ICONS = { Sparkle, ChartBar, FlowArrow, Database, TrendUp, Bell, GearSix }
-import PrdEditor from '../components/PrdEditor'
-import './ProjectView.css'
 
 function timeAgo(ts) {
   const m = Math.floor((Date.now() - new Date(ts)) / 60000)
@@ -71,7 +72,7 @@ function KanbanColumn({ status, prds, onEdit, onDelete, onOpen, activeId }) {
   )
 }
 
-export default function ProjectView({ projectId, prds, onNavigate, onCreatePrd, onUpdatePrd, onDeletePrd }) {
+export default function ProjectView({ projectId, prds, onNavigate, onCreatePrd, onUpdatePrd, onDeletePrd, theme, onThemeToggle, onSignOut }) {
   const project = getProject(projectId)
   const ProjectIcon = project ? PROJECT_ICONS[project.phosphorIcon] : null
   const projectPrds = prds.filter(p => p.projectId === projectId)
@@ -128,6 +129,7 @@ export default function ProjectView({ projectId, prds, onNavigate, onCreatePrd, 
           <button className="new-prd-btn" onClick={() => { setEditingPrd(null); setEditorOpen(true) }}>
             + New PRD
           </button>
+          <UserMenu theme={theme} onThemeToggle={onThemeToggle} onSignOut={onSignOut} />
         </div>
       </header>
 

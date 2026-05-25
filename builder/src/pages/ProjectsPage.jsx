@@ -1,10 +1,11 @@
 import { Sparkle, ChartBar, FlowArrow, Database, TrendUp, Bell, GearSix } from '@phosphor-icons/react'
 import { PROJECTS, getPrdsForProject } from '../lib/prds'
+import UserMenu from '../components/UserMenu'
 import './ProjectsPage.css'
 
 const PROJECT_ICONS = { Sparkle, ChartBar, FlowArrow, Database, TrendUp, Bell, GearSix }
 
-export default function ProjectsPage({ prds, onNavigate }) {
+export default function ProjectsPage({ prds, onNavigate, theme, onThemeToggle, onSignOut }) {
   return (
     <div className="projects-page">
       <header className="projects-header">
@@ -12,6 +13,7 @@ export default function ProjectsPage({ prds, onNavigate }) {
           <span className="projects-logo-name">ennabl</span>
           <span className="projects-logo-suffix">builder</span>
         </div>
+        <UserMenu theme={theme} onThemeToggle={onThemeToggle} onSignOut={onSignOut} />
       </header>
 
       <main className="projects-main">
@@ -27,7 +29,7 @@ export default function ProjectsPage({ prds, onNavigate }) {
                 className="project-card"
                 onClick={() => onNavigate({ page: 'project', projectId: project.id })}
               >
-                <div className="project-card-icon">{Icon && <Icon size={24} weight="regular" />}</div>
+                <div className="project-card-icon">{Icon && <Icon size={28} weight="regular" />}</div>
                 <div className="project-card-name">{project.name}</div>
                 <div className="project-card-meta">
                   {projectPrds.length > 0 ? (

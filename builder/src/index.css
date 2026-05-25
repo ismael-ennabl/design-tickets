@@ -11,7 +11,22 @@
   --accent-hover: #7c73ff;
   --user-bubble: #1e1b38;
   --code-bg: #111111;
+  --icon-color: rgba(232, 232, 232, 0.7);
   font-family: 'Inter', system-ui, sans-serif;
+}
+
+[data-theme="light"] {
+  --bg: #f2f2f5;
+  --surface: #ffffff;
+  --border: #dcdcdc;
+  --border-subtle: #ebebeb;
+  --text: #111111;
+  --text-muted: #888888;
+  --accent: #6c63ff;
+  --accent-hover: #5a52e0;
+  --user-bubble: #ede9ff;
+  --code-bg: #f6f6f8;
+  --icon-color: rgba(17, 17, 17, 0.55);
 }
 
 body {

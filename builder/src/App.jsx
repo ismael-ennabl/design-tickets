@@ -6,7 +6,7 @@ import PbSetup from './components/PbSetup'
 import PrdSearch from './components/PrdSearch'
 import ProjectsPage from './pages/ProjectsPage'
 import ProjectView from './pages/ProjectView'
-import { getApiKey } from './lib/apiKey'
+import { getApiKey, getTheme, saveTheme } from './lib/apiKey'
 import { newSession, calcCost, saveSession } from './lib/reports'
 import { loadHistory, saveHistory, makeEntry } from './lib/history'
 import { loadPrds, savePrds, seedIfEmpty } from './lib/prds'
@@ -14,10 +14,29 @@ import { loadBuilderState, saveBuilderState } from './lib/builderState'
 import {
   isPbReady, pbLoadPrds, pbCreatePrd, pbUpdatePrd, pbDeletePrd,
 } from './lib/pb'
+import UserMenu from './components/UserMenu'
 import './App.css'
 
 export default function App() {
   const [apiReady, setApiReady] = useState(() => !!getApiKey())
+  const [theme, setTheme] = useState(() => {
+    const t = getTheme()
+    document.documentElement.setAttribute('data-theme', t)
+    return t
+  })
+
+  function toggleTheme() {
+    setTheme(prev => {
+      const next = prev === 'dark' ? 'light' : 'dark'
+      document.documentElement.setAttribute('data-theme', next)
+      saveTheme(next)
+      return next
+    })
+  }
+
+  function handleSignOut() {
+    setApiReady(false)
+  }
   const [pbReady, setPbReady] = useState(isPbReady)
   const [pbSkipped, setPbSkipped] = useState(false)
   const [route, setRoute] = useState({ page: 'projects' })
@@ -201,7 +220,15 @@ export default function App() {
   }
 
   if (route.page === 'projects') {
-    return <ProjectsPage prds={prds} onNavigate={navigate} />
+    return (
+      <ProjectsPage
+        prds={prds}
+        onNavigate={navigate}
+        theme={theme}
+        onThemeToggle={toggleTheme}
+        onSignOut={handleSignOut}
+      />
+    )
   }
 
   if (route.page === 'project') {
@@ -213,6 +240,9 @@ export default function App() {
         onCreatePrd={handleCreatePrd}
         onUpdatePrd={handleUpdatePrd}
         onDeletePrd={handleDeletePrd}
+        theme={theme}
+        onThemeToggle={toggleTheme}
+        onSignOut={handleSignOut}
       />
     )
   }
@@ -229,7 +259,10 @@ export default function App() {
           <span className="app-logo-suffix">builder</span>
           {prd && <span className="app-prd-badge">{prd.name}</span>}
         </div>
-        <PrdSearch prds={prds} onSelect={loadPrdObj} />
+        <div className="app-header-right">
+          <PrdSearch prds={prds} onSelect={loadPrdObj} />
+          <UserMenu theme={theme} onThemeToggle={toggleTheme} onSignOut={handleSignOut} />
+        </div>
       </header>
 
       <main className="app-panels">

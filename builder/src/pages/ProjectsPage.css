@@ -75,9 +75,9 @@
 }
 
 .project-card-icon {
-  font-size: 22px;
   line-height: 1;
-  margin-bottom: 2px;
+  margin-bottom: 6px;
+  color: var(--accent);
 }
 
 .project-card-name {
