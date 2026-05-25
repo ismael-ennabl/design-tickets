@@ -3,6 +3,14 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import colorsCssRaw from '../../../design-system/_design_system/colors_and_type.css?raw'
 import stylesCssRaw from '../../../design-system/_design_system/styles.css?raw'
 import iconsJsRaw from '../../../design-system/_shared/icons.jsx?raw'
+import uiJsRaw from '../../../design-system/_shared/ui.jsx?raw'
+import toggleJsRaw from '../../../design-system/_shared/Toggle.jsx?raw'
+import avatarJsRaw from '../../../design-system/_shared/Avatar.jsx?raw'
+import dialogComponentJsRaw from '../../../design-system/_shared/Dialog.jsx?raw'
+import chipJsRaw from '../../../design-system/_shared/Chip.jsx?raw'
+import selectJsRaw from '../../../design-system/_shared/Select.jsx?raw'
+import stepperJsRaw from '../../../design-system/_shared/Stepper.jsx?raw'
+import tooltipJsRaw from '../../../design-system/_shared/Tooltip.jsx?raw'
 import pickerJsRaw from '../../../design-system/_shared/picker.jsx?raw'
 import dialogsJsRaw from '../../../design-system/_shared/dialogs.jsx?raw'
 import step3JsRaw from '../../../design-system/_shared/step3.jsx?raw'
@@ -71,6 +79,30 @@ function buildSrcdoc(code) {
   <div id="__err"></div>
   <script type="text/babel">
 ${iconsJsRaw}
+  </script>
+  <script type="text/babel">
+${uiJsRaw}
+  </script>
+  <script type="text/babel">
+${toggleJsRaw}
+  </script>
+  <script type="text/babel">
+${avatarJsRaw}
+  </script>
+  <script type="text/babel">
+${dialogComponentJsRaw}
+  </script>
+  <script type="text/babel">
+${chipJsRaw}
+  </script>
+  <script type="text/babel">
+${selectJsRaw}
+  </script>
+  <script type="text/babel">
+${stepperJsRaw}
+  </script>
+  <script type="text/babel">
+${tooltipJsRaw}
   </script>
   <script type="text/babel">
 ${pickerJsRaw}
