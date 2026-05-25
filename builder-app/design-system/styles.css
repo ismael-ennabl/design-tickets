@@ -26,6 +26,15 @@ input, textarea { font-family: inherit; }
    ------------------------------------------------------------ */
 .btn:disabled, .btn--loading { opacity: 0.55; cursor: not-allowed; pointer-events: none; }
 .btn-sm { font-size: 12px; padding: 4px 10px; }
+.btn-link {
+  background: none; border: none; padding: 0;
+  color: var(--en-primary); cursor: pointer;
+  font: 400 14px/20px var(--en-font-sans);
+  text-decoration: underline;
+  transition: color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-link:hover { color: var(--en-primary-dark); }
+.btn-link:disabled { color: var(--en-fg-disabled); cursor: not-allowed; }
 .btn-spinner {
   width: 12px;
   height: 12px;
