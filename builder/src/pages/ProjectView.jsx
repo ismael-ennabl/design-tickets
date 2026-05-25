@@ -83,7 +83,7 @@ function KanbanColumn({ status, prds, sprints, onEdit, onDelete, onOpen, activeI
 }
 
 export default function ProjectView({
-  projectId, prds, sprints = [], onNavigate,
+  projectId, prds, sprints = [], activeSprint, onSelectSprint, onNavigate,
   onCreatePrd, onUpdatePrd, onDeletePrd,
   onCreateSprint, onDeleteSprint,
   theme, onThemeToggle, onSignOut,
@@ -92,7 +92,6 @@ export default function ProjectView({
   const ProjectIcon = project ? PROJECT_ICONS[project.phosphorIcon] : null
   const projectPrds = prds.filter(p => p.projectId === projectId)
   const [viewMode, setViewMode] = useState('kanban')
-  const [activeSprint, setActiveSprint] = useState(null) // null=all, '__none__'=unassigned, id=sprint
   const [editorOpen, setEditorOpen] = useState(false)
   const [editingPrd, setEditingPrd] = useState(null)
   const [activeId, setActiveId] = useState(null)
@@ -157,11 +156,10 @@ export default function ProjectView({
       <SprintBar
         sprints={sprints}
         activeSprint={activeSprint}
-        onSelectSprint={setActiveSprint}
+        onSelectSprint={onSelectSprint}
         onCreateSprint={onCreateSprint}
         onDeleteSprint={id => {
-          // Remove sprint from filter if it was selected
-          if (activeSprint === id) setActiveSprint(null)
+          if (activeSprint === id) onSelectSprint(null)
           onDeleteSprint(id)
         }}
       />

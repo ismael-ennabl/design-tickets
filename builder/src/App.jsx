@@ -8,7 +8,7 @@ import ProjectsPage from './pages/ProjectsPage'
 import ProjectView from './pages/ProjectView'
 import { getApiKey, getTheme, saveTheme } from './lib/apiKey'
 import { loadSprints, saveSprints, createSprint } from './lib/sprints'
-import { loadPrds, savePrds, migratePrds, seedIfEmpty } from './lib/prds'
+import { loadPrds, savePrds, migratePrds, seedIfEmpty, generatePrdId } from './lib/prds'
 import { newSession, calcCost, saveSession } from './lib/reports'
 import { loadHistory, saveHistory, makeEntry } from './lib/history'
 import { loadBuilderState, saveBuilderState } from './lib/builderState'
@@ -18,6 +18,36 @@ import {
 import UserMenu from './components/UserMenu'
 import './App.css'
 
+// ── Hash routing ─────────────────────────────────────────────────────────────
+
+function parseHash() {
+  const hash = window.location.hash.slice(1) || '/'
+  const [path, search] = hash.split('?')
+  const params = new URLSearchParams(search || '')
+  const parts = path.split('/').filter(Boolean)
+
+  if (parts[0] === 'projects' && parts[1]) {
+    return { page: 'project', projectId: parts[1], sprint: params.get('sprint') || null }
+  }
+  if (parts[0] === 'builder' && parts[1]) {
+    return { page: 'builder', prdId: parts[1] }
+  }
+  return { page: 'projects' }
+}
+
+function routeToHash(route) {
+  if (route.page === 'project') {
+    const params = new URLSearchParams()
+    if (route.sprint) params.set('sprint', route.sprint)
+    const qs = params.toString()
+    return `#/projects/${route.projectId}${qs ? '?' + qs : ''}`
+  }
+  if (route.page === 'builder') return `#/builder/${route.prdId}`
+  return '#/'
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function App() {
   const [apiReady, setApiReady] = useState(() => !!getApiKey())
   const [theme, setTheme] = useState(() => {
@@ -25,6 +55,22 @@ export default function App() {
     document.documentElement.setAttribute('data-theme', t)
     return t
   })
+  const [pbReady, setPbReady] = useState(isPbReady)
+  const [pbSkipped, setPbSkipped] = useState(false)
+  const [route, setRoute] = useState(parseHash)
+  const [prds, setPrds] = useState([])
+  const [prdsLoaded, setPrdsLoaded] = useState(false)
+  const [prd, setPrd] = useState(null)
+  const [generatedCode, setGeneratedCode] = useState(null)
+  const [messages, setMessages] = useState([])
+  const [session, setSession] = useState(null)
+  const [history, setHistory] = useState(loadHistory)
+  const [initTrigger, setInitTrigger] = useState(0)
+  const [sprints, setSprints] = useState(loadSprints)
+
+  const usePb = pbReady && !pbSkipped
+
+  // ── Theme ────────────────────────────────────────────────────────────────
 
   function toggleTheme() {
     setTheme(prev => {
@@ -38,6 +84,78 @@ export default function App() {
   function handleSignOut() {
     setApiReady(false)
   }
+
+  // ── Hash routing ─────────────────────────────────────────────────────────
+
+  function navigate(next) {
+    if (next.page === 'builder' && next.prdId) {
+      const found = prds.find(p => p.id === next.prdId)
+      if (found) loadPrdObj(found)
+    }
+    setRoute(next)
+    window.location.hash = routeToHash(next)
+  }
+
+  // Sync state when user navigates with back/forward
+  useEffect(() => {
+    function onHashChange() {
+      const next = parseHash()
+      if (next.page === 'builder' && next.prdId) {
+        const found = prds.find(p => p.id === next.prdId)
+        if (found) loadPrdObj(found)
+      }
+      setRoute(next)
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [prds])
+
+  // ── Load PRDs ────────────────────────────────────────────────────────────
+
+  useEffect(() => {
+    if (!apiReady) return
+    if (!pbReady && !pbSkipped) return
+
+    async function load() {
+      let data
+      if (usePb) {
+        try { data = await pbLoadPrds() }
+        catch { seedIfEmpty(); data = loadPrds() }
+      } else {
+        seedIfEmpty()
+        data = loadPrds()
+      }
+      const loaded = migratePrds(data)
+      setPrds(loaded)
+      setPrdsLoaded(true)
+
+      // If the initial URL points to a builder PRD, load it now
+      const initRoute = parseHash()
+      if (initRoute.page === 'builder' && initRoute.prdId) {
+        const found = loaded.find(p => p.id === initRoute.prdId)
+        if (found) loadPrdObj(found)
+      }
+    }
+    load()
+  }, [apiReady, pbReady, pbSkipped])
+
+  // ── Builder state ────────────────────────────────────────────────────────
+
+  function loadPrdObj(prdObj) {
+    const saved = loadBuilderState(prdObj.id)
+    setPrd({ id: prdObj.id, name: prdObj.title, content: prdObj.content })
+    setMessages(saved.messages || [])
+    setGeneratedCode(saved.code || null)
+    setSession(newSession(prdObj.title))
+  }
+
+  useEffect(() => {
+    if (prd?.id) saveBuilderState(prd.id, { messages })
+  }, [messages, prd?.id])
+
+  useEffect(() => {
+    if (prd?.id && generatedCode) saveBuilderState(prd.id, { code: generatedCode })
+  }, [generatedCode, prd?.id])
 
   // ── Sprint CRUD ──────────────────────────────────────────────────────────
 
@@ -56,7 +174,6 @@ export default function App() {
       saveSprints(next)
       return next
     })
-    // Remove deleted sprint from all PRDs
     setPrds(prev => {
       const next = prev.map(p =>
         p.sprintIds?.includes(id)
@@ -67,86 +184,30 @@ export default function App() {
       return next
     })
   }
-  const [pbReady, setPbReady] = useState(isPbReady)
-  const [pbSkipped, setPbSkipped] = useState(false)
-  const [route, setRoute] = useState({ page: 'projects' })
-  const [prds, setPrds] = useState([])
-  const [prdsLoaded, setPrdsLoaded] = useState(false)
-  const [prd, setPrd] = useState(null)
-  const [generatedCode, setGeneratedCode] = useState(null)
-  const [messages, setMessages] = useState([])
-  const [session, setSession] = useState(null)
-  const [history, setHistory] = useState(loadHistory)
-  const [initTrigger, setInitTrigger] = useState(0)
-  const [sprints, setSprints] = useState(loadSprints)
 
-  const usePb = pbReady && !pbSkipped
-
-  // Load PRDs once storage is decided
-  useEffect(() => {
-    if (!apiReady) return
-    if (!pbReady && !pbSkipped) return // still showing PbSetup
-
-    async function load() {
-      let data
-      if (usePb) {
-        try {
-          data = await pbLoadPrds()
-        } catch {
-          seedIfEmpty()
-          data = loadPrds()
-        }
-      } else {
-        seedIfEmpty()
-        data = loadPrds()
-      }
-      setPrds(migratePrds(data))
-      setPrdsLoaded(true)
-    }
-    load()
-  }, [apiReady, pbReady, pbSkipped])
-
-  function navigate(next) {
-    if (next.page === 'builder' && next.prdId) {
-      const found = prds.find(p => p.id === next.prdId)
-      if (found) loadPrdObj(found)
-    }
-    setRoute(next)
-  }
-
-  function loadPrdObj(prdObj) {
-    const saved = loadBuilderState(prdObj.id)
-    setPrd({ id: prdObj.id, name: prdObj.title, content: prdObj.content })
-    setMessages(saved.messages || [])
-    setGeneratedCode(saved.code || null)
-    setSession(newSession(prdObj.title))
-  }
-
-  // Persist builder state per PRD
-  useEffect(() => {
-    if (prd?.id) saveBuilderState(prd.id, { messages })
-  }, [messages, prd?.id])
-
-  useEffect(() => {
-    if (prd?.id && generatedCode) saveBuilderState(prd.id, { code: generatedCode })
-  }, [generatedCode, prd?.id])
-
-  // ── CRUD ────────────────────────────────────────────────────────────────
+  // ── PRD CRUD ─────────────────────────────────────────────────────────────
 
   async function handleCreatePrd(projectId, data) {
     if (usePb) {
-      const created = await pbCreatePrd({ projectId, ...data })
+      const prdId = generatePrdId(projectId, prds)
+      const created = await pbCreatePrd({ projectId, prdId, ...data })
       setPrds(prev => [created, ...prev])
     } else {
-      const created = {
-        id: `prd-${Date.now()}`,
-        projectId,
-        status: 'backlog',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        ...data,
-      }
-      setPrds(prev => { const next = [created, ...prev]; savePrds(next); return next })
+      setPrds(prev => {
+        const prdId = generatePrdId(projectId, prev)
+        const created = {
+          id: `prd-${Date.now()}`,
+          projectId,
+          prdId,
+          status: 'backlog',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          ...data,
+        }
+        const next = [created, ...prev]
+        savePrds(next)
+        return next
+      })
     }
   }
 
@@ -166,9 +227,7 @@ export default function App() {
   }
 
   async function handleDeletePrd(id) {
-    if (usePb) {
-      await pbDeletePrd(id)
-    }
+    if (usePb) await pbDeletePrd(id)
     setPrds(prev => {
       const next = prev.filter(p => p.id !== id)
       if (!usePb) savePrds(next)
@@ -190,7 +249,6 @@ export default function App() {
       setHistory(updated)
       saveHistory(updated)
 
-      // Sync PRD: append key decision to build log
       if (prose) {
         const today = new Date().toISOString().slice(0, 10)
         const logLine = `**${today} · iter ${(session?.iterations ?? 0) + 1}:** ${prose}`
@@ -268,6 +326,8 @@ export default function App() {
         projectId={route.projectId}
         prds={prds}
         sprints={sprints}
+        activeSprint={route.sprint ?? null}
+        onSelectSprint={sprint => navigate({ ...route, sprint })}
         onNavigate={navigate}
         onCreatePrd={handleCreatePrd}
         onUpdatePrd={handleUpdatePrd}

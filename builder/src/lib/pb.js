@@ -42,12 +42,14 @@ export async function pbLoadPrds() {
   return records.map(toPrd)
 }
 
-export async function pbCreatePrd({ projectId, title, content }) {
+export async function pbCreatePrd({ projectId, prdId, title, content, sprintIds = [] }) {
   const r = await getClient().collection('prds').create({
     projectId,
+    prdId: prdId || '',
     title: title.trim(),
     content: content || '',
     status: 'backlog',
+    sprintIds,
   })
   return toPrd(r)
 }
@@ -65,9 +67,11 @@ function toPrd(r) {
   return {
     id: r.id,
     projectId: r.projectId,
+    prdId: r.prdId || '',
     title: r.title,
     content: r.content || '',
     status: r.status || 'backlog',
+    sprintIds: r.sprintIds || [],
     createdAt: r.created,
     updatedAt: r.updated,
   }
