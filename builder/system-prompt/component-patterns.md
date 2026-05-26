@@ -193,18 +193,40 @@ modal: `background: var(--en-bg); border-radius: 16px; box-shadow: var(--en-shad
 
 ## Available icons
 
+**IMPORTANT: Only use icons from this list. Never invent icon names like `IconNotePencil`, `IconPencil`, etc.**
+
 ```jsx
+{/* Actions */}
+<IconEdit size={16} />       {/* edit / modify — NotePencil shape */}
+<IconEditFill size={16} />   {/* fill variant of edit */}
+<IconTrash size={16} />      {/* delete */}
+<IconTrashFill size={16} />  {/* fill variant of trash */}
+<IconCopy size={16} />       {/* duplicate */}
+<IconPlus size={16} />       {/* add / create */}
+<IconClose size={16} />      {/* dismiss / remove — use this, NOT IconX */}
+<IconRevert size={16} />     {/* undo / revert */}
+
+{/* Navigation & UI */}
 <IconChevronDown size={16} />
 <IconChevronUp size={16} />
-<IconPlus size={16} />
+<IconMore size={16} />       {/* overflow menu (⋯) */}
+<IconGear size={16} />       {/* settings */}
+<IconSearch size={16} />     {/* search */}
+<IconShare size={16} />      {/* share */}
+<IconExternal size={16} />   {/* open in new tab */}
+
+{/* Status & Data */}
 <IconCheck size={16} />
+<IconStar size={16} filled />  {/* filled prop toggles star fill */}
 <IconInfo size={16} />
-<IconStar size={16} filled />
-<IconRevert size={16} />
-<IconX size={18} />
+<IconUsers size={16} />
+
+{/* File */}
+<IconUpload size={16} />
+<IconDownload size={16} />
 ```
 
-Icons accept `size` (number) and optional `style` prop.
+Icons accept `size` (number) and optional `style` prop. `IconClose` is the correct dismiss icon — `IconX` does not exist.
 
 ## Inline modified indicator
 
@@ -224,6 +246,86 @@ Icons accept `size` (number) and optional `style` prop.
   </div>
 </div>
 ```
+
+## Story authoring rules
+
+Stories go through Vite (ES modules), not Babel. Three rules apply to every story file:
+
+### 1 — Icons: always destructure from `window`, never inline SVG
+
+`icons.jsx` is imported once in `preview.jsx` and registers every `Icon*` on `window`.
+Stories must destructure what they need — **never copy-paste a raw `<svg>` path**.
+
+```jsx
+// at the top of the story file — import icons.jsx first, then destructure
+import '../icons.jsx';
+
+const { IconEdit, IconTrash, IconPlus, IconChevronDown } = window;
+```
+
+The explicit import is **required** — without it, Vite may evaluate the story module before `icons.jsx` has run, leaving all icons as `undefined`. The import creates a module-graph dependency that guarantees execution order. Usage stays identical: `<IconEdit size={16} />`. When an icon changes in `icons.jsx`, every story updates automatically.
+
+### 2 — Story layout: use `.sb-*` scaffold classes, not inline styles
+
+`storybook.css` is imported in `preview.jsx` and provides story-only scaffold utilities.
+**Never** use inline `style={{ padding: 32, background: 'var(--en-bg-grey)', ... }}` for story layout.
+
+```jsx
+// ✅ correct
+function Demo() {
+  return (
+    <div className="sb-canvas">
+      <p className="sb-section">Variants</p>
+      <div className="sb-row">
+        <span className="sb-row-label">primary</span>
+        <button className="btn btn-primary">Save</button>
+      </div>
+      <div className="sb-spacer" />
+      <p className="sb-section">States</p>
+      <div className="sb-row">
+        <span className="sb-row-label">disabled</span>
+        <button className="btn btn-primary" disabled>Save</button>
+      </div>
+    </div>
+  );
+}
+```
+
+Available classes:
+- `.sb-canvas` — grey background, 32px padding, full height
+- `.sb-canvas-white` — white background variant
+- `.sb-overlay` — centered flex + dimmed bg (for modal/dialog stories)
+- `.sb-section` — uppercase 11px section label
+- `.sb-spacer` — 32px top margin before a new section
+- `.sb-row` — horizontal flex row with 12px gap
+- `.sb-row-label` — 110px left-column label
+- `.sb-col` — vertical stack with 12px gap
+
+### 3 — Typography and color: CSS tokens only, no hardcoded values
+
+**Typography** — use `.en-*` utility classes from `colors_and_type.css`:
+```jsx
+<p className="en-body2">Body text</p>
+<span className="en-subtitle2">Label</span>
+<h3 className="en-heading3">Section title</h3>
+```
+
+Never inline `fontFamily`, `fontSize`, or `fontWeight` in story JSX.
+
+**Colors** — always `var(--en-*)`:
+```jsx
+// ✅
+color: 'var(--en-fg-secondary)'
+background: 'var(--en-bg-grey)'
+
+// ✗ never
+color: '#6b7280'
+background: '#f5f5f5'
+```
+
+**Spacing** — multiples of 4px: `4, 8, 12, 16, 20, 24, 32, 48`. Use `.sb-*` gap/padding where possible; only fall back to inline `style` for one-off layout adjustments.
+
+---
 
 ## CSS output rules
 

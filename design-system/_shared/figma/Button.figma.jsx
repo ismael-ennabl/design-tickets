@@ -1,15 +1,15 @@
 import figma from '@figma/code-connect'
 
-// Button (non-icon variants) — node 16:2
+// Button — node 16:2
 figma.connect(
   'https://www.figma.com/design/E5Y5kOJd8KhUlpC4ymmWW0?node-id=16-2',
   {
     props: {
       variant: figma.enum('Variant', {
-        Contained: 'btn-primary',
-        Outlined:  'btn-secondary',
-        Text:      'btn-text',
-        Link:      'btn-link',
+        Contained: 'primary',
+        Outlined:  'secondary',
+        Text:      'text',
+        Link:      'link',
       }),
       disabled: figma.enum('State', {
         Default:  false,
@@ -18,7 +18,7 @@ figma.connect(
       }),
     },
     example: ({ variant, disabled }) => (
-      <button className={`btn ${variant}`} disabled={disabled}>Label</button>
+      <Button variant={variant} disabled={disabled}>Label</Button>
     ),
   }
 )
@@ -36,9 +36,9 @@ figma.connect(
       }),
     },
     example: ({ disabled }) => (
-      <button className="btn-icon" disabled={disabled}>
-        {/* icon */}
-      </button>
+      <Button variant="icon" disabled={disabled}>
+        <IconEdit size={16} />
+      </Button>
     ),
   }
 )

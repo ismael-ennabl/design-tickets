@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import '../icons.jsx';
 
-const chevronDown = <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"/></svg>;
+const { IconChevronDown } = window;
 
 const SEL_CSS = `
   .sel-wrapper{position:relative;display:flex;flex-direction:column;gap:4px;box-sizing:border-box;}
@@ -54,7 +55,7 @@ function Select({ label, options = [], error, disabled, placeholder = 'Select op
         onKeyDown={e => { if (disabled) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(o => !o); } if (e.key === 'Escape') setOpen(false); }}
       >
         <span className={`sel-value${!currentValue ? ' sel-value--placeholder' : ''}`}>{displayLabel}</span>
-        <span className={`sel-chevron${open ? ' sel-chevron--open' : ''}`}>{chevronDown}</span>
+        <span className={`sel-chevron${open ? ' sel-chevron--open' : ''}`}><IconChevronDown size={16} /></span>
       </div>
       {error && <span style={{ font: '400 12px/16px var(--en-font-sans)', color: 'var(--en-error)' }}>{error}</span>}
       {open && !disabled && (

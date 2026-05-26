@@ -1,5 +1,7 @@
 import '../design-system/_design_system/colors_and_type.css';
 import '../design-system/_design_system/styles.css';
+import '../design-system/_shared/icons.jsx';
+import './storybook.css';
 
 /** @type { import('@storybook/react-vite').Preview } */
 const preview = {

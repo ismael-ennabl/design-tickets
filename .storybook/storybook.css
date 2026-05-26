@@ -1,0 +1,70 @@
+/* Storybook scaffold utilities — use .sb-* classes in stories instead of inline styles.
+   These are layout/presentation helpers for story canvases only, not design system classes. */
+
+/* Story canvas wrapper */
+.sb-canvas {
+  padding: 32px;
+  background: var(--en-bg-grey);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.sb-canvas-white {
+  padding: 32px;
+  background: var(--en-bg);
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Overlay canvas — for modals/dialogs that need a dimmed background */
+.sb-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  box-sizing: border-box;
+}
+
+/* Section label — uppercase category header between variant groups */
+.sb-section {
+  font-family: var(--en-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--en-fg-secondary);
+  margin: 0 0 16px;
+}
+
+.sb-section + * {
+  /* no extra spacing needed — .sb-row provides its own bottom margin */
+}
+
+/* Spacer before a new section after rows */
+.sb-spacer {
+  margin-top: 32px;
+}
+
+/* Prop / variant row — label on the left, components on the right */
+.sb-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.sb-row-label {
+  width: 110px;
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--en-fg-secondary);
+  font-family: var(--en-font-sans);
+}
+
+/* Column layout for stacked variants */
+.sb-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}

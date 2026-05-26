@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import '../icons.jsx';
+
+const { IconDownload } = window;
 
 const TT_CSS = `
   .tt-root{position:relative;display:inline-flex;align-items:center;}
@@ -82,7 +85,7 @@ function Demo() {
       <Row label="on icon button">
         <Tooltip label="Download report" position="top">
           <button style={{ ...triggerStyle, width: 32, height: 32, padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0ZM117.66,138.34a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,109.37V32a8,8,0,0,0-16,0v77.37L98.34,87a8,8,0,0,0-11.32,11.32Z"/></svg>
+            <IconDownload size={16} />
           </button>
         </Tooltip>
       </Row>

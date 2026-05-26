@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import '../icons.jsx';
 
-const closeIcon = <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>;
+const { IconClose } = window;
 
 function Dialog({ open, onClose, title, subtitle, children, footer, width = 480 }) {
   useEffect(() => {
@@ -32,7 +33,7 @@ function Dialog({ open, onClose, title, subtitle, children, footer, width = 480 
               {title    && <h2 className="dlg-title">{title}</h2>}
               {subtitle && <p  className="dlg-subtitle">{subtitle}</p>}
             </div>
-            {onClose && <button className="dlg-close" onClick={onClose}>{closeIcon}</button>}
+            {onClose && <button className="dlg-close" onClick={onClose}><IconClose size={16} /></button>}
           </div>
           <hr className="dlg-divider" />
           <div className="dlg-body">{children}</div>

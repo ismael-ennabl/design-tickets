@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import '../icons.jsx';
 
-const xIcon = <svg width="10" height="10" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>;
+const { IconClose } = window;
 
 const CHIP_CSS = `
   .ch-root{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font:400 12px/16px var(--en-font-sans);border:1.5px solid transparent;box-sizing:border-box;white-space:nowrap;vertical-align:middle;}
@@ -35,7 +36,7 @@ function Chip({ variant = 'neutral', chipStyle = 'subtle', dot, dismissible, onD
     <span className={`ch-root ch-${variant} ch-${effective}`}>
       {children}
       {effective === 'dot' && <span className="ch-dot-indicator" />}
-      {dismissible && <button className="ch-dismiss" onClick={onDismiss}>{xIcon}</button>}
+      {dismissible && <button className="ch-dismiss" onClick={onDismiss}><IconClose size={10} /></button>}
     </span>
   );
 }
