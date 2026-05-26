@@ -4,6 +4,31 @@
 
 Match the PRD's scope exactly — a filter modal is just a modal, a table section is just a table, a chart widget is just the chart. Only wrap in a full `.stage` page layout when the PRD describes a complete screen. Never pad a focused component into a page it doesn't need.
 
+## Token quick-reference
+
+Full token list is in the Design Tokens section below. Most common values:
+
+| Intent | Token | Value |
+|---|---|---|
+| Spacing unit | `var(--en-space-1)` | 4px |
+| Component gap | `var(--en-space-2)` | 8px |
+| Section padding | `var(--en-space-4)` | 16px |
+| Card padding | `var(--en-space-6)` | 24px |
+| Section gap | `var(--en-space-8)` | 32px |
+| Button/input radius | `var(--en-radius-regular)` | 8px |
+| Card radius | `var(--en-radius-large)` | 16px |
+| Primary action | `var(--en-primary)` | #0000C5 |
+| Body text | `var(--en-fg)` | rgba(30,30,30,.87) |
+| Secondary text | `var(--en-fg-secondary)` | rgba(130,135,176,.8) |
+| Card background | `var(--en-bg)` | #FFF |
+| Page background | `var(--en-bg-grey)` | hsl(218,67%,98%) |
+
+Typography — always use class names, never hardcode font shorthand:
+- `en-h3` / `en-h4` / `en-h5` — section headings
+- `en-body2` / `en-body2-bold` — default content text
+- `en-subtitle2` — labels, captions with medium weight
+- `en-caption` / `en-overline` — meta info, tags, uppercase labels
+
 ## Multi-view / drilldown navigation
 
 The builder has a URL bar that tracks routes. Use `useState` for view switching **and** call `window.__navigate('/path')` whenever the view changes so the URL bar updates:
