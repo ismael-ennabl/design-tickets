@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import '../icons.jsx';
-
-const { IconChevronDown } = window;
+import { CaretDown as IconChevronDown } from '@phosphor-icons/react';
 
 const SEL_CSS = `
   .sel-wrapper{position:relative;display:flex;flex-direction:column;gap:4px;box-sizing:border-box;}

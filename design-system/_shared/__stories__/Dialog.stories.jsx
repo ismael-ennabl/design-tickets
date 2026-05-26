@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../icons.jsx';
-
-const { IconClose } = window;
+import { X as IconClose } from '@phosphor-icons/react';
 
 function Dialog({ open, onClose, title, subtitle, children, footer, width = 480 }) {
   useEffect(() => {

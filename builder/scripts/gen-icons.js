@@ -27,16 +27,11 @@ const ALIASES = {
 };
 
 // Extract all { d: "..." } values from the "regular" weight section
-function extractPaths(content) {
-  const regularIdx = content.indexOf('"regular"');
-  if (regularIdx === -1) return null;
-
-  // Find the end of this entry (next weight or end of map)
-  const nextEntry = content.indexOf('\n  ],\n  [', regularIdx);
-  const section = nextEntry === -1
-    ? content.slice(regularIdx)
-    : content.slice(regularIdx, nextEntry);
-
+function extractPathsForWeight(content, weight) {
+  const idx = content.indexOf(`"${weight}"`);
+  if (idx === -1) return null;
+  const nextEntry = content.indexOf('\n  ],\n  [', idx);
+  const section = nextEntry === -1 ? content.slice(idx) : content.slice(idx, nextEntry);
   const paths = [];
   const re = /\{ d: "([^"]+)"/g;
   let m;
@@ -52,15 +47,18 @@ function toPascalCase(name) {
 const files = fs.readdirSync(DEFS_DIR)
   .filter(f => f.endsWith('.es.js') && f !== 'index.es.js');
 
-const icons = {}; // name -> paths[]
+const icons = {};     // name -> regular paths[]
+const iconsFill = {}; // name -> fill paths[]
 
 for (const file of files) {
   const name = file.replace('.es.js', '');
   if (!name) continue;
   try {
     const content = fs.readFileSync(path.join(DEFS_DIR, file), 'utf8');
-    const paths = extractPaths(content);
-    if (paths) icons[name] = paths;
+    const regular = extractPathsForWeight(content, 'regular');
+    const fill = extractPathsForWeight(content, 'fill');
+    if (regular) icons[name] = regular;
+    if (fill) iconsFill[name] = fill;
   } catch (_) {}
 }
 
@@ -95,7 +93,7 @@ lines.push(`  </svg>`);
 lines.push(`);`);
 lines.push(``);
 
-// One const per icon
+// One const per icon (regular weight)
 for (const name of names) {
   const paths = icons[name];
   if (paths.length === 1) {
@@ -106,6 +104,21 @@ for (const name of names) {
   }
 }
 
+// Fill weight variants — only the common ones used in components
+const FILL_VARIANTS = ['NotePencil', 'Trash', 'Star'];
+lines.push(``);
+lines.push(`// Fill weight variants for commonly-used icons`);
+for (const name of FILL_VARIANTS) {
+  const paths = iconsFill[name];
+  if (!paths) continue;
+  if (paths.length === 1) {
+    lines.push(`const Icon${name}Fill = (p) => <PhIcon {...p} d="${paths[0]}" />;`);
+  } else {
+    const pathsJson = JSON.stringify(paths);
+    lines.push(`const Icon${name}Fill = (p) => <PhIcon {...p} paths={${pathsJson}} />;`);
+  }
+}
+const fillNames = FILL_VARIANTS.filter(n => !!iconsFill[n]);
 lines.push(``);
 
 // Semantic aliases
@@ -119,11 +132,12 @@ lines.push(``);
 
 // Register everything on window
 const allVarNames = names.map(n => `Icon${n}`);
+const allFillVarNames = fillNames.map(n => `Icon${n}Fill`);
 const aliasVarNames = Object.entries(ALIASES)
   .filter(([alias, target]) => alias !== target && icons[target.replace('Icon', '')])
   .map(([alias]) => alias);
 
-const allExports = [...allVarNames, ...aliasVarNames];
+const allExports = [...allVarNames, ...allFillVarNames, ...aliasVarNames];
 const chunks = [];
 for (let i = 0; i < allExports.length; i += 8) {
   chunks.push('  ' + allExports.slice(i, i + 8).join(', '));
@@ -137,5 +151,4 @@ const output = lines.join('\n');
 fs.writeFileSync(OUT_FILE, output);
 
 const kb = Math.round(Buffer.byteLength(output, 'utf8') / 1024);
-console.log(`✓ icons.jsx — ${names.length} icons | ${kb} KB`);
-console.log(`  Aliases: ${Object.keys(ALIASES).join(', ')}`);
+console.log(`✓ icons.jsx — ${names.length} regular + ${fillNames.length} fill | ${kb} KB`);

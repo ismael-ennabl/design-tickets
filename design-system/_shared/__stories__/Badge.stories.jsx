@@ -1,7 +1,5 @@
 import React from 'react';
-import '../icons.jsx';
-
-const { IconCheck: CheckIcon } = window;
+import { Check as CheckIcon } from '@phosphor-icons/react';
 
 function Row({ label, children }) {
   return (

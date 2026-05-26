@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import '../icons.jsx';
-
-const { IconChevronDown: ChevronDown, IconChevronUp: ChevronUp, IconEdit, IconTrash } = window;
+import { CaretDown as ChevronDown, CaretUp as ChevronUp, NotePencil as IconEdit, Trash as IconTrash } from '@phosphor-icons/react';
 
 const SAMPLE = [
   { id: 1, name: 'Acme Corp',        producer: 'Sarah Chen',   premium: '$142,000', status: 'active',  updated: 'May 20' },

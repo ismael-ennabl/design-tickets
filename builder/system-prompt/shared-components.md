@@ -1,6 +1,6 @@
 <!-- AUTO-GENERATED — do not edit by hand -->
 <!-- Edit @component blocks in design-system/_shared/*.jsx, then: npm run build (in builder/) -->
-<!-- source-hash: 056270ceb8429336 -->
+<!-- source-hash: 428e5b8498b3e41e -->
 <!-- file:Avatar.jsx:b417bed930e6 -->
 <!-- file:Chip.jsx:72c8bb1c7f41 -->
 <!-- file:Dialog.jsx:7b10e587e006 -->
@@ -9,7 +9,7 @@
 <!-- file:Toggle.jsx:a93069dd6111 -->
 <!-- file:Tooltip.jsx:82d5bb2a192f -->
 <!-- file:dialogs.jsx:492a0d6fdecc -->
-<!-- file:icons.jsx:cef827cc2941 -->
+<!-- file:icons.jsx:fbe0c71a0827 -->
 <!-- file:picker.jsx:49b432325ef5 -->
 <!-- file:step3.jsx:aff25accb872 -->
 <!-- file:ui.jsx:3a9eef5ceffc -->

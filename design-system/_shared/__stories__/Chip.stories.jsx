@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import '../icons.jsx';
-
-const { IconClose } = window;
+import { X as IconClose } from '@phosphor-icons/react';
 
 const CHIP_CSS = `
   .ch-root{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font:400 12px/16px var(--en-font-sans);border:1.5px solid transparent;box-sizing:border-box;white-space:nowrap;vertical-align:middle;}

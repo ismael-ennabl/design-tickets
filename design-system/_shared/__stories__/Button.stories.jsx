@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import '../icons.jsx';
-
-const { IconEdit, IconTrash, IconPlus, IconDownload } = window;
+import { NotePencil as IconEdit, Trash as IconTrash, Plus as IconPlus, DownloadSimple as IconDownload } from '@phosphor-icons/react';
 
 const spin = `
   @keyframes en-spin { to { transform: rotate(360deg); } }

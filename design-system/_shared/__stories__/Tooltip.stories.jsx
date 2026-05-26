@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import '../icons.jsx';
-
-const { IconDownload } = window;
+import { DownloadSimple as IconDownload } from '@phosphor-icons/react';
 
 const TT_CSS = `
   .tt-root{position:relative;display:inline-flex;align-items:center;}
