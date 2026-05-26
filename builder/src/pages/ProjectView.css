@@ -236,6 +236,11 @@
   min-height: 60px;
 }
 
+.kanban-col-cards--over {
+  background: var(--bg-hover, hsla(226, 25%, 96%, 1));
+  border-radius: 8px;
+}
+
 .kanban-col-empty {
   padding: 16px;
   text-align: center;

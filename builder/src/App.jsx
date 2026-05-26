@@ -235,6 +235,18 @@ export default function App() {
     })
   }
 
+  // ── Auto-init design ─────────────────────────────────────────────────────
+
+  function handleInitDesignForPrd(prdId) {
+    const found = prds.find(p => p.id === prdId)
+    if (!found) return
+    const saved = loadBuilderState(prdId)
+    if (saved.messages?.length || saved.code) return
+    loadPrdObj(found)
+    navigate({ page: 'builder', prdId })
+    setTimeout(() => setInitTrigger(t => t + 1), 80)
+  }
+
   // ── Builder callbacks ────────────────────────────────────────────────────
 
   function handleCodeGenerated(code, prose) {
@@ -334,6 +346,7 @@ export default function App() {
         onDeletePrd={handleDeletePrd}
         onCreateSprint={handleCreateSprint}
         onDeleteSprint={handleDeleteSprint}
+        onInitDesign={handleInitDesignForPrd}
         theme={theme}
         onThemeToggle={toggleTheme}
         onSignOut={handleSignOut}

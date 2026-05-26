@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Sparkle, ChartBar, FlowArrow, Database, TrendUp, Bell, GearSix } from '@phosphor-icons/react'
 import {
   DndContext, DragOverlay, PointerSensor, useSensor, useSensors,
-  closestCorners,
+  closestCorners, useDroppable,
 } from '@dnd-kit/core'
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -56,6 +56,7 @@ function KanbanCard({ prd, sprints, onEdit, onDelete, onOpen, isDragging }) {
 }
 
 function KanbanColumn({ status, prds, sprints, onEdit, onDelete, onOpen, activeId }) {
+  const { setNodeRef, isOver } = useDroppable({ id: status })
   return (
     <div className="kanban-col">
       <div className="kanban-col-header">
@@ -63,7 +64,7 @@ function KanbanColumn({ status, prds, sprints, onEdit, onDelete, onOpen, activeI
         <span className="kanban-col-count">{prds.length}</span>
       </div>
       <SortableContext items={prds.map(p => p.id)} strategy={verticalListSortingStrategy}>
-        <div className="kanban-col-cards">
+        <div ref={setNodeRef} className={`kanban-col-cards${isOver ? ' kanban-col-cards--over' : ''}`}>
           {prds.map(prd => (
             <KanbanCard
               key={prd.id}
@@ -86,6 +87,7 @@ export default function ProjectView({
   projectId, prds, sprints = [], activeSprint, onSelectSprint, onNavigate,
   onCreatePrd, onUpdatePrd, onDeletePrd,
   onCreateSprint, onDeleteSprint,
+  onInitDesign,
   theme, onThemeToggle, onSignOut,
 }) {
   const project = getProject(projectId)
@@ -109,24 +111,17 @@ export default function ProjectView({
 
   function handleDragEnd({ active, over }) {
     setActiveId(null)
-    if (!over || active.id === over.id) return
-    const draggedPrd = projectPrds.find(p => p.id === active.id)
-    if (!draggedPrd) return
-    const targetPrd = projectPrds.find(p => p.id === over.id)
-    const newStatus = targetPrd ? targetPrd.status : over.id
-    if (STATUSES.includes(newStatus) && draggedPrd.status !== newStatus) {
-      onUpdatePrd(active.id, { status: newStatus })
-    }
-  }
-
-  function handleDragOver({ active, over }) {
     if (!over) return
     const draggedPrd = projectPrds.find(p => p.id === active.id)
+    if (!draggedPrd) return
+    // over.id is either a PRD card id or a column status string
     const targetPrd = projectPrds.find(p => p.id === over.id)
-    if (!draggedPrd || !targetPrd) return
-    if (draggedPrd.status !== targetPrd.status) {
-      onUpdatePrd(active.id, { status: targetPrd.status })
-    }
+    const newStatus = targetPrd
+      ? targetPrd.status
+      : STATUSES.includes(over.id) ? over.id : null
+    if (!newStatus || draggedPrd.status === newStatus) return
+    onUpdatePrd(active.id, { status: newStatus })
+    if (newStatus === 'doing') onInitDesign?.(draggedPrd.id)
   }
 
   const activePrd = activeId ? projectPrds.find(p => p.id === activeId) : null
@@ -213,7 +208,6 @@ export default function ProjectView({
             sensors={sensors}
             collisionDetection={closestCorners}
             onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
           >
             <div className="kanban-board">
