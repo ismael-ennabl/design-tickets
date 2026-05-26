@@ -2,6 +2,33 @@
 // Template picker — trigger button + dropdown menu with search,
 // per-row gear (edit), star (set default), and footer actions.
 
+// @component TemplatePicker
+// @description Dropdown picker for selecting and managing named templates. Includes search, default-star, and per-row actions.
+// @example
+// <TemplatePicker
+//   templates={templates}
+//   activeId={activeId}
+//   isDirty={dirty}
+//   onApply={id => applyTemplate(id)}
+//   onSaveAsNew={() => openSaveDialog()}
+//   onManageOpen={() => setManageOpen(true)}
+//   onEdit={id => openEditDialog(id)}
+//   onSetDefault={id => setDefault(id)}
+//   onDuplicate={id => duplicate(id)}
+//   onDelete={id => deleteTemplate(id)}
+// />
+// @props
+// templates    array of { id, name, description, isDefault, shared, owner: { name, initials, isYou }, updatedAt, usageCount }
+// activeId     string — id of the currently applied template
+// isDirty      boolean — shows unsaved-changes indicator on the trigger
+// onApply      (id) => void
+// onSaveAsNew  () => void — opens save-as-new dialog
+// onManageOpen () => void — opens ManageModal
+// onEdit       (id) => void
+// onSetDefault (id) => void
+// onDuplicate  (id) => void
+// onDelete     (id) => void
+// @end
 const { useState, useRef, useEffect, useMemo } = React;
 
 function useClickOutside(ref, handler, enabled = true) {
@@ -152,6 +179,94 @@ Object.assign(window, { TemplatePicker });
 
 // === dialogs.jsx ===
 // Modals — Save-as-template dialog, Save-changes confirm, Manage modal.
+
+// @component SaveTemplateDialog
+// @description Modal for creating, editing, or forking a named template.
+// @example
+// <SaveTemplateDialog
+//   mode="create"
+//   initial={{ name: '', description: '', isDefault: false, shared: true }}
+//   templates={templates}
+//   onClose={() => setDialog(null)}
+//   onSubmit={vals => handleSave(vals)}
+// />
+// @props
+// mode     'create'|'edit'|'fork'
+// initial  { name, description, isDefault, shared }
+// templates  array — used for duplicate-name warning
+// onClose  () => void
+// onSubmit ({ name, description, isDefault, shared }) => void
+// @end
+
+// @component UpdateTemplateDialog
+// @description Confirmation modal for saving changes to an existing template.
+// @example
+// <UpdateTemplateDialog
+//   template={activeTpl}
+//   summary={['Producer team: 3 → 4 members', 'Agency name updated']}
+//   onClose={() => setDialog(false)}
+//   onConfirm={() => confirmUpdate()}
+//   onSaveAsNew={() => { closeDialog(); openSaveAsNew(); }}
+// />
+// @props
+// template   { name } — the template being updated
+// summary    string[] — bullet list of changes shown in the dialog
+// onClose    () => void
+// onConfirm  () => void
+// onSaveAsNew  () => void
+// @end
+
+// @component ManageModal
+// @description Full-screen modal for browsing, applying, editing, duplicating, and deleting templates.
+// @example
+// <ManageModal
+//   templates={templates}
+//   activeId={activeId}
+//   onClose={() => setManageOpen(false)}
+//   onApply={id => applyTemplate(id)}
+//   onEdit={id => openEditDialog(id)}
+//   onDuplicate={id => duplicate(id)}
+//   onDelete={id => confirmDelete(id)}
+//   onSetDefault={id => setDefault(id)}
+//   onCreate={() => { setManageOpen(false); openSaveDialog(); }}
+// />
+// @props
+// templates  array of template objects
+// activeId   string — currently applied template id
+// onClose    () => void
+// onApply    (id) => void
+// onEdit     (id) => void
+// onDuplicate  (id) => void
+// onDelete   (id) => void
+// onSetDefault  (id) => void
+// onCreate   () => void — opens the save-as-new flow
+// @end
+
+// @component DeleteConfirm
+// @description Destructive confirmation modal. CTA and copy are fully customisable.
+// @example
+// <DeleteConfirm
+//   template={templateToDelete}
+//   onClose={() => setDeleteTarget(null)}
+//   onConfirm={() => confirmDelete()}
+// />
+//
+// <DeleteConfirm
+//   template={item}
+//   confirmLabel="Remove forever"
+//   title={`Delete "${item.name}"?`}
+//   message="This cannot be undone."
+//   onClose={handleClose}
+//   onConfirm={handleConfirm}
+// />
+// @props
+// template      { name, usageCount } — used in default title / message copy
+// confirmLabel  string — CTA button text (default 'Delete template')
+// title         string — overrides the default title
+// message       string|ReactNode — overrides the default body copy
+// onClose       () => void
+// onConfirm     () => void
+// @end
 
 function Scrim({ onClose, children }) {
   return (
@@ -514,6 +629,55 @@ Object.assign(window, { Scrim, SaveTemplateDialog, UpdateTemplateDialog, ManageM
 // === step3.jsx ===
 // Step 3 body — Producer Team table + Additional Information block.
 // Mirrors the screenshot. Edits flow up via props so the parent can detect dirty state.
+
+// @component CollapsibleSection
+// @description Collapsible card section with an optional unsaved-changes amber dot.
+// @example
+// <CollapsibleSection title="Accounts in proposal" defaultOpen modified={false}>
+//   {/* content */}
+// </CollapsibleSection>
+// @props
+// title        string — section heading
+// defaultOpen  boolean — initial open state (default true)
+// modified     boolean — shows amber dot when true
+// children     ReactNode
+// @end
+
+// @component EditableField
+// @description Inline-editable label/textarea with unsaved-changes indicator.
+// @example
+// <EditableField
+//   label="About Us"
+//   value={agency.aboutUs}
+//   multiline
+//   modified={modified.aboutUs}
+//   onChange={val => setAgency(a => ({ ...a, aboutUs: val }))}
+// />
+// @props
+// label     string
+// value     string
+// multiline  boolean — textarea vs single-line input
+// modified  boolean — shows amber dot when true
+// onChange  (value: string) => void
+// @end
+
+// @component Step3Body
+// @description The full Step 3 form body — producer tables + agency information fields.
+// @example
+// <Step3Body
+//   producerTables={producerTables}
+//   agency={agency}
+//   onProducerTablesChange={setProducerTables}
+//   onAgencyChange={setAgency}
+//   modified={modified}
+// />
+// @props
+// producerTables           array of producer table objects
+// agency                   { agencyName, aboutUs, disclosures, serviceSummary, logoFile }
+// onProducerTablesChange   (tables) => void
+// onAgencyChange           (agency) => void
+// modified                 { producers, tables: { [id]: bool }, agencyName, aboutUs, disclosures, serviceSummary, logoFile }
+// @end
 
 function CollapsibleSection({ title, modified, defaultOpen = true, children }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -986,8 +1150,25 @@ Object.assign(window, { Step3Body });
 /* ============================================================
    Button
    ============================================================ */
-// variant: 'primary' | 'secondary' | 'text' | 'danger' | 'icon'
-// size: undefined (default 13px) | 'sm'
+// @component Button
+// @description Canonical button. Use instead of bare <button className="btn ..."> for consistent loading + disabled states.
+// @example
+// <Button variant="primary" onClick={save}>Save changes</Button>
+// <Button variant="secondary" icon={<IconPlus size={14} />}>Add row</Button>
+// <Button variant="text">Cancel</Button>
+// <Button variant="danger">Delete</Button>
+// <Button variant="primary" loading={saving}>Saving…</Button>
+// <Button variant="icon" onClick={edit}><IconEdit size={16} /></Button>
+// <Button variant="secondary" size="sm">Small</Button>
+// @props
+// variant   'primary'|'secondary'|'text'|'danger'|'icon'|'link' — default 'primary'
+// size      'sm' — smaller padding variant
+// loading   boolean — shows spinner, disables interaction
+// disabled  boolean
+// icon      ReactNode — shown left of label (hidden when loading)
+// className  string — extra classes appended to the button
+// ...also accepts all standard <button> props (onClick, type, form, etc.)
+// @end
 function Button({ variant = 'primary', size, loading, disabled, icon, children, className = '', ...props }) {
   if (variant === 'link') {
     return (
@@ -1019,6 +1200,22 @@ function Button({ variant = 'primary', size, loading, disabled, icon, children, 
 /* ============================================================
    FormField — wraps any input with label, hint, and error
    ============================================================ */
+// @component FormField
+// @description Label + input wrapper with hint and error states. Always wrap Input inside FormField.
+// @example
+// <FormField label="Agency name" hint="Shown on all proposals" htmlFor="agency">
+//   <Input id="agency" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Acme Insurance" />
+// </FormField>
+//
+// <FormField label="Notes" error={errors.notes}>
+//   <Input multiline value={notes} onChange={e => setNotes(e.target.value)} rows={4} />
+// </FormField>
+// @props
+// label    string
+// hint     string — shown below input when there is no error
+// error    string — shown in red below input (takes priority over hint)
+// htmlFor  string — links the label to an input id
+// @end
 function FormField({ label, hint, error, htmlFor, children }) {
   return (
     <div className="form-row">
@@ -1033,6 +1230,17 @@ function FormField({ label, hint, error, htmlFor, children }) {
 /* ============================================================
    Input / Textarea
    ============================================================ */
+// @component Input
+// @description Styled text input or textarea. Use inside FormField for label and error display.
+// @example
+// <Input value={v} onChange={e => setV(e.target.value)} placeholder="Search…" />
+// <Input multiline value={v} onChange={e => setV(e.target.value)} rows={3} />
+// <Input error value={v} onChange={e => setV(e.target.value)} />
+// @props
+// multiline  boolean — renders <textarea> instead of <input>
+// error      boolean — applies red border and focus ring
+// ...accepts all standard <input> / <textarea> props (value, onChange, placeholder, rows, etc.)
+// @end
 // multiline=true renders a <textarea>
 function Input({ multiline, error, className = '', ...props }) {
   const cls = `${multiline ? 'textarea' : 'input'}${error ? ' input--error' : ''} ${className}`
@@ -1044,6 +1252,39 @@ function Input({ multiline, error, className = '', ...props }) {
 /* ============================================================
    Table
    ============================================================ */
+// @component Table
+// @description Data table with optional sorting, row actions, and empty state. Always use this instead of raw <table> HTML.
+// @example
+// const columns = [
+//   { key: 'name',   label: 'Account', sortable: true, width: '40%' },
+//   { key: 'status', label: 'Status',  render: row => <Badge variant={row.active ? 'success' : 'default'}>{row.active ? 'Active' : 'Inactive'}</Badge> },
+//   { key: 'date',   label: 'Updated' },
+// ]
+//
+// <Table
+//   columns={columns}
+//   rows={data}
+//   sortKey={sortKey}
+//   sortDir={sortDir}
+//   onSort={(key, dir) => { setSortKey(key); setSortDir(dir) }}
+//   emptyState={<span>No results</span>}
+//   getRowActions={row => (
+//     <>
+//       <Button variant="icon" onClick={() => edit(row)}><IconEdit size={14} /></Button>
+//       <Button variant="icon" onClick={() => del(row)}><IconTrash size={14} /></Button>
+//     </>
+//   )}
+// />
+// @props
+// columns        array of { key, label, sortable?, width?, render?(row)=>node }
+// rows           array of objects — include an `id` field for stable React keys
+// sortKey        string — key of the currently sorted column
+// sortDir        'asc' | 'desc' — current sort direction
+// onSort         (key, dir) => void — called when a sortable header is clicked
+// getRowActions  (row) => ReactNode — renders right-aligned action buttons per row
+// emptyState     ReactNode — shown when rows is empty (default: "No data")
+// compact        boolean — tighter row padding
+// @end
 // columns: [{ key, label, sortable?, width?, render?(row) => node }]
 // rows:    array of objects — each row needs a stable `id` field or index is used
 // sortKey / sortDir / onSort — optional, for controlled sorting
@@ -1116,6 +1357,19 @@ function Table({ columns, rows = [], sortKey, sortDir = 'asc', onSort, getRowAct
 /* ============================================================
    Badge
    ============================================================ */
+// @component Badge
+// @description Small status label. Use for status, labels, and counts.
+// @example
+// <Badge variant="success">Active</Badge>
+// <Badge variant="warning">Pending</Badge>
+// <Badge variant="error">Overdue</Badge>
+// <Badge variant="primary">New</Badge>
+// <Badge variant="default">Draft</Badge>
+// <Badge variant="success" icon={<IconCheck size={10} />}>Verified</Badge>
+// @props
+// variant  'default'|'primary'|'success'|'warning'|'error' — default 'default'
+// icon     ReactNode — shown left of the text label
+// @end
 // variant: 'default' | 'primary' | 'success' | 'warning' | 'error'
 function Badge({ variant = 'default', icon, children }) {
   return (
@@ -1130,6 +1384,20 @@ function Badge({ variant = 'default', icon, children }) {
 // === Toggle.jsx ===
 // Toggle — animated on/off switch with label
 
+// @component Toggle
+// @description Animated on/off switch. Supports controlled and uncontrolled usage.
+// @example
+// <Toggle label="Notifications" />
+// <Toggle defaultChecked label="Dark mode" />
+// <Toggle checked={on} onChange={setOn} label="Feature flag" />
+// <Toggle disabled label="Locked" />
+// @props
+// checked         boolean — controlled value
+// defaultChecked  boolean — initial value when uncontrolled
+// onChange        (value: boolean) => void
+// label           string — shown to the right of the switch
+// disabled        boolean
+// @end
 function Toggle({ checked, defaultChecked = false, onChange, disabled, label, id }) {
   const { useState } = React
   const [internalOn, setInternalOn] = useState(defaultChecked)
@@ -1192,6 +1460,17 @@ function Toggle({ checked, defaultChecked = false, onChange, disabled, label, id
 // === Avatar.jsx ===
 // Avatar — initials circle with sm / md / lg sizes
 
+// @component Avatar
+// @description Initials circle with 3 sizes. Defaults to purple (--en-data-accounts).
+// @example
+// <Avatar name="Ismael Viejo" size="md" />
+// <Avatar name="John" size="sm" />
+// <Avatar name="Alice" size="lg" color="var(--en-primary)" />
+// @props
+// name   string — split into initials (max 2 chars)
+// size   'sm' (24px) | 'md' (32px) | 'lg' (40px) — default 'md'
+// color  CSS color string — defaults to var(--en-data-accounts)
+// @end
 // size: 'sm' (24px) | 'md' (32px) | 'lg' (40px)
 // color: optional CSS color string; defaults to --en-data-accounts (purple)
 function Avatar({ name = '', size = 'md', color, className = '', style: extraStyle = {} }) {
@@ -1231,6 +1510,29 @@ function Avatar({ name = '', size = 'md', color, className = '', style: extraSty
 // === Dialog.jsx ===
 // Dialog — modal overlay with title, subtitle, body slot, and optional footer
 
+// @component Dialog
+// @description Modal overlay with title, subtitle, content slot, and optional footer row. Handles Escape key, X button, and backdrop click automatically.
+// @example
+// <Dialog
+//   open={open}
+//   onClose={() => setOpen(false)}
+//   title="Confirm deletion"
+//   subtitle="This cannot be undone."
+//   footer={<>
+//     <Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+//     <Button variant="danger" onClick={handleDelete}>Delete</Button>
+//   </>}
+// >
+//   <p className="en-body2">Are you sure you want to delete <strong>{item.name}</strong>?</p>
+// </Dialog>
+// @props
+// open      boolean — controls visibility
+// onClose   () => void — called on Escape, X button, and backdrop click
+// title     string
+// subtitle  string (optional)
+// footer    ReactNode (optional) — right-aligned action buttons
+// width     number — dialog width in px (default 480)
+// @end
 // open: bool — controls visibility
 // onClose: fn — called on backdrop click, Escape key, or X button
 // title: string
@@ -1314,6 +1616,20 @@ function Dialog({ open, onClose, title, subtitle, children, footer, width = 480 
 // === Chip.jsx ===
 // Chip — dismissible pill tag with 5 color variants and 3 styles
 
+// @component Chip
+// @description Dismissible pill tag with 5 color variants and 3 styles.
+// @example
+// <Chip variant="primary">Producer</Chip>
+// <Chip variant="success" style="filled">Active</Chip>
+// <Chip variant="warning" dot>Pending</Chip>
+// <Chip variant="error" style="subtle" dismissible onDismiss={() => remove(id)}>Overdue</Chip>
+// @props
+// variant     'neutral'|'primary'|'success'|'error'|'warning' — default 'neutral'
+// style       'subtle' (outline tint) | 'filled' (solid) | 'dot' (tint + trailing dot) — default 'subtle'
+// dot         boolean — shorthand for style="dot"
+// dismissible  boolean — shows × button
+// onDismiss   () => void — called when × is clicked
+// @end
 // variant: 'neutral' | 'primary' | 'success' | 'error' | 'warning'
 // style:   'subtle' (outline tint) | 'filled' (solid) | 'dot' (tint + trailing dot)
 // dismissible: bool — shows × button
@@ -1387,6 +1703,31 @@ function Chip({ variant = 'neutral', style: chipStyle = 'subtle', dot, dismissib
 // === Select.jsx ===
 // Select — dropdown field with label, states, and option list
 
+// @component Select
+// @description Dropdown input with label, error state, and option list. Supports string arrays or value/label objects.
+// @example
+// <Select
+//   label="Policy type"
+//   options={['Commercial', 'Personal', 'Benefits']}
+//   placeholder="Select type..."
+//   onChange={val => setType(val)}
+// />
+//
+// <Select
+//   label="Market"
+//   options={[{ value: 'wholesale', label: 'Wholesale' }, { value: 'retail', label: 'Retail' }]}
+//   value={market}
+//   onChange={setMarket}
+// />
+// @props
+// label        string
+// options      string[] or { value, label }[]
+// placeholder  string — default 'Select option...'
+// value        string — controlled value
+// onChange     (value) => void
+// error        string — shows red border and error text below
+// disabled     boolean
+// @end
 // options: string[] | { value, label }[]
 // value / onChange — controlled; omit for uncontrolled
 function Select({ label, options = [], error, disabled, placeholder = 'Select option...', value, onChange, className = '' }) {
@@ -1496,6 +1837,18 @@ function Select({ label, options = [], error, disabled, placeholder = 'Select op
 // === Stepper.jsx ===
 // Stepper — horizontal multi-step progress indicator
 
+// @component Stepper
+// @description Horizontal multi-step progress indicator. Connecting lines fill as steps complete.
+// @example
+// <Stepper steps={[
+//   { label: 'Policy details', status: 'completed' },
+//   { label: 'Coverage',       status: 'active' },
+//   { label: 'Review',         status: 'upcoming' },
+//   { label: 'Confirm',        status: 'upcoming' },
+// ]} />
+// @props
+// steps  array of { label: string, status: 'completed'|'active'|'upcoming' }
+// @end
 // steps: [{ label: string, status: 'completed' | 'active' | 'upcoming' }]
 function Stepper({ steps = [], className = '' }) {
   return (
@@ -1549,6 +1902,21 @@ function Stepper({ steps = [], className = '' }) {
 // === Tooltip.jsx ===
 // Tooltip — dark contextual tooltip shown on hover
 
+// @component Tooltip
+// @description Dark tooltip shown on hover. Wrap any element — no positioning needed.
+// @example
+// <Tooltip label="Download report" position="top">
+//   <Button variant="icon"><IconDownload size={16} /></Button>
+// </Tooltip>
+//
+// <Tooltip label="GWP" description="Gross Written Premium for the policy year" position="bottom">
+//   <span className="en-body2">GWP</span>
+// </Tooltip>
+// @props
+// label        string — bold heading (required to show tooltip)
+// description  string (optional) — secondary line below the label
+// position     'top'|'bottom'|'left'|'right' — default 'top'
+// @end
 // label:       string — bold heading (required)
 // description: string — secondary text (optional)
 // position:    'top' | 'bottom' | 'left' | 'right' (default 'top')
