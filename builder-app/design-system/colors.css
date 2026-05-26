@@ -115,8 +115,19 @@
   --en-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --en-font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
 
-  /* base multiplier — spacing(N) = N * 4px */
-  --en-space: 4px;
+  /* Spacing scale — base unit 4px. Use --en-space-N instead of raw px. */
+  --en-space:    4px;   /* base unit */
+  --en-space-0:  0px;
+  --en-space-1:  4px;
+  --en-space-2:  8px;
+  --en-space-3:  12px;
+  --en-space-4:  16px;
+  --en-space-5:  20px;
+  --en-space-6:  24px;
+  --en-space-8:  32px;
+  --en-space-10: 40px;
+  --en-space-12: 48px;
+  --en-space-16: 64px;
 
   /* Radii (from shape/index.ts) */
   --en-radius-sm: 2px;
