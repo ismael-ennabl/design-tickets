@@ -1,10 +1,11 @@
 <!-- AUTO-GENERATED — do not edit by hand -->
 <!-- Edit @component blocks in design-system/_shared/*.jsx, then: npm run build (in builder/) -->
-<!-- source-hash: 428e5b8498b3e41e -->
+<!-- source-hash: 8b0103aaec90f3c4 -->
 <!-- file:Avatar.jsx:b417bed930e6 -->
 <!-- file:Chip.jsx:72c8bb1c7f41 -->
 <!-- file:Dialog.jsx:7b10e587e006 -->
 <!-- file:Select.jsx:875f1d92a9e3 -->
+<!-- file:Sidenav.jsx:a62e6b94a59b -->
 <!-- file:Stepper.jsx:e41eaa47276a -->
 <!-- file:Toggle.jsx:a93069dd6111 -->
 <!-- file:Tooltip.jsx:82d5bb2a192f -->
@@ -114,6 +115,37 @@ Props:
 - `onChange` (value) => void
 - `error` string — shows red border and error text below
 - `disabled` boolean
+
+---
+
+## Sidenav
+
+Two-panel app navigation. Icon rail on the left selects the active section; submenu shows that section's links and collapsible groups. Pass collapsed={true} to show icon rail only (80px).
+
+```jsx
+<Sidenav
+  active="insights"
+  onNavigate={(sectionId, path) => console.log(sectionId, path)}
+/>
+
+// Collapsed — icon rail only
+<Sidenav active="workflows" collapsed onNavigate={fn} />
+
+// Custom sections
+<Sidenav
+  sections={ENNABL_NAV}
+  active="data"
+  activePath="/data/accounts"
+  onNavigate={(sectionId, path) => navigate(sectionId, path)}
+/>
+```
+
+Props:
+- `sections` array — section config (defaults to ENNABL_NAV). Each: { id, label, icon, links[], groups[] }
+- `active` string — active section id ('insights' | 'growth' | 'workflows' | 'ai' | 'data' | 'updates' | 'settings')
+- `activePath` string — highlighted link path within the active section
+- `onNavigate` (sectionId, path?) => void — called on section or link click
+- `collapsed` boolean — icon rail only (80px wide). Default false.
 
 ---
 
