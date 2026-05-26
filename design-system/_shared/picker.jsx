@@ -1,6 +1,33 @@
 // Template picker — trigger button + dropdown menu with search,
 // per-row gear (edit), star (set default), and footer actions.
 
+// @component TemplatePicker
+// @description Dropdown picker for selecting and managing named templates. Includes search, default-star, and per-row actions.
+// @example
+// <TemplatePicker
+//   templates={templates}
+//   activeId={activeId}
+//   isDirty={dirty}
+//   onApply={id => applyTemplate(id)}
+//   onSaveAsNew={() => openSaveDialog()}
+//   onManageOpen={() => setManageOpen(true)}
+//   onEdit={id => openEditDialog(id)}
+//   onSetDefault={id => setDefault(id)}
+//   onDuplicate={id => duplicate(id)}
+//   onDelete={id => deleteTemplate(id)}
+// />
+// @props
+// templates    array of { id, name, description, isDefault, shared, owner: { name, initials, isYou }, updatedAt, usageCount }
+// activeId     string — id of the currently applied template
+// isDirty      boolean — shows unsaved-changes indicator on the trigger
+// onApply      (id) => void
+// onSaveAsNew  () => void — opens save-as-new dialog
+// onManageOpen () => void — opens ManageModal
+// onEdit       (id) => void
+// onSetDefault (id) => void
+// onDuplicate  (id) => void
+// onDelete     (id) => void
+// @end
 const { useState, useRef, useEffect, useMemo } = React;
 
 function useClickOutside(ref, handler, enabled = true) {

@@ -1,5 +1,28 @@
 // Dialog — modal overlay with title, subtitle, body slot, and optional footer
 
+// @component Dialog
+// @description Modal overlay with title, subtitle, content slot, and optional footer row. Handles Escape key, X button, and backdrop click automatically.
+// @example
+// <Dialog
+//   open={open}
+//   onClose={() => setOpen(false)}
+//   title="Confirm deletion"
+//   subtitle="This cannot be undone."
+//   footer={<>
+//     <Button variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>
+//     <Button variant="danger" onClick={handleDelete}>Delete</Button>
+//   </>}
+// >
+//   <p className="en-body2">Are you sure you want to delete <strong>{item.name}</strong>?</p>
+// </Dialog>
+// @props
+// open      boolean — controls visibility
+// onClose   () => void — called on Escape, X button, and backdrop click
+// title     string
+// subtitle  string (optional)
+// footer    ReactNode (optional) — right-aligned action buttons
+// width     number — dialog width in px (default 480)
+// @end
 // open: bool — controls visibility
 // onClose: fn — called on backdrop click, Escape key, or X button
 // title: string

@@ -1,6 +1,55 @@
 // Step 3 body — Producer Team table + Additional Information block.
 // Mirrors the screenshot. Edits flow up via props so the parent can detect dirty state.
 
+// @component CollapsibleSection
+// @description Collapsible card section with an optional unsaved-changes amber dot.
+// @example
+// <CollapsibleSection title="Accounts in proposal" defaultOpen modified={false}>
+//   {/* content */}
+// </CollapsibleSection>
+// @props
+// title        string — section heading
+// defaultOpen  boolean — initial open state (default true)
+// modified     boolean — shows amber dot when true
+// children     ReactNode
+// @end
+
+// @component EditableField
+// @description Inline-editable label/textarea with unsaved-changes indicator.
+// @example
+// <EditableField
+//   label="About Us"
+//   value={agency.aboutUs}
+//   multiline
+//   modified={modified.aboutUs}
+//   onChange={val => setAgency(a => ({ ...a, aboutUs: val }))}
+// />
+// @props
+// label     string
+// value     string
+// multiline  boolean — textarea vs single-line input
+// modified  boolean — shows amber dot when true
+// onChange  (value: string) => void
+// @end
+
+// @component Step3Body
+// @description The full Step 3 form body — producer tables + agency information fields.
+// @example
+// <Step3Body
+//   producerTables={producerTables}
+//   agency={agency}
+//   onProducerTablesChange={setProducerTables}
+//   onAgencyChange={setAgency}
+//   modified={modified}
+// />
+// @props
+// producerTables           array of producer table objects
+// agency                   { agencyName, aboutUs, disclosures, serviceSummary, logoFile }
+// onProducerTablesChange   (tables) => void
+// onAgencyChange           (agency) => void
+// modified                 { producers, tables: { [id]: bool }, agencyName, aboutUs, disclosures, serviceSummary, logoFile }
+// @end
+
 function CollapsibleSection({ title, modified, defaultOpen = true, children }) {
   const [open, setOpen] = useState(defaultOpen);
   return (

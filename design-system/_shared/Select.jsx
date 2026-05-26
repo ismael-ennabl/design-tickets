@@ -1,5 +1,30 @@
 // Select — dropdown field with label, states, and option list
 
+// @component Select
+// @description Dropdown input with label, error state, and option list. Supports string arrays or value/label objects.
+// @example
+// <Select
+//   label="Policy type"
+//   options={['Commercial', 'Personal', 'Benefits']}
+//   placeholder="Select type..."
+//   onChange={val => setType(val)}
+// />
+//
+// <Select
+//   label="Market"
+//   options={[{ value: 'wholesale', label: 'Wholesale' }, { value: 'retail', label: 'Retail' }]}
+//   value={market}
+//   onChange={setMarket}
+// />
+// @props
+// label        string
+// options      string[] or { value, label }[]
+// placeholder  string — default 'Select option...'
+// value        string — controlled value
+// onChange     (value) => void
+// error        string — shows red border and error text below
+// disabled     boolean
+// @end
 // options: string[] | { value, label }[]
 // value / onChange — controlled; omit for uncontrolled
 function Select({ label, options = [], error, disabled, placeholder = 'Select option...', value, onChange, className = '' }) {

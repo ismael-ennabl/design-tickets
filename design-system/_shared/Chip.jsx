@@ -1,5 +1,19 @@
 // Chip — dismissible pill tag with 5 color variants and 3 styles
 
+// @component Chip
+// @description Dismissible pill tag with 5 color variants and 3 styles.
+// @example
+// <Chip variant="primary">Producer</Chip>
+// <Chip variant="success" style="filled">Active</Chip>
+// <Chip variant="warning" dot>Pending</Chip>
+// <Chip variant="error" style="subtle" dismissible onDismiss={() => remove(id)}>Overdue</Chip>
+// @props
+// variant     'neutral'|'primary'|'success'|'error'|'warning' — default 'neutral'
+// style       'subtle' (outline tint) | 'filled' (solid) | 'dot' (tint + trailing dot) — default 'subtle'
+// dot         boolean — shorthand for style="dot"
+// dismissible  boolean — shows × button
+// onDismiss   () => void — called when × is clicked
+// @end
 // variant: 'neutral' | 'primary' | 'success' | 'error' | 'warning'
 // style:   'subtle' (outline tint) | 'filled' (solid) | 'dot' (tint + trailing dot)
 // dismissible: bool — shows × button

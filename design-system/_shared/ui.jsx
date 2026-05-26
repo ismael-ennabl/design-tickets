@@ -4,8 +4,25 @@
 /* ============================================================
    Button
    ============================================================ */
-// variant: 'primary' | 'secondary' | 'text' | 'danger' | 'icon'
-// size: undefined (default 13px) | 'sm'
+// @component Button
+// @description Canonical button. Use instead of bare <button className="btn ..."> for consistent loading + disabled states.
+// @example
+// <Button variant="primary" onClick={save}>Save changes</Button>
+// <Button variant="secondary" icon={<IconPlus size={14} />}>Add row</Button>
+// <Button variant="text">Cancel</Button>
+// <Button variant="danger">Delete</Button>
+// <Button variant="primary" loading={saving}>Saving…</Button>
+// <Button variant="icon" onClick={edit}><IconEdit size={16} /></Button>
+// <Button variant="secondary" size="sm">Small</Button>
+// @props
+// variant   'primary'|'secondary'|'text'|'danger'|'icon'|'link' — default 'primary'
+// size      'sm' — smaller padding variant
+// loading   boolean — shows spinner, disables interaction
+// disabled  boolean
+// icon      ReactNode — shown left of label (hidden when loading)
+// className  string — extra classes appended to the button
+// ...also accepts all standard <button> props (onClick, type, form, etc.)
+// @end
 function Button({ variant = 'primary', size, loading, disabled, icon, children, className = '', ...props }) {
   if (variant === 'link') {
     return (
@@ -37,6 +54,22 @@ function Button({ variant = 'primary', size, loading, disabled, icon, children, 
 /* ============================================================
    FormField — wraps any input with label, hint, and error
    ============================================================ */
+// @component FormField
+// @description Label + input wrapper with hint and error states. Always wrap Input inside FormField.
+// @example
+// <FormField label="Agency name" hint="Shown on all proposals" htmlFor="agency">
+//   <Input id="agency" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Acme Insurance" />
+// </FormField>
+//
+// <FormField label="Notes" error={errors.notes}>
+//   <Input multiline value={notes} onChange={e => setNotes(e.target.value)} rows={4} />
+// </FormField>
+// @props
+// label    string
+// hint     string — shown below input when there is no error
+// error    string — shown in red below input (takes priority over hint)
+// htmlFor  string — links the label to an input id
+// @end
 function FormField({ label, hint, error, htmlFor, children }) {
   return (
     <div className="form-row">
@@ -51,6 +84,17 @@ function FormField({ label, hint, error, htmlFor, children }) {
 /* ============================================================
    Input / Textarea
    ============================================================ */
+// @component Input
+// @description Styled text input or textarea. Use inside FormField for label and error display.
+// @example
+// <Input value={v} onChange={e => setV(e.target.value)} placeholder="Search…" />
+// <Input multiline value={v} onChange={e => setV(e.target.value)} rows={3} />
+// <Input error value={v} onChange={e => setV(e.target.value)} />
+// @props
+// multiline  boolean — renders <textarea> instead of <input>
+// error      boolean — applies red border and focus ring
+// ...accepts all standard <input> / <textarea> props (value, onChange, placeholder, rows, etc.)
+// @end
 // multiline=true renders a <textarea>
 function Input({ multiline, error, className = '', ...props }) {
   const cls = `${multiline ? 'textarea' : 'input'}${error ? ' input--error' : ''} ${className}`
@@ -62,6 +106,39 @@ function Input({ multiline, error, className = '', ...props }) {
 /* ============================================================
    Table
    ============================================================ */
+// @component Table
+// @description Data table with optional sorting, row actions, and empty state. Always use this instead of raw <table> HTML.
+// @example
+// const columns = [
+//   { key: 'name',   label: 'Account', sortable: true, width: '40%' },
+//   { key: 'status', label: 'Status',  render: row => <Badge variant={row.active ? 'success' : 'default'}>{row.active ? 'Active' : 'Inactive'}</Badge> },
+//   { key: 'date',   label: 'Updated' },
+// ]
+//
+// <Table
+//   columns={columns}
+//   rows={data}
+//   sortKey={sortKey}
+//   sortDir={sortDir}
+//   onSort={(key, dir) => { setSortKey(key); setSortDir(dir) }}
+//   emptyState={<span>No results</span>}
+//   getRowActions={row => (
+//     <>
+//       <Button variant="icon" onClick={() => edit(row)}><IconEdit size={14} /></Button>
+//       <Button variant="icon" onClick={() => del(row)}><IconTrash size={14} /></Button>
+//     </>
+//   )}
+// />
+// @props
+// columns        array of { key, label, sortable?, width?, render?(row)=>node }
+// rows           array of objects — include an `id` field for stable React keys
+// sortKey        string — key of the currently sorted column
+// sortDir        'asc' | 'desc' — current sort direction
+// onSort         (key, dir) => void — called when a sortable header is clicked
+// getRowActions  (row) => ReactNode — renders right-aligned action buttons per row
+// emptyState     ReactNode — shown when rows is empty (default: "No data")
+// compact        boolean — tighter row padding
+// @end
 // columns: [{ key, label, sortable?, width?, render?(row) => node }]
 // rows:    array of objects — each row needs a stable `id` field or index is used
 // sortKey / sortDir / onSort — optional, for controlled sorting
@@ -134,6 +211,19 @@ function Table({ columns, rows = [], sortKey, sortDir = 'asc', onSort, getRowAct
 /* ============================================================
    Badge
    ============================================================ */
+// @component Badge
+// @description Small status label. Use for status, labels, and counts.
+// @example
+// <Badge variant="success">Active</Badge>
+// <Badge variant="warning">Pending</Badge>
+// <Badge variant="error">Overdue</Badge>
+// <Badge variant="primary">New</Badge>
+// <Badge variant="default">Draft</Badge>
+// <Badge variant="success" icon={<IconCheck size={10} />}>Verified</Badge>
+// @props
+// variant  'default'|'primary'|'success'|'warning'|'error' — default 'default'
+// icon     ReactNode — shown left of the text label
+// @end
 // variant: 'default' | 'primary' | 'success' | 'warning' | 'error'
 function Badge({ variant = 'default', icon, children }) {
   return (

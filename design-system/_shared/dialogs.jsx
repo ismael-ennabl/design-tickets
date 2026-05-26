@@ -1,5 +1,93 @@
 // Modals — Save-as-template dialog, Save-changes confirm, Manage modal.
 
+// @component SaveTemplateDialog
+// @description Modal for creating, editing, or forking a named template.
+// @example
+// <SaveTemplateDialog
+//   mode="create"
+//   initial={{ name: '', description: '', isDefault: false, shared: true }}
+//   templates={templates}
+//   onClose={() => setDialog(null)}
+//   onSubmit={vals => handleSave(vals)}
+// />
+// @props
+// mode     'create'|'edit'|'fork'
+// initial  { name, description, isDefault, shared }
+// templates  array — used for duplicate-name warning
+// onClose  () => void
+// onSubmit ({ name, description, isDefault, shared }) => void
+// @end
+
+// @component UpdateTemplateDialog
+// @description Confirmation modal for saving changes to an existing template.
+// @example
+// <UpdateTemplateDialog
+//   template={activeTpl}
+//   summary={['Producer team: 3 → 4 members', 'Agency name updated']}
+//   onClose={() => setDialog(false)}
+//   onConfirm={() => confirmUpdate()}
+//   onSaveAsNew={() => { closeDialog(); openSaveAsNew(); }}
+// />
+// @props
+// template   { name } — the template being updated
+// summary    string[] — bullet list of changes shown in the dialog
+// onClose    () => void
+// onConfirm  () => void
+// onSaveAsNew  () => void
+// @end
+
+// @component ManageModal
+// @description Full-screen modal for browsing, applying, editing, duplicating, and deleting templates.
+// @example
+// <ManageModal
+//   templates={templates}
+//   activeId={activeId}
+//   onClose={() => setManageOpen(false)}
+//   onApply={id => applyTemplate(id)}
+//   onEdit={id => openEditDialog(id)}
+//   onDuplicate={id => duplicate(id)}
+//   onDelete={id => confirmDelete(id)}
+//   onSetDefault={id => setDefault(id)}
+//   onCreate={() => { setManageOpen(false); openSaveDialog(); }}
+// />
+// @props
+// templates  array of template objects
+// activeId   string — currently applied template id
+// onClose    () => void
+// onApply    (id) => void
+// onEdit     (id) => void
+// onDuplicate  (id) => void
+// onDelete   (id) => void
+// onSetDefault  (id) => void
+// onCreate   () => void — opens the save-as-new flow
+// @end
+
+// @component DeleteConfirm
+// @description Destructive confirmation modal. CTA and copy are fully customisable.
+// @example
+// <DeleteConfirm
+//   template={templateToDelete}
+//   onClose={() => setDeleteTarget(null)}
+//   onConfirm={() => confirmDelete()}
+// />
+//
+// <DeleteConfirm
+//   template={item}
+//   confirmLabel="Remove forever"
+//   title={`Delete "${item.name}"?`}
+//   message="This cannot be undone."
+//   onClose={handleClose}
+//   onConfirm={handleConfirm}
+// />
+// @props
+// template      { name, usageCount } — used in default title / message copy
+// confirmLabel  string — CTA button text (default 'Delete template')
+// title         string — overrides the default title
+// message       string|ReactNode — overrides the default body copy
+// onClose       () => void
+// onConfirm     () => void
+// @end
+
 function Scrim({ onClose, children }) {
   return (
     <div className="scrim" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>

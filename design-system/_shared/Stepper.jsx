@@ -1,5 +1,17 @@
 // Stepper — horizontal multi-step progress indicator
 
+// @component Stepper
+// @description Horizontal multi-step progress indicator. Connecting lines fill as steps complete.
+// @example
+// <Stepper steps={[
+//   { label: 'Policy details', status: 'completed' },
+//   { label: 'Coverage',       status: 'active' },
+//   { label: 'Review',         status: 'upcoming' },
+//   { label: 'Confirm',        status: 'upcoming' },
+// ]} />
+// @props
+// steps  array of { label: string, status: 'completed'|'active'|'upcoming' }
+// @end
 // steps: [{ label: string, status: 'completed' | 'active' | 'upcoming' }]
 function Stepper({ steps = [], className = '' }) {
   return (

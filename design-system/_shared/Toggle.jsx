@@ -1,5 +1,19 @@
 // Toggle — animated on/off switch with label
 
+// @component Toggle
+// @description Animated on/off switch. Supports controlled and uncontrolled usage.
+// @example
+// <Toggle label="Notifications" />
+// <Toggle defaultChecked label="Dark mode" />
+// <Toggle checked={on} onChange={setOn} label="Feature flag" />
+// <Toggle disabled label="Locked" />
+// @props
+// checked         boolean — controlled value
+// defaultChecked  boolean — initial value when uncontrolled
+// onChange        (value: boolean) => void
+// label           string — shown to the right of the switch
+// disabled        boolean
+// @end
 function Toggle({ checked, defaultChecked = false, onChange, disabled, label, id }) {
   const { useState } = React
   const [internalOn, setInternalOn] = useState(defaultChecked)

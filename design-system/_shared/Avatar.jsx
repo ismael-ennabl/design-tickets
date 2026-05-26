@@ -1,5 +1,16 @@
 // Avatar — initials circle with sm / md / lg sizes
 
+// @component Avatar
+// @description Initials circle with 3 sizes. Defaults to purple (--en-data-accounts).
+// @example
+// <Avatar name="Ismael Viejo" size="md" />
+// <Avatar name="John" size="sm" />
+// <Avatar name="Alice" size="lg" color="var(--en-primary)" />
+// @props
+// name   string — split into initials (max 2 chars)
+// size   'sm' (24px) | 'md' (32px) | 'lg' (40px) — default 'md'
+// color  CSS color string — defaults to var(--en-data-accounts)
+// @end
 // size: 'sm' (24px) | 'md' (32px) | 'lg' (40px)
 // color: optional CSS color string; defaults to --en-data-accounts (purple)
 function Avatar({ name = '', size = 'md', color, className = '', style: extraStyle = {} }) {

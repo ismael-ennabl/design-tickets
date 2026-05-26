@@ -1,5 +1,20 @@
 // Tooltip — dark contextual tooltip shown on hover
 
+// @component Tooltip
+// @description Dark tooltip shown on hover. Wrap any element — no positioning needed.
+// @example
+// <Tooltip label="Download report" position="top">
+//   <Button variant="icon"><IconDownload size={16} /></Button>
+// </Tooltip>
+//
+// <Tooltip label="GWP" description="Gross Written Premium for the policy year" position="bottom">
+//   <span className="en-body2">GWP</span>
+// </Tooltip>
+// @props
+// label        string — bold heading (required to show tooltip)
+// description  string (optional) — secondary line below the label
+// position     'top'|'bottom'|'left'|'right' — default 'top'
+// @end
 // label:       string — bold heading (required)
 // description: string — secondary text (optional)
 // position:    'top' | 'bottom' | 'left' | 'right' (default 'top')
