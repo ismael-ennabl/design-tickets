@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "predev": "node scripts/copy-assets.js && node scripts/gen-system-prompt.js",
+    "predev": "node scripts/gen-icons.js && node scripts/copy-assets.js && node scripts/gen-system-prompt.js",
     "dev": "vite --port 5173",
-    "prebuild": "node scripts/copy-assets.js && node scripts/gen-system-prompt.js",
+    "prebuild": "node scripts/gen-icons.js && node scripts/copy-assets.js && node scripts/gen-system-prompt.js",
     "build": "vite build",
     "preview": "vite preview",
+    "gen-icons": "node scripts/gen-icons.js",
     "gen-prompt": "node scripts/gen-system-prompt.js",
     "check-drift": "node scripts/check-drift.js"
   },

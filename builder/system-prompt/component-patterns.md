@@ -193,40 +193,30 @@ modal: `background: var(--en-bg); border-radius: 16px; box-shadow: var(--en-shad
 
 ## Available icons
 
-**IMPORTANT: Only use icons from this list. Never invent icon names like `IconNotePencil`, `IconPencil`, etc.**
+All 1500+ Phosphor icons are available. Use `Icon<PhosphorName>` — the exact PascalCase name from phosphoricons.com.
 
 ```jsx
-{/* Actions */}
-<IconEdit size={16} />       {/* edit / modify — NotePencil shape */}
-<IconEditFill size={16} />   {/* fill variant of edit */}
-<IconTrash size={16} />      {/* delete */}
-<IconTrashFill size={16} />  {/* fill variant of trash */}
-<IconCopy size={16} />       {/* duplicate */}
-<IconPlus size={16} />       {/* add / create */}
-<IconClose size={16} />      {/* dismiss / remove — use this, NOT IconX */}
-<IconRevert size={16} />     {/* undo / revert */}
-
-{/* Navigation & UI */}
-<IconChevronDown size={16} />
-<IconChevronUp size={16} />
-<IconMore size={16} />       {/* overflow menu (⋯) */}
-<IconGear size={16} />       {/* settings */}
-<IconSearch size={16} />     {/* search */}
-<IconShare size={16} />      {/* share */}
-<IconExternal size={16} />   {/* open in new tab */}
-
-{/* Status & Data */}
-<IconCheck size={16} />
-<IconStar size={16} filled />  {/* filled prop toggles star fill */}
-<IconInfo size={16} />
-<IconUsers size={16} />
-
-{/* File */}
-<IconUpload size={16} />
-<IconDownload size={16} />
+{/* Use any Phosphor icon by name: */}
+<IconNotePencil size={16} />
+<IconTrash size={16} />
+<IconChartBar size={16} />
+<IconArrowLeft size={16} />
+<IconBell size={16} />
+<IconStar size={16} />   {/* also accepts filled prop: <IconStar filled /> */}
 ```
 
-Icons accept `size` (number) and optional `style` prop. `IconClose` is the correct dismiss icon — `IconX` does not exist.
+Icons accept `size` (number) and optional `style` prop.
+
+**Semantic aliases** (shorter names for common icons):
+- `IconEdit` → NotePencil
+- `IconEditFill` → NotePencilFill
+- `IconClose` → X
+- `IconSearch` → MagnifyingGlass
+- `IconExternal` → ArrowSquareOut
+- `IconRevert` → ArrowCounterClockwise
+- `IconMore` → DotsThreeVertical
+
+If you don't know the exact Phosphor name, use the aliases above or look it up at phosphoricons.com.
 
 ## Inline modified indicator
 
