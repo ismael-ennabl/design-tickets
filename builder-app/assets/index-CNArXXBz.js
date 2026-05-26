@@ -3045,6 +3045,11 @@ const IconYarn = (p) => <PhIcon {...p} d="M232,216H183.39A103.95,103.95,0,1,0,12
 const IconYinYang = (p) => <PhIcon {...p} d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24ZM40,128a88.1,88.1,0,0,1,88-88,40,40,0,0,1,0,80A56,56,0,0,0,77.39,200,88,88,0,0,1,40,128Zm88,88a40,40,0,0,1,0-80,56,56,0,0,0,50.61-79.95A88,88,0,0,1,128,216Zm12-40a12,12,0,1,1-12-12A12,12,0,0,1,140,176ZM116,80a12,12,0,1,1,12,12A12,12,0,0,1,116,80Z" />;
 const IconYoutubeLogo = (p) => <PhIcon {...p} d="M164.44,121.34l-48-32A8,8,0,0,0,104,96v64a8,8,0,0,0,12.44,6.66l48-32a8,8,0,0,0,0-13.32ZM120,145.05V111l25.58,17ZM234.33,69.52a24,24,0,0,0-14.49-16.4C185.56,39.88,131,40,128,40s-57.56-.12-91.84,13.12a24,24,0,0,0-14.49,16.4C19.08,79.5,16,97.74,16,128s3.08,48.5,5.67,58.48a24,24,0,0,0,14.49,16.41C69,215.56,120.4,216,127.34,216h1.32c6.94,0,58.37-.44,91.18-13.11a24,24,0,0,0,14.49-16.41c2.59-10,5.67-28.22,5.67-58.48S236.92,79.5,234.33,69.52Zm-15.49,113a8,8,0,0,1-4.77,5.49c-31.65,12.22-85.48,12-86,12H128c-.54,0-54.33.2-86-12a8,8,0,0,1-4.77-5.49C34.8,173.39,32,156.57,32,128s2.8-45.39,5.16-54.47A8,8,0,0,1,41.93,68c30.52-11.79,81.66-12,85.85-12h.27c.54,0,54.38-.18,86,12a8,8,0,0,1,4.77,5.49C221.2,82.61,224,99.43,224,128S221.2,173.39,218.84,182.47Z" />;
 
+// Fill weight variants for commonly-used icons
+const IconNotePencilFill = (p) => <PhIcon {...p} d="M224,128v80a16,16,0,0,1-16,16H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32h80a8,8,0,0,1,0,16H48V208H208V128a8,8,0,0,1,16,0Zm5.66-58.34-96,96A8,8,0,0,1,128,168H96a8,8,0,0,1-8-8V128a8,8,0,0,1,2.34-5.66l96-96a8,8,0,0,1,11.32,0l32,32A8,8,0,0,1,229.66,69.66Zm-17-5.66L192,43.31,179.31,56,200,76.69Z" />;
+const IconTrashFill = (p) => <PhIcon {...p} d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM112,168a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm0-120H96V40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8Z" />;
+const IconStarFill = (p) => <PhIcon {...p} d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z" />;
+
 // Semantic aliases for backward compat
 const IconEdit = IconNotePencil;
 const IconClose = IconX;
@@ -3243,7 +3248,8 @@ Object.assign(window, {
   IconWebcamSlash, IconWebhooksLogo, IconWechatLogo, IconWhatsappLogo, IconWheelchair, IconWheelchairMotion, IconWifiHigh, IconWifiLow,
   IconWifiMedium, IconWifiNone, IconWifiSlash, IconWifiX, IconWind, IconWindmill, IconWindowsLogo, IconWine,
   IconWrench, IconX, IconXCircle, IconXLogo, IconXSquare, IconYarn, IconYinYang, IconYoutubeLogo,
-  IconEdit, IconClose, IconSearch, IconExternal, IconRevert, IconMore
+  IconNotePencilFill, IconTrashFill, IconStarFill, IconEdit, IconClose, IconSearch, IconExternal, IconRevert,
+  IconMore
 });
 `,au=`// Core UI primitives — Button, Input, FormField, Table, Badge
 // All use existing .btn / .input / .table / .badge CSS classes from styles.css
@@ -5731,7 +5737,7 @@ background: '#f5f5f5'
 7. Inputs/buttons always \`border-radius: var(--en-radius-regular)\` (8px).
 `,Nu=`<!-- AUTO-GENERATED — do not edit by hand -->
 <!-- Edit @component blocks in design-system/_shared/*.jsx, then: npm run build (in builder/) -->
-<!-- source-hash: 056270ceb8429336 -->
+<!-- source-hash: 428e5b8498b3e41e -->
 <!-- file:Avatar.jsx:b417bed930e6 -->
 <!-- file:Chip.jsx:72c8bb1c7f41 -->
 <!-- file:Dialog.jsx:7b10e587e006 -->
@@ -5740,7 +5746,7 @@ background: '#f5f5f5'
 <!-- file:Toggle.jsx:a93069dd6111 -->
 <!-- file:Tooltip.jsx:82d5bb2a192f -->
 <!-- file:dialogs.jsx:492a0d6fdecc -->
-<!-- file:icons.jsx:cef827cc2941 -->
+<!-- file:icons.jsx:fbe0c71a0827 -->
 <!-- file:picker.jsx:49b432325ef5 -->
 <!-- file:step3.jsx:aff25accb872 -->
 <!-- file:ui.jsx:3a9eef5ceffc -->
